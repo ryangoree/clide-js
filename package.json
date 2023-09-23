@@ -1,0 +1,21 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,md}\""
+  },
+  "devDependencies": {
+    "eslint": "^8.48.0",
+    "prettier": "^3.0.3",
+    "prettier-plugin-organize-imports": "^3.2.3",
+    "tsconfig": "*",
+    "turbo": "latest"
+  },
+  "name": "clide",
+  "packageManager": "yarn@1.22.19",
+  "workspaces": [
+    "packages/*"
+  ]
+}

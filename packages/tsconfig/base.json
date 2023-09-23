@@ -1,0 +1,13 @@
+{
+  "extends": "@tsconfig/node-lts/tsconfig.json",
+  "display": "Default",
+  "compilerOptions": {
+    "composite": false,
+    "isolatedModules": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "preserveWatchOutput": true,
+    "strictNullChecks": true
+  },
+  "exclude": ["node_modules"]
+}

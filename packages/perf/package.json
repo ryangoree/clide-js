@@ -1,0 +1,30 @@
+{
+  "name": "perf",
+  "version": "1.0.0",
+  "description": "JS performance testing CLI",
+  "main": "dist/index.cjs",
+  "author": "ryan goree (https://github.com/ryangoree)",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "perf": "./bin/perf"
+  },
+  "scripts": {
+    "dev": "tesm-node src/bin.ts",
+    "exe": "tesm-node src/double-loop.ts"
+  },
+  "dependencies": {
+    "clide": "*"
+  },
+  "devDependencies": {
+    "@tsconfig/node-lts": "^18.12.5",
+    "@types/node": "^20.6.3",
+    "nodemon": "^3.0.1",
+    "prettier-plugin-organize-imports": "^3.2.3",
+    "tesm-node": "*",
+    "ts-node": "^10.9.1",
+    "tsconfig": "*",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.2.2"
+  }
+}

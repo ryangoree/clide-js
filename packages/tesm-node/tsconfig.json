@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "tsconfig/base.json",
+  "include": ["src", "./*.ts"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+
+    // base
+    // "composite": false,
+    // "isolatedModules": true,
+    // "preserveWatchOutput": true,
+    // "strictNullChecks": true,
+
+    // overridden
+    // "lib": ["es2023"],
+    // "module": "node16",
+    // "target": "es2022",
+    // "moduleResolution": "node16",
+
+    /* Language and Environment */
+    // "target": "ESNext",
+    // "lib": ["ESNext", "DOM"],
+
+    /* Modules */
+    // "module": "esnext",
+    "rootDir": "./",
+    // "moduleResolution": "node",
+    "baseUrl": "./",
+    "paths": {
+      "src/*": ["src/*"]
+    },
+
+    /* JavaScript Support */
+    "checkJs": true,
+
+    /* Emit */
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "dist",
+
+    /* Type Checking */
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "name": "clide",
+  "version": "0.0.0",
+  "description": "A framework for building helpful CLIs",
+  "main": "dist/index.cjs",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "author": "ryan goree (https://github.com/ryangoree)",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "tsup",
+    "dev": "NODE_ENV=development tesm-node src/cli/clide.ts",
+    "prod": "tesm-node src/cli/clide.ts"
+  },
+  "dependencies": {
+    "ajv": "^8.12.0",
+    "cfonts": "^3.2.0",
+    "cli-table": "^0.3.11",
+    "cliui": "^8.0.1",
+    "colors": "^1.4.0",
+    "json-schema-typed": "^8.0.1",
+    "node-fetch": "^3.3.2",
+    "prompts": "^2.4.2",
+    "signale": "^1.4.0",
+    "yargs-parser": "^21.1.1"
+  },
+  "devDependencies": {
+    "@tsconfig/node-lts": "^18.12.5",
+    "@types/cli-table": "^0.3.2",
+    "@types/node": "^20.6.3",
+    "@types/prompts": "^2.4.4",
+    "@types/signale": "^1.4.4",
+    "@types/yargs": "^17.0.24",
+    "dotenv": "^16.3.1",
+    "nodemon": "^3.0.1",
+    "prettier-plugin-organize-imports": "^3.2.3",
+    "tesm-node": "*",
+    "ts-node": "^10.9.1",
+    "tsconfig": "*",
+    "tsconfig-paths": "^4.2.0",
+    "tsup": "^7.2.0",
+    "typescript": "^5.2.2"
+  },
+  "files": [
+    "dist"
+  ]
+}
