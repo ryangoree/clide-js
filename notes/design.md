@@ -17,7 +17,7 @@ As a CLI dev, I would like help to:
 - Route commands to the right handlers
 - Parse and validate options
 - Prompt the user for input
-- Debug development errors (e.g., state dumbs)
+- Debug development errors (e.g., state dumps)
 - Catch and format useful command errors
 - Generate help messages and docs
 - Suggest error solutions to the user
@@ -189,6 +189,8 @@ macro create-deploy {
 
 https://pegjs.org/, https://nearley.js.org/, https://ohmjs.org/
 
+https://vitest.dev/guide/snapshot.html#custom-serializer
+
 #### Shell Scripts vs DSL
 
 **Portability**: Not all CLI users will be comfortable writing shell scripts, or might be on systems where running them is inconvenient. A DSL could be more user-friendly and system-agnostic.
@@ -227,9 +229,14 @@ An example of a CLI built with `yargs` handling option conflicts manually: https
 - [ ] Mitigate command injection
 - [ ] Sanitize and validate user input
 
-### Powerful:
+### Powerful
 
 - Think about a way to run command clusters in parallel.
+
+### Generators
+
+- App generator
+- Types generator (data, params, inherited options)
 
 ## Sandbox
 

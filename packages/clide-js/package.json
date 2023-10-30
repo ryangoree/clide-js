@@ -1,0 +1,58 @@
+{
+  "name": "clide-js",
+  "version": "0.0.0",
+  "description": "A framework for building flexible and extensible CLIs",
+  "license": "MIT",
+  "type": "module",
+  "author": "ryan goree (https://github.com/ryangoree)",
+  "scripts": {
+    "build": "tsup",
+    "build:docs": "typedoc",
+    "dev": "NODE_ENV=development tesm-node src/cli/index.ts",
+    "prod": "tesm-node src/cli/index.ts",
+    "test": "vitest --reporter=verbose",
+    "coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "cli-table": "^0.3.11",
+    "cliui": "^8.0.1",
+    "prompts": "^2.4.2",
+    "signale": "^1.4.0",
+    "typedoc": "^0.25.4",
+    "yargs-parser": "^21.1.1"
+  },
+  "devDependencies": {
+    "@types/cli-table": "^0.3.2",
+    "@types/node": "^20.6.3",
+    "@types/prompts": "^2.4.4",
+    "@types/signale": "^1.4.4",
+    "@types/yargs-parser": "^21.0.3",
+    "@vitest/coverage-v8": "^1.0.2",
+    "dotenv": "^16.3.1",
+    "prettier-plugin-organize-imports": "^3.2.3",
+    "tesm-node": "*",
+    "ts-node": "^10.9.1",
+    "tsconfig": "*",
+    "tsconfig-paths": "^4.2.0",
+    "tsup": "^7.2.0",
+    "typedoc-plugin-markdown": "^3.17.1",
+    "typescript": "^5.2.2",
+    "vitest": "^1.0.2"
+  },
+  "exports": {
+    ".": {
+      "types": {
+        "import": "./dist/index.d.ts",
+        "require": "./dist/index.d.cts"
+      },
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ]
+}

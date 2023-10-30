@@ -1,0 +1,44 @@
+{
+  "name": "clide-plugin-command-menu",
+  "version": "0.0.0",
+  "description": "A plugin for Clide-JS CLIs to auto-prompt the user for missing required subcommands.",
+  "license": "MIT",
+  "type": "module",
+  "author": "ryan goree (https://github.com/ryangoree)",
+  "scripts": {
+    "build": "tsup",
+    "dev": "NODE_ENV=development ts-node --esm example/cli.ts",
+    "test": "vitest --reporter=verbose"
+  },
+  "dependencies": {
+    "cfonts": "^3.2.0",
+    "colors": "^1.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.6.3",
+    "clide-js": "*",
+    "ts-node": "^10.9.1",
+    "tsconfig": "*",
+    "tsup": "^7.2.0",
+    "typescript": "^5.2.2",
+    "vitest": "^1.0.2"
+  },
+  "peerDependencies": {
+    "clide-js": "*"
+  },
+  "exports": {
+    ".": {
+      "types": {
+        "import": "./dist/index.d.ts",
+        "require": "./dist/index.d.cts"
+      },
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ]
+}

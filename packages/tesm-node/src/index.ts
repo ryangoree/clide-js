@@ -41,13 +41,10 @@ export async function resolve(
     // Extensions are required in es modules.
     // see: https://nodejs.org/api/esm.html#mandatory-file-extensions
     if (isMissingExtension(specifier)) {
-      // Check if the path is a directory, but still try to resolve it as a file
-      // in case there's a file with the same name.
-      const isDir = isDirImportError(err);
       try {
         return await resolveTs(`${specifier}.js`, context, defaultResolver);
       } catch (err) {
-        if (!isDir) throw err;
+        if (!isDirImportError(err)) throw err;
 
         // If it fails to resolve a file and there's a directory with the same
         // name, try to resolve the index file in the directory.
@@ -105,7 +102,7 @@ function boldLog(msg: string) {
  * @returns {boolean}
  */
 function isMissingExtension(path: string) {
-  return /^(.*\/)?[^\.]+$/.test(path);
+  return !/\.\w+$/.test(path);
 }
 
 /**

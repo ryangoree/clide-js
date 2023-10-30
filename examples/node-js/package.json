@@ -1,0 +1,18 @@
+{
+  "name": "clide-node-js-example",
+  "version": "1.0.0",
+  "main": "cli/index.js",
+  "license": "MIT",
+  "bin": "cli/index.js",
+  "scripts": {
+    "dev": "NODE_ENV=development node index.js",
+    "prod": "node index.js"
+  },
+  "files": [
+    "cli"
+  ],
+  "dependencies": {
+    "clide-js": "*",
+    "clide-plugin-command-menu": "*"
+  }
+}

@@ -7,13 +7,13 @@
 
 - [x] Filesystem based command router
 - [x] Param routes
-- [ ] Options getter
+- [x] Options getter
   - [x] Options config
-  - [ ] Option parsing
+  - [x] Option parsing
     - [x] string
     - [x] number
     - [x] boolean
-    - [ ] array
+    - [x] array
   - [x] Types
   - [x] Getter fns
   - [x] Validation
@@ -22,14 +22,13 @@
 - [x] Help menu
 - [ ] Command suggestions (Did you mean?)
 - [ ] Tab autocomplete
-- [x] Events
-- [ ] Hooks
+- [x] Hooks
 - [ ] User config
 - [ ] Build
 - [ ] Chaining
 - [ ] VSCode plugin
   - [ ] Param types
-  - [ ] Parent command option types
+  - [ ] Inherited option types
 - [ ] ESLint plugin
   - [ ] No unreachable subcommands
 - [ ] Parallel command clusters
@@ -51,3 +50,40 @@
 - Event Throttling
 - Prioritizing Events
 - Blacklisting or whitelisting event names
+
+### Libraries
+
+https://github.com/sindresorhus/awesome-nodejs#command-line-utilities
+
+**Redirecting stdout:**
+
+- https://www.npmjs.com/package/execa
+- https://www.npmjs.com/package/execa
+
+**Coloring:**
+
+- https://github.com/lukeed/kleur
+
+**Temp file paths:**
+
+- https://www.npmjs.com/package/tempy
+
+### Context
+
+Create a context interface that includes `State`, `Client`, etc.
+
+### Lint and VSCode
+
+- https://tsup.egoist.dev/#json-schema-store
+
+### Execute commands from other commands
+
+- initialData: context.data,
+
+### Naming
+
+- cmdcraft
+- pathpilot
+- Cmdex
+- argonaut
+- argarch

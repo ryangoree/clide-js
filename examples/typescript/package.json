@@ -1,0 +1,26 @@
+{
+  "name": "clide-ts-example",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "bin": "cli/index.js",
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "files": [
+    "cli"
+  ],
+  "scripts": {
+    "dev": "NODE_ENV=development ts-node --esm src/index.ts",
+    "prod": "ts-node --esm src/index.js"
+  },
+  "dependencies": {
+    "@tsconfig/node-lts": "^18.12.5",
+    "clide-js": "*",
+    "clide-plugin-command-menu": "*"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.2.2"
+  }
+}

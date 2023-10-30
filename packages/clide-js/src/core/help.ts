@@ -1,0 +1,394 @@
+import initCliui from 'cliui';
+import fs from 'node:fs';
+import { getBin } from 'src/utils/argv';
+import { Converted, convert } from 'src/utils/convert';
+import { isDirectory } from 'src/utils/fs';
+import { parseFileName } from 'src/utils/parse-file-name';
+import { removeFileExtension } from 'src/utils/remove-file-extension';
+import { Context } from './context';
+import { OptionsConfig } from './options/types';
+import { ResolvedCommand } from './resolve';
+
+const cliui = initCliui({
+  width: 80,
+  wrap: true,
+});
+
+// The base indent for all rows
+const BASE_INDENT = 2;
+
+/**
+ * The rows that make up the help information for a command. In order of
+ * appearance, the rows are:
+ * - description
+ * - usage
+ * - optionsTitle
+ * - options
+ * - subcommandsTitle
+ * - subcommands
+ * 
+ * @group Help
+ */
+export interface HelpRows {
+  /**
+   * The command module's description.
+   */
+  description?: Column;
+  /**
+   * A dynamic usage string based on the resolved commands and their parameters.
+   */
+  usage: Column;
+  /**
+   * The title for the options section.
+   */
+  optionsTitle?: Column;
+  /**
+   * A 2 column list of the available options and their descriptions.
+   */
+  options?: [Column, Column][];
+  /**
+   * The title for the subcommands section.
+   */
+  subcommandsTitle?: Column;
+  /**
+   * A 2 column list of the available subcommands and their descriptions.
+   */
+  subcommands?: [Column, Column][];
+}
+
+/**
+ * The help information for a given command.
+ * @group Help
+ */
+export type Help = {
+  /**
+   * The help information for the provided command.
+   */
+  helpText: string;
+  /**
+   * The error message, if any, that occurred while trying to resolve the
+   * command.
+   */
+  error?: Error;
+  /**
+   * The rows that make up the help information for a command, in order of
+   * appearance.
+   */
+} & Converted<HelpRows, Column, string>;
+
+/**
+ * Generates the help information for a given command based on the provided
+ * tokens.
+ *
+ * This function constructs a dynamic usage string based on the resolved commands
+ * and their parameters, then formats this information along with the
+ * description, available options, and subcommands. The output is structured
+ * using `cliui` for better formatting in the terminal.
+ *
+ * @param context - The context object for the command.
+ * @group Help
+ */
+export async function getHelp(context: Context): Promise<Help> {
+  const rows: HelpRows = {
+    usage: {
+      // Start the usage string with the binary name
+      text: `Usage: ${getBin().replace(process.cwd(), '')}`,
+      padding: [1, 0, 0, 0],
+    },
+  };
+
+  let allOptions: OptionsConfig = { ...context.options };
+
+  // Get the last resolved command
+  const finalResolved = context.resolvedCommands[
+    context.resolvedCommands.length - 1
+  ] as ResolvedCommand | undefined;
+
+  // Build up the usage string based on the resolved commands
+  for (const resolved of context.resolvedCommands) {
+    const { paramName, spreadOperator } = parseFileName(resolved.commandName);
+    if (paramName) {
+      rows.usage.text += ` <${paramName}${spreadOperator ? ' ...' : ''}>`;
+    } else {
+      rows.usage.text += ` ${resolved.commandName}`;
+    }
+    Object.assign(allOptions, resolved?.command.options);
+  }
+
+  // Add description row
+  if (finalResolved?.command.description) {
+    rows.description = {
+      text: finalResolved?.command.description,
+      padding: [1, 0, 0, 0],
+    };
+  }
+
+  // Add option rows
+  let hasRequiredOptions = false;
+  if (Object.keys(allOptions).length) {
+    const result = await optionRows(allOptions);
+    rows.optionsTitle = {
+      text: 'OPTIONS:',
+      padding: [1, 0, 0, 0],
+    };
+    rows.options = result.rows;
+    hasRequiredOptions = result.hasRequiredOptions;
+  }
+
+  // Add subcommand rows
+  let subcommandsDir = finalResolved?.subcommandsDir || context.commandsDir;
+  const hasSubcommands = isDirectory(subcommandsDir);
+  if (hasSubcommands) {
+    Object.assign(
+      rows,
+      await commandRows({
+        command: finalResolved,
+        commandsDir: subcommandsDir,
+        context,
+      }),
+    );
+  }
+
+  const requiresSubcommand = finalResolved?.command.requiresSubcommand;
+  if (hasSubcommands && finalResolved?.command.isMiddleware === false) {
+    rows.usage.text +=
+      hasRequiredOptions || requiresSubcommand
+        ? ' (<OPTIONS> | <COMMAND>)'
+        : ' ([OPTIONS] | [COMMAND])';
+  } else {
+    rows.usage.text += hasRequiredOptions ? ' <OPTIONS>' : ' [OPTIONS]';
+
+    if (hasSubcommands) {
+      rows.usage.text += requiresSubcommand ? ' <COMMAND>' : ' [COMMAND]';
+    }
+  }
+
+  // Add rows to cliui
+  if (rows.description) {
+    cliui.div(rows.description);
+  }
+  cliui.div(rows.usage);
+
+  if (rows.optionsTitle && rows.options) {
+    cliui.div(rows.optionsTitle);
+    for (const cols of rows.options) {
+      cliui.div(...cols);
+    }
+  }
+
+  if (rows.subcommandsTitle) cliui.div(rows.subcommandsTitle);
+
+  if (rows.subcommands) {
+    for (const cols of rows.subcommands) {
+      cliui.div(...cols);
+    }
+  }
+
+  // Add empty line to cliui
+  cliui.div({ text: '', padding: [0, 0, 0, 0] });
+
+  // Convert cliui rows to strings
+  const rowStrings = convert(
+    rows,
+    (value): value is { text: string } =>
+      typeof value === 'object' && 'text' in value,
+    (value) => value.text,
+  );
+
+  const helpText = cliui.toString();
+  cliui.resetOutput();
+
+  return {
+    // filter out empty strings
+    ...convert(
+      rowStrings,
+      (value): value is string[] =>
+        Array.isArray(value) && value.every((v) => typeof v === 'string'),
+      (value) => value.filter(Boolean),
+    ),
+
+    helpText,
+  };
+}
+
+function optionRows(options: OptionsConfig): {
+  rows: [Column, Column][];
+  hasRequiredOptions: boolean;
+} {
+  let hasRequiredOptions = false;
+  const firstColWidths = new Set<number>();
+
+  const rows: [Column, Column][] = Object.entries(options).map(
+    ([optionName, option]) => {
+      let singleLetterKeys = [];
+      let wordKeys = [];
+
+      if (optionName.length === 1) {
+        singleLetterKeys.push(optionName);
+      } else {
+        wordKeys.push(optionName);
+      }
+
+      for (const alias of option.alias || []) {
+        if (alias.length === 1) {
+          singleLetterKeys.push(alias);
+        } else {
+          wordKeys.push(alias);
+        }
+      }
+
+      singleLetterKeys.sort();
+      wordKeys.sort();
+
+      let optionString = [
+        ...singleLetterKeys.map((key) => `-${key}`),
+        ...wordKeys.map((key) => `--${key}`),
+      ].join(', ');
+
+      let optionValue: string | undefined;
+
+      switch (option.type) {
+        case 'string':
+          optionValue = 'string';
+          break;
+        case 'number':
+          optionValue = 'number';
+          break;
+        case 'array':
+          optionValue = 'string ...';
+      }
+
+      const isRequired = !!option.required && !option.default;
+      hasRequiredOptions = hasRequiredOptions || isRequired;
+
+      if (optionValue) {
+        optionString += isRequired ? ` <${optionValue}>` : ` [${optionValue}]`;
+      }
+
+      let leftPadding = BASE_INDENT;
+      if (!singleLetterKeys.length) leftPadding += 4;
+
+      firstColWidths.add(optionString.length + leftPadding);
+
+      return [
+        {
+          text: optionString,
+          padding: [0, 0, 0, leftPadding],
+        },
+        {
+          text: `${option.description || ''}${
+            option.default ? ` (default: ${option.default})` : ''
+          }`,
+          padding: [0, 0, 0, 3],
+        },
+      ];
+    },
+  );
+
+  const firstColWidth = Math.min(Math.max(...firstColWidths), 40);
+
+  // Set the width of the first column of each option span to the max width
+  for (const [firstCol] of rows) {
+    firstCol.width = firstColWidth;
+  }
+
+  return {
+    rows,
+    hasRequiredOptions,
+  };
+}
+
+interface CommandRowsOptions {
+  command: ResolvedCommand | undefined;
+  commandsDir: string;
+  context: Context;
+}
+
+async function commandRows({
+  command,
+  commandsDir,
+  context,
+}: CommandRowsOptions): Promise<Partial<HelpRows>> {
+  // Add subcommands header row
+  const rows: Partial<HelpRows> = {
+    subcommandsTitle: {
+      text: 'COMMANDS:',
+      padding: [1, 0, 0, 0],
+    },
+  };
+
+  const subcommandsDir = command?.subcommandsDir || commandsDir;
+  const subcommandFileNames = await fs.promises.readdir(subcommandsDir);
+  const subcommandNames = Array.from(
+    // remove file extensions, duplicates, and 'index'
+    new Set<string>(
+      subcommandFileNames
+        .map((commandName) => {
+          const { paramName, spreadOperator } = parseFileName(commandName);
+          if (paramName) {
+            return `[${paramName}${spreadOperator ? ' ...' : ''}]`;
+          } else {
+            return removeFileExtension(commandName);
+          }
+        })
+        // TODO: Is this still necessary?
+        .filter((name) => name !== 'index')
+        // Sort by alphabetical order, but put param commands at the end
+        .sort((a, b) => {
+          if (a.startsWith('[') && !b.startsWith('[')) {
+            return 1;
+          } else if (!a.startsWith('[') && b.startsWith('[')) {
+            return -1;
+          } else {
+            return a.localeCompare(b);
+          }
+        }),
+    ),
+  );
+  if (subcommandNames.length === 0) {
+    return {};
+  }
+  const firstColWidths = new Set<number>();
+
+  // Create cliui columns for each subcommand
+  rows.subcommands = await Promise.all(
+    subcommandNames.map(async (subcommand) => {
+      const {
+        command: { description },
+      } = await context.resolveCommand(subcommand, subcommandsDir);
+
+      firstColWidths.add(subcommand.length + BASE_INDENT);
+
+      return [
+        {
+          text: subcommand,
+          padding: [0, 0, 0, BASE_INDENT],
+        },
+        {
+          text: description || '',
+          padding: [0, 0, 0, 3],
+        },
+      ];
+    }),
+  );
+
+  const firstColWidth = Math.min(Math.max(...firstColWidths), 40);
+
+  // Set the width of the first column of each subcommand span to the max width
+  for (const [firstCol] of rows.subcommands) {
+    firstCol.width = firstColWidth;
+  }
+
+  return rows;
+}
+
+// causes build errors for referencing external types
+// type Column = Exclude<Parameters<typeof cliui.div>[0], string>;
+
+type Column = {
+  text: string;
+  width?: number;
+  align?: 'right' | 'left' | 'center';
+  padding: number[];
+  border?: boolean;
+};

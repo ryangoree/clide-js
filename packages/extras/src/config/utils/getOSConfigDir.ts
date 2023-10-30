@@ -20,11 +20,13 @@ export function getOSConfigDir(projectName: string): string {
     // https://learn.microsoft.com/en-us/windows/deployment/usmt/usmt-recognized-environment-variables#variables-that-are-recognized-only-in-the-user-context
     /* eslint-disable-next-line turbo/no-undeclared-env-vars */
     configDir = process.env.APPDATA || path.join(homeDir, 'AppData', 'Roaming');
-  } else if (platform === 'darwin') {
-    // macOS
-    // https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/MacOSXDirectories/MacOSXDirectories.html
-    // https://apple.fandom.com/wiki/Preferences_folder
-    configDir = path.join(homeDir, 'Library', 'Preferences');
+
+    // https://github.com/dirs-dev/directories-rs/issues/62
+    } else if (platform === 'darwin') {
+      // macOS
+      // https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/MacOSXDirectories/MacOSXDirectories.html
+      // https://apple.fandom.com/wiki/Application_Support_folder
+      configDir = path.join(homeDir, 'Library', 'Application Support');
   } else {
     // Linux and others
     // https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
