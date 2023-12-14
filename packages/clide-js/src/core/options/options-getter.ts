@@ -155,8 +155,8 @@ export function createOptionsGetter<
 export type OptionsGetter<TOptions extends OptionsConfig = OptionsConfig> = {
   [K in keyof TOptions as
     | K
-    | Alias<TOptions[K]>
-    | CamelCase<K | Alias<TOptions[K]>>]: OptionGetter<
+    | OptionAlias<TOptions[K]>
+    | CamelCase<K | OptionAlias<TOptions[K]>>]: OptionGetter<
     CommandOptionType<TOptions[K]>
   >;
 } & {
@@ -167,7 +167,7 @@ export type OptionsGetter<TOptions extends OptionsConfig = OptionsConfig> = {
    * @returns An object with the values of the specified options keyed by
    * both their original keys and camelCased keys.
    */
-  get<K extends keyof TOptions | Alias<TOptions[keyof TOptions]>>(
+  get<K extends keyof TOptions | OptionAlias<TOptions[keyof TOptions]>>(
     optionNames: K[],
   ): Promise<{
     [O in K as O | CamelCase<O>]: CommandOptionsTypes<TOptions>[O];
@@ -180,13 +180,16 @@ export type OptionsGetter<TOptions extends OptionsConfig = OptionsConfig> = {
   readonly values: {
     [K in keyof TOptions as
       | K
-      | Alias<TOptions[K]>
-      | CamelCase<K | Alias<TOptions[K]>>]: CommandOptionType<TOptions[K]>;
+      | OptionAlias<TOptions[K]>
+      | CamelCase<K | OptionAlias<TOptions[K]>>]: CommandOptionType<TOptions[K]>;
   };
 };
 
-/** Get a union of all aliases for an option. */
-type Alias<T extends OptionConfig> = T extends {
+/**
+ * Get a union of all aliases for an option.
+ * @group Options
+ */
+export type OptionAlias<T extends OptionConfig> = T extends {
   alias: string[];
 }
   ? T['alias'][number]
@@ -209,5 +212,5 @@ type CommandOptionType<T extends OptionConfig> = T['required'] extends true
 type CommandOptionsTypes<T extends OptionsConfig> = {
   [K in keyof T]: CommandOptionType<T[K]>;
 } & {
-  [K in keyof T as Alias<T[K]>]: CommandOptionType<T[K]>;
+  [K in keyof T as OptionAlias<T[K]>]: CommandOptionType<T[K]>;
 };
