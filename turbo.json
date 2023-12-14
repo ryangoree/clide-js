@@ -9,6 +9,9 @@
     "build:clide": {
       "outputs": ["dist/**"]
     },
+    "test:ci": {
+      "dependsOn": ["^build"]
+    },
     "lint": {}
   }
 }
