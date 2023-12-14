@@ -6,7 +6,7 @@ on:
 
 jobs:
   publish:
-    if: startsWith(github.ref, 'refs/tags/clide-js@v'
+    if: startsWith(github.ref, 'refs/tags/clide-js@v')
     name: build
     runs-on: ubuntu-latest
     env:
