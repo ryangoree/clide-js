@@ -1,4 +1,4 @@
-name: Publish Clide-JS NPM Package
+name: publish clide-js npm package
 
 on:
   release:
@@ -12,25 +12,25 @@ jobs:
     env:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
-      - name: Checkout
+      - name: checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js environment
+      - name: setup node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: 'yarn'
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Install Yarn
+      - name: install yarn
         run: npm i -g yarn
 
-      - name: Install dependencies
+      - name: install dependencies
         run: yarn --frozen-lockfile
 
-      - name: Build
+      - name: build
         run: yarn workspace clide-js build
 
-      - name: Publish
+      - name: publish
         working-directory: packages/clide-js/
         run: npm publish --access public

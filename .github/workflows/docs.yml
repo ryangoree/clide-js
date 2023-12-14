@@ -1,4 +1,4 @@
-name: Deploy Docs to Pages
+name: publish docs
 
 on:
   workflow_dispatch:
@@ -25,17 +25,17 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: checkout
         uses: actions/checkout@v4
 
-      - name: Setup Pages
+      - name: setup pages
         uses: actions/configure-pages@v4
 
-      - name: Upload artifact
+      - name: upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
           path: './packages/clide-js/docs'
 
-      - name: Deploy to GitHub Pages
+      - name: deploy to github pages
         id: deployment
         uses: actions/deploy-pages@v3

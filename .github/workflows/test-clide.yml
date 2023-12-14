@@ -1,4 +1,4 @@
-name: Test Clide
+name: test clide-js
 
 on:
   pull_request:
@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - 'packages/clide-js/**'
-      - 'packages/clide-plugin-command-menu/**'
       - 'packages/tsconfig/**'
 
 concurrency:
@@ -17,25 +16,20 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js environment
+      - name: setup node.js environment
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: 'yarn'
 
-      - name: Install Yarn
+      - name: install Yarn
         run: npm i -g yarn
 
-      - name: Install dependencies
+      - name: install dependencies
         run: yarn --frozen-lockfile
 
-      - name: Run Clide Tests
-        if: needs.detect-clide-changes.outputs.changed == 'true'
+      - name: run tests
         run: yarn workspace clide-js test:ci
-
-      - name: Run Command Menu Tests
-        if: needs.detect-command-menu-changes.outputs.changed == 'true'
-        run: yarn workspace clide-plugin-command-menu test:ci
