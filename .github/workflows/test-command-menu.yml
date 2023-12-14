@@ -8,6 +8,7 @@ on:
       - 'packages/clide-js/**'
       - 'packages/clide-plugin-command-menu/**'
       - 'packages/tsconfig/**'
+      - '.github/workflows/test-command-menu.yml'
 
 concurrency:
   group: 'test'
