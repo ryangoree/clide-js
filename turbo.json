@@ -12,6 +12,9 @@
     "test:ci": {
       "dependsOn": ["^build"]
     },
+    "typecheck": {
+      "dependsOn": ["^build"]
+    },
     "lint": {}
   }
 }

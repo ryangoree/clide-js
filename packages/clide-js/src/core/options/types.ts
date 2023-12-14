@@ -18,7 +18,7 @@ export interface OptionConfig<
 > {
   /** One or more aliases for the option (optional). */
   alias?: MaybeReadonly<TAlias[]>;
-  /** The type of the option (optional, has default based on `default`). */
+  /** The type of the option. */
   type: T;
   /** The number of arguments the option accepts (optional). */
   nargs?: number;

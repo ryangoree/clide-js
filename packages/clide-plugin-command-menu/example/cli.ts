@@ -1,6 +1,6 @@
-import { clide } from 'clide';
+import { run } from 'clide-js';
 import { commandMenu } from '../src/command-menu.js';
 
-clide({
+run({
   plugins: [commandMenu({ title: 'Command Menu' })],
 });
