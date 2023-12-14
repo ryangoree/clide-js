@@ -240,12 +240,12 @@ export async function prepareResolvedCommand(
   // removing any leading options. This will ensure they aren't treated as
   // command names which would cause errors during resolution.
   // Example: `--help foo` -> `foo`
-  if (resolved.remainingCommandString.length && isMiddleware) {
+  if (resolved.remainingCommandString.length) {
     // Parse the remaining command string to separate the tokens from the
     // options.
     const { tokens } = await parseFn(
       resolved.remainingCommandString,
-      resolved.command.options || {},
+      isMiddleware ? resolved.command.options || {} : {},
     );
 
     // If there are only options left, then empty the remaining command string.
