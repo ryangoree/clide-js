@@ -5,6 +5,27 @@ build powerful and flexible command-line applications with ease. It leverages a
 modular approach, allowing developers to create commands, use hooks for
 lifecycle management, and extend functionality with plugins.
 
+- [Key Features](#key-features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Ideal Use Cases](#ideal-use-cases)
+- [Running](#running)
+- [Creating Commands](#creating-commands)
+- [Creating Plugins](#creating-plugins)
+  - [Examples](#examples)
+- [Routing and Command Resolution](#routing-and-command-resolution)
+  - [Default Commands Directory](#default-commands-directory)
+  - [Command File/Module Resolution Steps](#command-filemodule-resolution-steps)
+    - [Key Points](#key-points)
+  - [Examples](#examples-1)
+  - [Key Points](#key-points-1)
+- [Dynamic Option Handling](#dynamic-option-handling)
+  - [Benefits](#benefits)
+  - [Usage in Commands](#usage-in-commands)
+- [CLI Examples](#cli-examples)
+- [Reference](#reference)
+- [Contributing](#contributing)
+
 ## Key Features
 
 - **Easy-to-use API:** Develop commands with a simple and intuitive interface.
@@ -299,7 +320,7 @@ mycli users create
 - The framework looks for `create.js` in the `users`
   directory.
 
-![Subcommand Resolution Files](https://raw.githubusercontent.com/ryangoree/clide-js/main/assets/basic-command-resolution.png)
+![Subcommand Resolution Files](https://raw.githubusercontent.com/ryangoree/clide-js/main/assets/subcommand-resolution.png)
 
 **3. Parameterized Command:**
 
