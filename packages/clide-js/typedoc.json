@@ -23,5 +23,4 @@
   "excludePrivate": true,
   "excludeProtected": true,
   "excludeExternals": true,
-  "plugin": ["typedoc-plugin-markdown"]
 }
