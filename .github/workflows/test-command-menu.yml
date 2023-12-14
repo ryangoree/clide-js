@@ -33,5 +33,8 @@ jobs:
       - name: install dependencies
         run: yarn --frozen-lockfile
 
+      - name: build clide-js
+        run: yarn workspace clide-js build
+
       - name: run tests
         run: yarn workspace clide-plugin-command-menu test:ci
