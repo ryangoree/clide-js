@@ -51,17 +51,17 @@ export interface ContextOptions<
  *   execution process, allowing for extensibility and customization without
  *   sacrificing predictability.
  * - Separation of Concerns: `Context` focuses on the setup and execution
- *   environment, while `State` manages the actual progression and state changes
- *   during command execution. This separation ensures that each module only
- *   handles its designated responsibilities, making the system easier to
- *   maintain and extend.
+ *   environment, while {@linkcode State} manages the actual progression and
+ *   state changes during command execution. This separation ensures that each
+ *   module only handles its designated responsibilities, making the system
+ *   easier to maintain and extend.
  * - Fail-fast Philosophy: The context should catch and handle errors as early
  *   as possible (during the preparation phase), ensuring that execution only
- *   proceeds when all systems are nominal. The exception to this rule is
- *   option validation, which is performed dynamically when options are accessed
- *   during execution. This is done to give command handlers the ability to
- *   gracefully handle missing or invalid options and potentially prompt the
- *   user for the missing information.
+ *   proceeds when all systems are nominal. The exception to this rule is option
+ *   validation, which is performed dynamically when options are accessed during
+ *   execution. This is done to give command handlers the ability to gracefully
+ *   handle missing or invalid options and potentially prompt the user for the
+ *   missing information.
  *
  * Scope:
  * - Plugin Initialization: Loading and preparing all plugins for the execution
@@ -74,7 +74,7 @@ export interface ContextOptions<
  *   before allowing the execution to proceed.
  * - Error Management: Providing a centralized mechanism for error handling
  *   during the preparation and execution phases.
- * 
+ *
  * @group Context
  */
 export class Context<TOptions extends OptionsConfig = OptionsConfig> {
