@@ -31,6 +31,9 @@ jobs:
       - name: build
         run: yarn workspace clide-js build
 
+      - name: copy root readme
+        run: cp README.md packages/clide-js/
+
       - name: publish
         working-directory: packages/clide-js/
         run: npm publish --access public
