@@ -16,11 +16,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "cli-table": "^0.3.11",
     "cliui": "^8.0.1",
     "prompts": "^2.4.2",
-    "signale": "^1.4.0",
-    "typedoc": "^0.25.4",
     "yargs-parser": "^21.1.1"
   },
   "devDependencies": {
@@ -36,6 +33,7 @@
     "ts-node": "^10.9.1",
     "tsconfig": "*",
     "tsconfig-paths": "^4.2.0",
+    "typedoc": "^0.25.4",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2",
     "vitest": "^1.0.2"
