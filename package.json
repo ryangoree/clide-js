@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "build:clide": "turbo run build --filter=./packages/clide*",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,md}\""
   },

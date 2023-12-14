@@ -6,10 +6,9 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
-    "lint": {},
-    "dev": {
-      "cache": false,
-      "persistent": true
-    }
+    "build:clide": {
+      "outputs": ["dist/**"]
+    },
+    "lint": {}
   }
 }
