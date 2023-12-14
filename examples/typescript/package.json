@@ -14,11 +14,11 @@
     "prod": "ts-node --esm src/index.js"
   },
   "dependencies": {
-    "@tsconfig/node-lts": "^18.12.5",
     "clide-js": "*",
     "clide-plugin-command-menu": "*"
   },
   "devDependencies": {
+    "@tsconfig/node-lts": "^18.12.5",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.2.2"
