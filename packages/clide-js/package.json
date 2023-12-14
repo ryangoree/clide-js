@@ -11,6 +11,7 @@
     "dev": "NODE_ENV=development tesm-node src/cli/index.ts",
     "prod": "tesm-node src/cli/index.ts",
     "test": "vitest --reporter=verbose",
+    "test:ci": "vitest --run",
     "coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit"
   },

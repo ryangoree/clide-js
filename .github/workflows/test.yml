@@ -1,0 +1,49 @@
+name: Deploy Docs to Pages
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: 'test'
+  cancel-in-progress: true
+
+jobs:
+  detect-clide-changes:
+    uses: ./.github/workflows/check-diff.yaml
+    with:
+      pattern: ^packages/clide-js/|^packages/tsconfig/
+
+  detect-command-menu-changes:
+    uses: ./.github/workflows/check-diff.yaml
+    with:
+      pattern: ^packages/clide-plugin-command-menu/|^packages/tsconfig/
+
+  test:
+    needs: detect-clide-changes
+    if: needs.detect-clide-changes.outputs.changed == 'true' || needs.detect-command-menu-changes.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'yarn'
+
+      - name: Install Yarn
+        run: npm i -g yarn
+
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+
+      - name: Run Clide Tests
+        if: needs.detect-clide-changes.outputs.changed == 'true'
+        run: yarn workspace clide-js test:ci
+
+      - name: Run Command Menu Tests
+        if: needs.detect-command-menu-changes.outputs.changed == 'true'
+        run: yarn workspace clide-plugin-command-menu test:ci
