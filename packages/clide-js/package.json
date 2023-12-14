@@ -1,6 +1,6 @@
 {
   "name": "clide-js",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A framework for building flexible and extensible CLIs",
   "license": "MIT",
   "type": "module",
