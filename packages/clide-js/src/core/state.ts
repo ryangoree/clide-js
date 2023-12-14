@@ -225,6 +225,7 @@ export class State<
       },
       skip: () => {
         this.context.client.warn('State change cancelled.');
+        _changes = {};
       },
     });
 
