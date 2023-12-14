@@ -4,25 +4,17 @@ on:
   pull_request:
     branches:
       - main
+    paths:
+      - 'packages/clide-js/**'
+      - 'packages/clide-plugin-command-menu/**'
+      - 'packages/tsconfig/**'
 
 concurrency:
   group: 'test'
   cancel-in-progress: true
 
 jobs:
-  detect-clide-changes:
-    uses: ./.github/workflows/check-diff.yml
-    with:
-      pattern: ^packages/clide-js/|^packages/tsconfig/
-
-  detect-command-menu-changes:
-    uses: ./.github/workflows/check-diff.yml
-    with:
-      pattern: ^packages/clide-plugin-command-menu/|^packages/tsconfig/
-
   test:
-    needs: detect-clide-changes
-    if: (needs.detect-clide-changes.outputs.changed == 'true') || (needs.detect-command-menu-changes.outputs.changed == 'true')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -39,10 +31,6 @@ jobs:
 
       - name: Install dependencies
         run: yarn --frozen-lockfile
-
-      - name: Run Clide Tests
-        if: needs.detect-clide-changes.outputs.changed == 'true'
-        run: yarn workspace clide-js test:ci
 
       - name: Run Command Menu Tests
         if: needs.detect-command-menu-changes.outputs.changed == 'true'

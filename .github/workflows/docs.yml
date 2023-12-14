@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'packages/clide-js/docs/**'
 
 permissions:
   contents: read
@@ -16,14 +18,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  detect-changes:
-    uses: ./.github/workflows/check-diff.yml
-    with:
-      pattern: ^packages/clide-js/docs/
-
   deploy:
-    needs: detect-changes
-    if: (needs.detect-changes.outputs.changed == 'true') || (github.event_name == 'workflow_dispatch')
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
