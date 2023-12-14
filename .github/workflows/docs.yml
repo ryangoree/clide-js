@@ -17,7 +17,6 @@ concurrency:
 
 jobs:
   detect-changes:
-    if: github.event_name == 'push'
     uses: ./.github/workflows/check-diff.yml
     with:
       pattern: ^packages/clide-js/docs/
