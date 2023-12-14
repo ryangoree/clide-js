@@ -165,8 +165,6 @@ export class State<
   /**
    * Return data and end the steps.
    * @param data The data to return.
-   *
-   * @throws {UsageError} If an error is provided and the step is not the last.
    */
   readonly end = async (
     data?: unknown,

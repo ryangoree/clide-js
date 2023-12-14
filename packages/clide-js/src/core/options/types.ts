@@ -26,7 +26,10 @@ export interface OptionConfig<
   description?: string;
   /** The prompt to show the user if no value is provided (optional). */
   prompt?: string | PromptOptions;
-  /** The default value to use the prompt will show (optional). */
+  /**
+   * The default value to use. This will be the initial value that the getter
+   * prompt will show (optional).
+   */
   default?: MaybeReadonly<OptionPrimitiveType<T>>;
   /**
    * Prompts the user for the option if it's not present and requires the
