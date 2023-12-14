@@ -3,8 +3,8 @@
 A [Clide-JS](https://github.com/ryangoree/clide-js/tree/main) plugin that prompts the user to select a subcommand when required.
 
 ```ts
-import { run } = from 'clide-js';
-import { commandMenu } = from 'clide-plugin-command-menu';
+import { run } from 'clide-js';
+import { commandMenu } from 'clide-plugin-command-menu';
 
 run({
   plugins: [
