@@ -79,6 +79,8 @@ export function createOptionGetter<
 
     let type: PromptOptions['type'];
 
+    // TODO: Add support for other prompt types like select, multiselect, etc.
+    // which will map to the appropriate option type
     // Determine prompt type based on option type
     switch (config?.type) {
       case 'number':
