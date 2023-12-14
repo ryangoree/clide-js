@@ -27,12 +27,9 @@
 export function getCallerPath(): string | undefined {
   /**
    * 0 = error name and message
-   *
    * 1 = path to this file
-   *
    * 2 = path to the file that called this function. The one that wants to know
    *     it's caller.
-   *
    * 3 = path to the file that called the function that called this function
    *     (this is the file that the caller of this function wants)
    */
