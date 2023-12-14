@@ -1,4 +1,4 @@
-name: Test
+name: Test Clide
 
 on:
   pull_request:
