@@ -24,3 +24,11 @@ can also select `↩ back` to go back to the previous menu. This will continue
 until the user has selected all required subcommands.
 
 ![Submenu](docs/submenu.png)
+
+## Installation
+
+```sh
+npm install clide-plugin-command-menu
+# or
+yarn add clide-plugin-command-menu
+```
