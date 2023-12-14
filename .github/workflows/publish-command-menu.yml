@@ -29,7 +29,7 @@ jobs:
         run: yarn --frozen-lockfile
 
       - name: build
-        run: yarn workspace clide-plugin-command-menu build
+        run: yarn build:clide
 
       - name: publish
         working-directory: packages/clide-plugin-command-menu/
