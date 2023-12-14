@@ -1,17 +1,17 @@
 {
   "name": "clide-ts-example",
   "version": "1.0.0",
-  "main": "dist/index.js",
+  "main": "dist/cli.js",
   "license": "MIT",
-  "bin": "cli/index.js",
+  "bin": "dist/cli.js",
   "type": "module",
-  "types": "dist/index.d.ts",
   "files": [
-    "cli"
+    "dist"
   ],
   "scripts": {
-    "dev": "NODE_ENV=development ts-node --esm src/index.ts",
-    "prod": "ts-node --esm src/index.js"
+    "dev": "NODE_ENV=development ts-node --esm src/cli.ts",
+    "prod": "ts-node --esm src/cli.ts",
+    "build": "rimraf dist && tsc"
   },
   "dependencies": {
     "clide-js": "*",
@@ -19,8 +19,8 @@
   },
   "devDependencies": {
     "@tsconfig/node-lts": "^18.12.5",
+    "rimraf": "^5.0.5",
     "ts-node": "^10.9.1",
-    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.2.2"
   }
 }
