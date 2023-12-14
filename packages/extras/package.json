@@ -42,5 +42,19 @@
   },
   "files": [
     "dist"
+  ],
+  "keywords": [
+    "argument",
+    "args",
+    "argv",
+    "bin",
+    "option",
+    "flag",
+    "parse",
+    "parser",
+    "cli",
+    "command",
+    "cmd",
+    "line"
   ]
 }
