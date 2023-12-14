@@ -5,6 +5,10 @@
   "license": "MIT",
   "type": "module",
   "author": "ryan goree (https://github.com/ryangoree)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ryangoree/clide-js"
+  },
   "scripts": {
     "build": "tsup",
     "dev": "NODE_ENV=development ts-node --esm example/cli.ts",
