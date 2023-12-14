@@ -11,12 +11,12 @@ concurrency:
 
 jobs:
   detect-clide-changes:
-    uses: ./.github/workflows/check-diff.yaml
+    uses: ./.github/workflows/check-diff.yml
     with:
       pattern: ^packages/clide-js/|^packages/tsconfig/
 
   detect-command-menu-changes:
-    uses: ./.github/workflows/check-diff.yaml
+    uses: ./.github/workflows/check-diff.yml
     with:
       pattern: ^packages/clide-plugin-command-menu/|^packages/tsconfig/
 
