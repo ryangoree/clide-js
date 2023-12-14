@@ -22,7 +22,7 @@ jobs:
 
   test:
     needs: detect-clide-changes
-    if: needs.detect-clide-changes.outputs.changed == 'true' || needs.detect-command-menu-changes.outputs.changed == 'true'
+    if: (needs.detect-clide-changes.outputs.changed == 'true') || (needs.detect-command-menu-changes.outputs.changed == 'true')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
