@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   detect-changes:
-    uses: ./.github/workflows/check-diff.yaml
+    uses: ./.github/workflows/check-diff.yml
     with:
       pattern: ^packages/clide-js/docs/
 
