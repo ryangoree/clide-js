@@ -151,7 +151,7 @@ interface OptionGetterOptions {
   /**
    * The prompt to show the user if no value is provided (optional).
    */
-  prompt?: string | Omit<PromptOptions, 'type' | 'name' | 'validate'>;
+  prompt?: string | PromptOptions;
   /**
    * The validation function (optional).
    */
