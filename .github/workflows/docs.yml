@@ -12,18 +12,19 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: 'pages'
   cancel-in-progress: false
 
 jobs:
   detect-changes:
+    if: github.event_name == 'push'
     uses: ./.github/workflows/check-diff.yml
     with:
       pattern: ^packages/clide-js/docs/
 
   deploy:
     needs: detect-changes
-    if: needs.detect-changes.outputs.changed == 'true'
+    if: needs.detect-changes.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
