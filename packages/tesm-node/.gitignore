@@ -1,9 +1,0 @@
-node_modules
-.env
-dist
-tsconfig.tsbuildinfo
-yarn-debug.log*
-yarn-error.log*
-.DS_Store
-*.local
-*.tgz
