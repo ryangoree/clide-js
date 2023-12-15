@@ -26,6 +26,9 @@ interface FindSimilarOptions {
  * to `input`.
  * @group Utils
  */
+// TODO: Need to rethink this. If a word has all the same characters, but
+// shifted by one, e.g., `eploy` and `deploy`, it will get a very low score when
+// in reality it should be considered very similar.
 export function findSimilar(
   input: string,
   choices: string[],

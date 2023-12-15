@@ -19,18 +19,23 @@
   - [x] Validation
   - [x] Prompting
   - [x] Relationships (dependencies and conflicts)
+    - [`validateOptions`](/packages/clide-js/src/core/options/validate-options.ts) validates these settings, but isn't used anywhere 🤔
 - [x] Help menu
 - [ ] Command suggestions (Did you mean?)
+  - Started work on this in [`findSimilar`](/packages/clide-js/src/utils/find-similar.ts)
 - [ ] Tab autocomplete
 - [x] Hooks
 - [ ] User config
-- [ ] Build
-- [ ] Chaining
+  - Started work in [extras/config](/packages/extras/src/config/)
+- [ ] Create script `npx create-clide-js-app`, `npx create-clide-app`
+- [ ] Command Chaining (maybe done?)
 - [ ] VSCode plugin
   - [ ] Param types
   - [ ] Inherited option types
+  - [ ] Data types (idk if this is possible)
 - [ ] ESLint plugin
   - [ ] No unreachable subcommands
+  - [ ] Command handlers must end in explicit state action? (`next`, `end`)
 - [ ] Parallel command clusters
 - [ ] Macros
 - [ ] DSL
@@ -41,23 +46,12 @@
 - command injection
 - directory traversal
 
-**Solution**: whitelist?
-
----
-
-### Expanding on the Emitter Wrapper
-
-- Event Throttling
-- Prioritizing Events
-- Blacklisting or whitelisting event names
-
 ### Libraries
 
 https://github.com/sindresorhus/awesome-nodejs#command-line-utilities
 
 **Redirecting stdout:**
 
-- https://www.npmjs.com/package/execa
 - https://www.npmjs.com/package/execa
 
 **Coloring:**
@@ -67,23 +61,3 @@ https://github.com/sindresorhus/awesome-nodejs#command-line-utilities
 **Temp file paths:**
 
 - https://www.npmjs.com/package/tempy
-
-### Context
-
-Create a context interface that includes `State`, `Client`, etc.
-
-### Lint and VSCode
-
-- https://tsup.egoist.dev/#json-schema-store
-
-### Execute commands from other commands
-
-- initialData: context.data,
-
-### Naming
-
-- cmdcraft
-- pathpilot
-- Cmdex
-- argonaut
-- argarch
