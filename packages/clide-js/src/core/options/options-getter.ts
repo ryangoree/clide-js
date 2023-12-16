@@ -54,7 +54,7 @@ interface CreateOptionsGetterOptions<
  *   client: new Client(),
  * });
  * const val = optionsGetter.foo(); // 'default foo'
- *
+ * 
  * @group Options
  */
 // TODO: Cache the result of this function
@@ -153,8 +153,11 @@ export function createOptionsGetter<
  * @group Options
  */
 export type OptionsGetter<TOptions extends OptionsConfig = OptionsConfig> = {
-  [K in keyof TOptions as OptionsKey<TOptions>]: OptionGetter<
-    OptionConfigPrimitiveType<TOptions[K]>
+  [K in keyof TOptions as
+    | K
+    | OptionAlias<TOptions[K]>
+    | CamelCase<K | OptionAlias<TOptions[K]>>]: OptionGetter<
+    CommandOptionType<TOptions[K]>
   >;
 } & {
   /**
@@ -167,7 +170,7 @@ export type OptionsGetter<TOptions extends OptionsConfig = OptionsConfig> = {
   get<K extends keyof TOptions | OptionAlias<TOptions[keyof TOptions]>>(
     optionNames: K[],
   ): Promise<{
-    [O in K as O | CamelCase<O>]: OptionsConfigPrimitiveType<TOptions>[O];
+    [O in K as O | CamelCase<O>]: CommandOptionsTypes<TOptions>[O];
   }>;
   /**
    * Direct access to the values of the options, keyed by their original keys,
@@ -175,9 +178,10 @@ export type OptionsGetter<TOptions extends OptionsConfig = OptionsConfig> = {
    * option values without triggering any validation or prompting.
    */
   readonly values: {
-    [K in keyof TOptions as OptionsKey<TOptions>]: OptionConfigPrimitiveType<
-      TOptions[K]
-    >;
+    [K in keyof TOptions as
+      | K
+      | OptionAlias<TOptions[K]>
+      | CamelCase<K | OptionAlias<TOptions[K]>>]: CommandOptionType<TOptions[K]>;
   };
 };
 
@@ -192,29 +196,21 @@ export type OptionAlias<T extends OptionConfig> = T extends {
   : never;
 
 /**
- * Get a union of all keys for an options config
- */
-export type OptionsKey<T extends OptionsConfig> = {
-  [K in keyof T]: K | OptionAlias<T[K]> | CamelCase<K | OptionAlias<T[K]>>;
-}[keyof T];
-
-/**
  * Get the primitive type for an option considering whether it is required or
  * has a default value. If neither is true, the type is the primitive type
  * unioned with `undefined`.
  */
-type OptionConfigPrimitiveType<T extends OptionConfig> =
-  T['required'] extends true
-    ? OptionPrimitiveType<T['type']>
-    : T['default'] extends MaybeReadonly<OptionPrimitiveType<T['type']>>
-    ? OptionPrimitiveType<T['type']>
-    : OptionPrimitiveType<T['type']> | undefined;
+type CommandOptionType<T extends OptionConfig> = T['required'] extends true
+  ? OptionPrimitiveType<T['type']>
+  : T['default'] extends MaybeReadonly<OptionPrimitiveType<T['type']>>
+  ? OptionPrimitiveType<T['type']>
+  : OptionPrimitiveType<T['type']> | undefined;
 
 /**
  * Get the primitive type for each option in an options config.
  */
-type OptionsConfigPrimitiveType<T extends OptionsConfig> = {
-  [K in keyof T]: OptionConfigPrimitiveType<T[K]>;
+type CommandOptionsTypes<T extends OptionsConfig> = {
+  [K in keyof T]: CommandOptionType<T[K]>;
 } & {
-  [K in keyof T as OptionAlias<T[K]>]: OptionConfigPrimitiveType<T[K]>;
+  [K in keyof T as OptionAlias<T[K]>]: CommandOptionType<T[K]>;
 };
