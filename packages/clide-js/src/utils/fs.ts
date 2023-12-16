@@ -17,5 +17,6 @@ export function isDirectory(path: string): boolean {
  * @group Utils
  */
 export function isModuleNotFoundError(err: unknown): boolean {
+  if (err && (err as any).code === 'ENOENT') return true;
   return /(Cannot find module|not a directory, stat)/.test(String(err));
 }

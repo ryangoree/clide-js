@@ -7,7 +7,7 @@ import {
   UsageError,
 } from 'src/core/errors';
 import { ParseCommandFn, parseCommand } from 'src/core/parse';
-import { isDirectory } from 'src/utils/fs';
+import { isDirectory, isModuleNotFoundError } from 'src/utils/fs';
 import { parseFileName } from 'src/utils/parse-file-name';
 import { removeFileExtension } from 'src/utils/remove-file-extension';
 import { MaybePromise } from 'src/utils/types';
@@ -107,6 +107,10 @@ export async function resolveCommand({
         remainingCommandString,
         subcommandsDir,
       };
+    }
+
+    if (!resolved && !isModuleNotFoundError(err)) {
+      throw err;
     }
   }
 
