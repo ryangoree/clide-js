@@ -1,13 +1,13 @@
-import initCliui from 'cliui';
-import fs from 'node:fs';
-import { getBin } from 'src/utils/argv';
-import { Converted, convert } from 'src/utils/convert';
-import { isDirectory } from 'src/utils/fs';
-import { parseFileName } from 'src/utils/parse-file-name';
-import { removeFileExtension } from 'src/utils/remove-file-extension';
-import { Context } from './context';
-import { OptionsConfig } from './options/types';
-import { ResolvedCommand } from './resolve';
+import initCliui from "cliui";
+import fs from "node:fs";
+import { getBin } from "src/utils/argv";
+import { Converted, convert } from "src/utils/convert";
+import { isDirectory } from "src/utils/fs";
+import { parseFileName } from "src/utils/parse-file-name";
+import { removeFileExtension } from "src/utils/remove-file-extension";
+import { Context } from "./context";
+import { OptionsConfig } from "./options/types";
+import { ResolvedCommand } from "./resolve";
 
 const cliui = initCliui({
   width: 80,
@@ -26,7 +26,7 @@ const BASE_INDENT = 2;
  * - options
  * - subcommandsTitle
  * - subcommands
- * 
+ *
  * @group Help
  */
 export interface HelpRows {
@@ -92,7 +92,7 @@ export async function getHelp(context: Context): Promise<Help> {
   const rows: HelpRows = {
     usage: {
       // Start the usage string with the binary name
-      text: `Usage: ${getBin().replace(process.cwd(), '')}`,
+      text: `Usage: ${getBin().replace(process.cwd(), "")}`,
       padding: [1, 0, 0, 0],
     },
   };
@@ -108,7 +108,7 @@ export async function getHelp(context: Context): Promise<Help> {
   for (const resolved of context.resolvedCommands) {
     const { paramName, spreadOperator } = parseFileName(resolved.commandName);
     if (paramName) {
-      rows.usage.text += ` <${paramName}${spreadOperator ? ' ...' : ''}>`;
+      rows.usage.text += ` <${paramName}${spreadOperator ? " ..." : ""}>`;
     } else {
       rows.usage.text += ` ${resolved.commandName}`;
     }
@@ -128,7 +128,7 @@ export async function getHelp(context: Context): Promise<Help> {
   if (Object.keys(allOptions).length) {
     const result = await optionRows(allOptions);
     rows.optionsTitle = {
-      text: 'OPTIONS:',
+      text: "OPTIONS:",
       padding: [1, 0, 0, 0],
     };
     rows.options = result.rows;
@@ -153,13 +153,13 @@ export async function getHelp(context: Context): Promise<Help> {
   if (hasSubcommands && finalResolved?.command.isMiddleware === false) {
     rows.usage.text +=
       hasRequiredOptions || requiresSubcommand
-        ? ' (<OPTIONS> | <COMMAND>)'
-        : ' ([OPTIONS] | [COMMAND])';
+        ? " (<OPTIONS> | <COMMAND>)"
+        : " ([OPTIONS] | [COMMAND])";
   } else {
-    rows.usage.text += hasRequiredOptions ? ' <OPTIONS>' : ' [OPTIONS]';
+    rows.usage.text += hasRequiredOptions ? " <OPTIONS>" : " [OPTIONS]";
 
     if (hasSubcommands) {
-      rows.usage.text += requiresSubcommand ? ' <COMMAND>' : ' [COMMAND]';
+      rows.usage.text += requiresSubcommand ? " <COMMAND>" : " [COMMAND]";
     }
   }
 
@@ -185,13 +185,13 @@ export async function getHelp(context: Context): Promise<Help> {
   }
 
   // Add empty line to cliui
-  cliui.div({ text: '', padding: [0, 0, 0, 0] });
+  cliui.div({ text: "", padding: [0, 0, 0, 0] });
 
   // Convert cliui rows to strings
   const rowStrings = convert(
     rows,
     (value): value is { text: string } =>
-      typeof value === 'object' && 'text' in value,
+      typeof value === "object" && "text" in value,
     (value) => value.text,
   );
 
@@ -203,7 +203,7 @@ export async function getHelp(context: Context): Promise<Help> {
     ...convert(
       rowStrings,
       (value): value is string[] =>
-        Array.isArray(value) && value.every((v) => typeof v === 'string'),
+        Array.isArray(value) && value.every((v) => typeof v === "string"),
       (value) => value.filter(Boolean),
     ),
 
@@ -220,42 +220,42 @@ function optionRows(options: OptionsConfig): {
 
   const rows: [Column, Column][] = Object.entries(options).map(
     ([optionName, option]) => {
-      let singleLetterKeys = [];
-      let wordKeys = [];
+      const singleLetterKeys = new Set<string>();
+      const wordKeys = new Set<string>();
 
       if (optionName.length === 1) {
-        singleLetterKeys.push(optionName);
+        singleLetterKeys.add(optionName);
       } else {
-        wordKeys.push(optionName);
+        wordKeys.add(optionName);
       }
 
       for (const alias of option.alias || []) {
         if (alias.length === 1) {
-          singleLetterKeys.push(alias);
+          singleLetterKeys.add(alias);
         } else {
-          wordKeys.push(alias);
+          wordKeys.add(alias);
         }
       }
 
-      singleLetterKeys.sort();
-      wordKeys.sort();
+      const sortedSingleLetterKeys = Array.from(singleLetterKeys).sort();
+      const sortedWordKeys = Array.from(wordKeys).sort();
 
       let optionString = [
-        ...singleLetterKeys.map((key) => `-${key}`),
-        ...wordKeys.map((key) => `--${key}`),
-      ].join(', ');
+        ...sortedSingleLetterKeys.map((key) => `-${key}`),
+        ...sortedWordKeys.map((key) => `--${key}`),
+      ].join(", ");
 
       let optionValue: string | undefined;
 
       switch (option.type) {
-        case 'string':
-          optionValue = 'string';
+        case "string":
+          optionValue = "string";
           break;
-        case 'number':
-          optionValue = 'number';
+        case "number":
+          optionValue = "number";
           break;
-        case 'array':
-          optionValue = 'string ...';
+        case "array":
+          optionValue = "string ...";
       }
 
       const isRequired = !!option.required && !option.default;
@@ -266,7 +266,7 @@ function optionRows(options: OptionsConfig): {
       }
 
       let leftPadding = BASE_INDENT;
-      if (!singleLetterKeys.length) leftPadding += 4;
+      if (!sortedSingleLetterKeys.length) leftPadding += 4;
 
       firstColWidths.add(optionString.length + leftPadding);
 
@@ -276,8 +276,8 @@ function optionRows(options: OptionsConfig): {
           padding: [0, 0, 0, leftPadding],
         },
         {
-          text: `${option.description || ''}${
-            option.default ? ` (default: ${option.default})` : ''
+          text: `${option.description || ""}${
+            option.default ? ` (default: ${option.default})` : ""
           }`,
           padding: [0, 0, 0, 3],
         },
@@ -312,7 +312,7 @@ async function commandRows({
   // Add subcommands header row
   const rows: Partial<HelpRows> = {
     subcommandsTitle: {
-      text: 'COMMANDS:',
+      text: "COMMANDS:",
       padding: [1, 0, 0, 0],
     },
   };
@@ -326,18 +326,18 @@ async function commandRows({
         .map((commandName) => {
           const { paramName, spreadOperator } = parseFileName(commandName);
           if (paramName) {
-            return `[${paramName}${spreadOperator ? ' ...' : ''}]`;
+            return `[${paramName}${spreadOperator ? " ..." : ""}]`;
           } else {
             return removeFileExtension(commandName);
           }
         })
         // TODO: Is this still necessary?
-        .filter((name) => name !== 'index')
+        .filter((name) => name !== "index")
         // Sort by alphabetical order, but put param commands at the end
         .sort((a, b) => {
-          if (a.startsWith('[') && !b.startsWith('[')) {
+          if (a.startsWith("[") && !b.startsWith("[")) {
             return 1;
-          } else if (!a.startsWith('[') && b.startsWith('[')) {
+          } else if (!a.startsWith("[") && b.startsWith("[")) {
             return -1;
           } else {
             return a.localeCompare(b);
@@ -365,7 +365,7 @@ async function commandRows({
           padding: [0, 0, 0, BASE_INDENT],
         },
         {
-          text: description || '',
+          text: description || "",
           padding: [0, 0, 0, 3],
         },
       ];
@@ -388,7 +388,7 @@ async function commandRows({
 type Column = {
   text: string;
   width?: number;
-  align?: 'right' | 'left' | 'center';
+  align?: "right" | "left" | "center";
   padding: number[];
   border?: boolean;
 };
