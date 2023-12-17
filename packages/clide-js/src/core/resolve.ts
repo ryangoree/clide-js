@@ -96,6 +96,8 @@ export async function resolveCommand({
       subcommandsDir,
     };
   } catch (err: unknown) {
+    if (!isModuleNotFoundError(err)) throw err;
+
     // If the command file doesn't exist, check if the path is a directory and
     // treat it as a pass-through command.
     if (isDirectory(subcommandsDir)) {
@@ -107,10 +109,6 @@ export async function resolveCommand({
         remainingCommandString,
         subcommandsDir,
       };
-    }
-
-    if (!resolved && !isModuleNotFoundError(err)) {
-      throw err;
     }
   }
 
