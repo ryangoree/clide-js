@@ -87,7 +87,7 @@ export function createOptionGetter<
         type = 'number';
         break;
       case 'boolean':
-        type = 'toggle';
+        type = 'confirm';
         break;
       case 'array':
         type = 'list';
