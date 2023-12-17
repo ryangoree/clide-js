@@ -67,7 +67,7 @@ export function commandMenu({
           skip,
         }) => {
           if (!commandString.length) {
-            const selectedSubcommands = await commandMenuPrompt({
+            const selectedCommands = await commandMenuPrompt({
               title,
               titleColors,
               message,
@@ -77,7 +77,7 @@ export function commandMenu({
               resolveFn: ({ commandString, commandsDir }) =>
                 context.resolveCommand(commandString, commandsDir),
             });
-            addResolvedCommands(selectedSubcommands);
+            addResolvedCommands(selectedCommands);
             skip();
           }
         },
