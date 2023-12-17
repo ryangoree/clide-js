@@ -81,11 +81,20 @@ export function parseCommand(
   // TODO:  const nargs: Record<string, number> = {};
 
   // Parse the command string with yargs-parser
-  const { _: tokens, ...options } = parse(commandString, {
+  let { _: tokens, ...options } = parse(commandString, {
     ...parseOptions,
     configuration: {
       'unknown-options-as-args': true,
     },
+  });
+
+  // Treat unknown options as boolean flags
+  tokens = tokens.filter((token) => {
+    if (typeof token === 'string' && token.startsWith('-')) {
+      options[token.replace(/^-+/, '')] = true;
+      return false;
+    }
+    return true;
   });
 
   return {
