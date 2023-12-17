@@ -105,14 +105,30 @@ export function createOptionGetter<
       validateFn = (value) => defaultValidate(value, config.type);
     }
 
+    // Use the default value for the initial prompt value and convert arrays to
+    // strings
+    const initial = Array.isArray(config?.default)
+      ? config?.default.join(',')
+      : config?.default;
+
     // Prompt for the option value if not provided and a prompt is provided
     if (value === undefined && prompt) {
       value = await client.prompt({
         ...(typeof prompt === 'string' ? { message: prompt } : prompt),
-        // Use the default value for the initial prompt value
-        initial: config?.default?.toString(),
+        initial: initial as any,
         type,
-        validate: validateFn,
+        validate: validateFn
+          ? (value) => {
+              // prompts won't always pass the initial value to the validate
+              // function, so we need to check for an empty string and use the
+              // default value if provided.
+              // see: https://github.com/terkelg/prompts/issues/410
+              if (value === '' && config?.default) {
+                return validateFn!(config?.default);
+              }
+              return validateFn!(value);
+            }
+          : undefined,
       });
     }
 
