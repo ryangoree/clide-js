@@ -102,6 +102,16 @@ export const help: Plugin = {
       }
     });
 
+    // Remove requirement for a subcommand if the help flag is present
+    hooks.on('postResolve', async ({ context, resolvedCommands }) => {
+      const { options } = await context.parseCommand(context.commandString);
+
+      if (options.help) {
+        const lastResolved = resolvedCommands[resolvedCommands.length - 1];
+        lastResolved.command.requiresSubcommand = false;
+      }
+    });
+
     // Print the help text and skip execution if the help flag is present or if
     // a usage error occurred previously
     hooks.on('preExecute', async ({ state, setResultAndSkip, skip }) => {
