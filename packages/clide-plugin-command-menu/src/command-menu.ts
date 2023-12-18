@@ -1,4 +1,4 @@
-import { Plugin } from 'clide-js';
+import { Context, OptionValues, Plugin } from 'clide-js';
 import { commandMenuPrompt } from './command-menu-prompt.js';
 
 export interface CommandMenuOptions {
@@ -33,6 +33,15 @@ export interface CommandMenuOptions {
    * @default 60
    */
   maxDescriptionLength?: number;
+
+  /**
+   * A predicate function that determines whether the command menu should be
+   * shown.
+   */
+  skip?: (
+    options: OptionValues,
+    context: Context,
+  ) => Promise<boolean> | boolean;
 }
 
 /**
@@ -48,6 +57,7 @@ export function commandMenu({
   message = 'Choose a command',
   showDescriptions = true,
   maxDescriptionLength = 60,
+  skip: _shouldSkip,
 }: CommandMenuOptions = {}): Plugin {
   return {
     name: 'clide-command-menu',
@@ -66,6 +76,11 @@ export function commandMenu({
           addResolvedCommands,
           skip,
         }) => {
+          const parsed = await context.parseCommand();
+          const shouldSkip = await _shouldSkip?.(parsed.options, context);
+
+          if (shouldSkip) return;
+
           if (!commandString.length) {
             const selectedCommands = await commandMenuPrompt({
               title,
@@ -87,6 +102,11 @@ export function commandMenu({
       hooks.on(
         'postResolve',
         async ({ context, resolvedCommands, addResolvedCommands }) => {
+          const parsed = await context.parseCommand();
+          const shouldSkip = await _shouldSkip?.(parsed.options, context);
+
+          if (shouldSkip) return;
+
           const lastResolved = resolvedCommands[resolvedCommands.length - 1];
 
           if (lastResolved?.command.requiresSubcommand) {

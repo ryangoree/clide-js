@@ -1,6 +1,12 @@
-import { run } from 'clide-js';
+import { help, run } from 'clide-js';
 import { commandMenu } from '../src/command-menu.js';
 
 run({
-  plugins: [commandMenu({ title: 'Command Menu' })],
+  plugins: [
+    help,
+    commandMenu({
+      title: 'Command Menu',
+      skip: (options) => !!options.help,
+    }),
+  ],
 });
