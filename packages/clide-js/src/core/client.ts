@@ -73,10 +73,12 @@ export class Client {
    */
   async prompt(prompt: PromptOptions): Promise<any> {
     const promptOptions: prompts.PromptObject = {
+      type: 'text',
+      active: 'yes',
+      inactive: 'no',
       ...prompt,
       name: 'value',
       separator: ',',
-      type: prompt.type || 'text',
     };
 
     switch (promptOptions.type) {
