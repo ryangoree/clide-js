@@ -106,15 +106,7 @@ export async function run({
   beforeEnd,
   onError,
 }: RunOptions = {}) {
-  /**
-   * If no commands directory is provided, try to find one by first looking for
-   * a "commands" directory in the current working directory, then looking for a
-   * "commands" directory adjacent to the file that called this function.
-   *
-   * For example, if the node process is started from the root of a project and
-   * this function is called from a file at "src/cli.js", it will look for a
-   * "commands" directory in the root of the project and in the "src" directory.
-   */
+  // attempt to find commands directory
   if (!commandsDir) {
     // default to "<cwd>/commands"
     const defaultCommandsDirName = 'commands';
