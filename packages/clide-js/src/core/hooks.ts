@@ -225,6 +225,28 @@ export interface Hooks {
     /** Prevent the error from being thrown. */
     ignore: () => void;
   }) => MaybePromise<void>;
+
+  // called whenever a plugin or command intend to exit the process
+  exit: (payload: {
+    /** The command's context object. */
+    context: Context;
+    /** The exit code. */
+    code: number;
+    /** An optional message to log. */
+    message?: any;
+    /**
+     * Override the exit code.
+     * @param code - The new exit code.
+     */
+    setCode: (code: number) => void;
+    /**
+     * Override the message to log.
+     * @param message - The new message.
+     */
+    setMessage: (message: any) => void;
+    /** Prevent the process from exiting. */
+    cancel: () => void;
+  }) => MaybePromise<void>;
 }
 
 /**

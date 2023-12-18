@@ -373,6 +373,37 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
   };
 
   /**
+   * Exit the CLI with an optional exit code and message.
+   * @param code - The exit code. Defaults to 0.
+   * @param message - The message to be displayed before exiting.
+   */
+  readonly exit = async (code = 0, message?: any) => {
+    let _code = code;
+    let _message = message;
+    let cancel = false;
+
+    await this.hooks.call('exit', {
+      code: _code,
+      message: _message,
+      context: this,
+      setCode: (code) => {
+        _code = code;
+      },
+      setMessage: (message) => {
+        _message = message;
+      },
+      cancel: () => {
+        cancel = true;
+      },
+    });
+
+    if (!cancel) {
+      if (_message) this.client.error(_message);
+      process.exit(_code);
+    }
+  };
+
+  /**
    * Resolve the command string into a list of imported command modules, setting
    * the context's `resolvedCommands` property.
    *
