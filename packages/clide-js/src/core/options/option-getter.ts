@@ -105,16 +105,9 @@ export function createOptionGetter<
       validateFn = (value) => defaultValidate(value, config.type);
     }
 
-    // Use the default value for the initial prompt value and convert arrays to
-    // strings
-    const initial = Array.isArray(config?.default)
-      ? config?.default.join(',')
-      : config?.default;
-
     // Prompt for the option value if not provided and a prompt is provided
     if (value === undefined && prompt) {
-      value = await client.prompt({
-        initial: initial as any,
+      const promptOptions: PromptOptions = {
         type,
         validate: validateFn
           ? (value) => {
@@ -130,7 +123,41 @@ export function createOptionGetter<
           : undefined,
         // options passed to the getter take precedence over the config
         ...(typeof prompt === 'string' ? { message: prompt } : prompt),
-      });
+      };
+
+      // If an initial value is not provided, use the default value
+      if (
+        promptOptions.initial === undefined &&
+        config?.default !== undefined
+      ) {
+        const defaultValue = Array.isArray(config?.default)
+          ? config?.default.join(',')
+          : config?.default;
+
+        switch (promptOptions.type) {
+          case 'select':
+            // Ignore the default value if the choices aren't an array
+            if (!Array.isArray(promptOptions.choices)) break;
+
+            const defaultChoice = promptOptions.choices?.findIndex(
+              (choice) =>
+                choice.title === defaultValue || choice.value === defaultValue,
+            );
+            if (defaultChoice > -1) {
+              promptOptions.initial = defaultChoice;
+            }
+            break;
+
+          case 'date':
+            promptOptions.initial = new Date(defaultValue.toString());
+            break;
+
+          default:
+            promptOptions.initial = defaultValue as any;
+        }
+      }
+
+      value = await client.prompt(promptOptions);
     }
 
     // If still no value, use the default
