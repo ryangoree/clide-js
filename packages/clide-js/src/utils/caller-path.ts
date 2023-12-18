@@ -1,6 +1,6 @@
 /**
- * Attempts to get the path to the file that called the function that called
- * this function.
+ * Attempts to get the path to the file that contains the code that called this
+ * function.
  * @example
  *
  * #### Caller:
