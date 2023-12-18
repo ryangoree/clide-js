@@ -113,7 +113,6 @@ export async function commandMenuPrompt(
     choices.unshift(backChoice);
   }
 
-  // TODO: Move to client.prompt
   const filename = await client.prompt({
     type: 'select',
     message,

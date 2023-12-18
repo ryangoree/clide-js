@@ -45,11 +45,18 @@ export interface CommandMenuOptions {
 }
 
 /**
- * A Clide-JS plugin that prompts the user to select a subcommand when required.
- * After the user selects a subcommand, the command will be resolved and if it
- * also requires a subcommand, the user will be prompted again, but this time
- * can also select `↩ back` to go back to the previous menu. This will continue
- * until the user has selected all required subcommands.
+ * Command Menu
+ *
+ * A Clide-JS Plugin that:
+ * 1. Prompts the user to choose a subcommand if the current command requires
+ *    it.
+ * 2. After a subcommand is chosen, checks if it also needs a subcommand.
+ * 3. If further subcommands are needed, displays a new prompt with an added '↩
+ *    back' option.
+ * 4. Continues this process until all necessary subcommands are selected.
+ *
+ * Note: The '↩ back' option allows users to return to the previous menu at any
+ * stage.
  */
 export function commandMenu({
   title,
