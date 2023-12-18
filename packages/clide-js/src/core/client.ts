@@ -13,11 +13,13 @@ import { ClientError, ERROR_PREFIX } from './errors';
 // TODO: replace with own type?
 export type PromptOptions = Omit<
   prompts.PromptObject,
-  'name' | 'message' | 'separator'
+  'name' | 'message' | 'separator' | 'type'
 > & {
   // make the message property required since prompts throws an error if it's
   // not defined.
   message: NonNullable<prompts.PromptObject['message']>;
+  // make the type property optional since we'll default to 'text'
+  type?: prompts.PromptObject['type'];
 };
 
 /**
@@ -74,6 +76,7 @@ export class Client {
       ...prompt,
       name: 'value',
       separator: ',',
+      type: prompt.type || 'text',
     });
     return value;
   }

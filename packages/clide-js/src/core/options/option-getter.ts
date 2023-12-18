@@ -114,7 +114,6 @@ export function createOptionGetter<
     // Prompt for the option value if not provided and a prompt is provided
     if (value === undefined && prompt) {
       value = await client.prompt({
-        ...(typeof prompt === 'string' ? { message: prompt } : prompt),
         initial: initial as any,
         type,
         validate: validateFn
@@ -129,6 +128,8 @@ export function createOptionGetter<
               return validateFn!(value);
             }
           : undefined,
+        // options passed to the getter take precedence over the config
+        ...(typeof prompt === 'string' ? { message: prompt } : prompt),
       });
     }
 
