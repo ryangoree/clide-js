@@ -2,7 +2,6 @@ import cfonts from 'cfonts';
 import {
   Client,
   CommandModule,
-  RequiredSubcommandError,
   ResolveCommandFn,
   ResolvedCommand,
   parseFileName,
@@ -36,6 +35,11 @@ export interface CommandMenuPromptOptions extends CommandMenuOptions {
    * The commands that have been selected so far.
    */
   selectionHistory?: ResolvedCommand[];
+
+  /**
+   * A function to call when the user exits the command menu.
+   */
+  onExit?: () => void;
 }
 
 export async function commandMenuPrompt(
@@ -51,6 +55,7 @@ export async function commandMenuPrompt(
     commandsDir,
     resolveFn = resolveCommand,
     selectionHistory = [],
+    onExit,
   } = options;
 
   if (title) {
@@ -116,11 +121,8 @@ export async function commandMenuPrompt(
   });
 
   if (!filename) {
-    let commandString = '';
-    for (const selectedCommand of selectionHistory) {
-      commandString += selectedCommand.commandTokens.join(' ');
-    }
-    throw new RequiredCommandSelectionError(commandString.trim());
+    onExit?.();
+    return selectionHistory;
   }
 
   if (filename === backChoice.value) {
@@ -173,11 +175,3 @@ export async function commandMenuPrompt(
 const passThroughCommand: CommandModule = {
   handler: ({ data, next }) => next(data),
 };
-
-class RequiredCommandSelectionError extends RequiredSubcommandError {
-  constructor(commandString: string) {
-    super(commandString);
-    this.message = `Command selection required.`;
-    this.name = 'CanceledCommandMenuError';
-  }
-}

@@ -91,6 +91,9 @@ export function commandMenu({
               maxDescriptionLength,
               resolveFn: ({ commandString, commandsDir }) =>
                 context.resolveCommand(commandString, commandsDir),
+              onExit: async () => {
+                await context.exit();
+              },
             });
             addResolvedCommands(selectedCommands);
             skip();
@@ -119,6 +122,9 @@ export function commandMenu({
               maxDescriptionLength,
               resolveFn: ({ commandString, commandsDir }) =>
                 context.resolveCommand(commandString, commandsDir),
+              onExit: async () => {
+                await context.exit();
+              },
             });
             addResolvedCommands(selectedSubcommands);
           }
