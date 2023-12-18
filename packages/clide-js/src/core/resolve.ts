@@ -7,7 +7,7 @@ import {
   UsageError,
 } from 'src/core/errors';
 import { ParseCommandFn, parseCommand } from 'src/core/parse';
-import { isDirectory, isModuleNotFoundError } from 'src/utils/fs';
+import { isDirectory, isFile } from 'src/utils/fs';
 import { parseFileName } from 'src/utils/parse-file-name';
 import { removeFileExtension } from 'src/utils/remove-file-extension';
 import { MaybePromise } from 'src/utils/types';
@@ -96,7 +96,9 @@ export async function resolveCommand({
       subcommandsDir,
     };
   } catch (err: unknown) {
-    if (!isModuleNotFoundError(err)) throw err;
+    // If the file exists but couldn't be loaded for some other reason, forward
+    // the error to avoid masking module errors.
+    if (isFile(commandPath)) throw err;
 
     // If the command file doesn't exist, check if the path is a directory and
     // treat it as a pass-through command.
@@ -198,6 +200,10 @@ async function resolveParamCommand({
       // match found, stop searching
       break;
     } catch (err) {
+      // If the file exists but couldn't be loaded for some other reason,
+      // forward the error to avoid masking module errors.
+      if (isFile(commandPath)) throw err;
+
       // If the command file doesn't exist, assume the path is a directory and
       // treat it as a pass-through command. This is safe to assume since the
       // paths are derived from readdir so we know they exist.

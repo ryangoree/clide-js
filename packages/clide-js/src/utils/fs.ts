@@ -13,10 +13,12 @@ export function isDirectory(path: string): boolean {
 }
 
 /**
- * Determine if an error is a module not found error
- * @group Utils
+ * Determine if a path is a file without throwing an error
  */
-export function isModuleNotFoundError(err: unknown): boolean {
-  if (err && (err as any).code === 'ENOENT') return true;
-  return /(Cannot find module|not a directory, stat)/.test(String(err));
+export function isFile(path: string): boolean {
+  try {
+    return fs.statSync(path).isFile();
+  } catch {
+    return false;
+  }
 }
