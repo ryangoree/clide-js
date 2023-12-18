@@ -5,6 +5,7 @@ import { isDirectory } from 'src/utils/fs';
 import { Context } from './context';
 import { ClideError, ClientError } from './errors';
 import { HookPayload, HooksEmitter } from './hooks';
+import { OptionsConfig } from './options/types';
 import { Plugin } from './plugin';
 
 /**
@@ -26,6 +27,10 @@ export interface RunOptions {
    * Initial context or data to pass to commands during execution.
    */
   initialData?: any;
+  /**
+   * Options to include in the context.
+   */
+  options?: OptionsConfig;
   /**
    * An array of plugins that can modify or augment the behavior of commands.
    */
@@ -95,6 +100,7 @@ export async function run({
   command = hideBin(process.argv),
   commandsDir,
   initialData,
+  options,
   plugins,
   beforeResolve,
   afterResolve,
@@ -151,6 +157,11 @@ export async function run({
     plugins,
     hooks,
   });
+
+  // Add options to the context.
+  if (options) {
+    context.addOptions(options);
+  }
 
   // Attempt to prepare and execute the command and return the result.
   try {
