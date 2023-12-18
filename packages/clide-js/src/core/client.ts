@@ -72,12 +72,49 @@ export class Client {
    * @see https://github.com/terkelg/prompts#-prompt-objects
    */
   async prompt(prompt: PromptOptions): Promise<any> {
-    const { value } = await prompts({
+    const promptOptions: prompts.PromptObject = {
       ...prompt,
       name: 'value',
       separator: ',',
       type: prompt.type || 'text',
-    });
+    };
+
+    switch (promptOptions.type) {
+      // Replace string initial values with their corresponding choice index
+      // or remove the initial value if it's not a valid choice.
+      case 'select':
+        if (
+          typeof prompt.initial === 'string' &&
+          Array.isArray(prompt.choices)
+        ) {
+          console.log('converting initial value to index');
+          promptOptions.initial = prompt.choices?.findIndex(
+            (choice) =>
+              choice.title === prompt.initial ||
+              choice.value === prompt.initial,
+          );
+        } else if (typeof prompt.initial !== 'number') {
+          promptOptions.initial = undefined;
+        }
+        break;
+
+      // Multiselect doesn't support initial values
+      case 'multiselect':
+        promptOptions.initial = undefined;
+        break;
+
+      // Convert string initial values to dates or remove the initial value if
+      // it's not a valid date.
+      case 'date':
+        if (typeof prompt.initial === 'string') {
+          promptOptions.initial = new Date(prompt.initial);
+        } else if (!(prompt.initial instanceof Date)) {
+          promptOptions.initial = undefined;
+        }
+        break;
+    }
+
+    const { value } = await prompts(promptOptions);
     return value;
   }
 }
