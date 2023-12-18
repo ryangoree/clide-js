@@ -59,7 +59,7 @@ describe('parse', () => {
     } as ParsedCommand);
   });
 
-  it("doesn't parse unknown options", async () => {
+  it('parses unknown options as booleans', async () => {
     const commandString = 'foo -a -b -c';
 
     expect(
@@ -67,9 +67,11 @@ describe('parse', () => {
         a: { type: 'boolean' },
       }),
     ).toMatchObject({
-      tokens: ['foo', '-b', '-c'],
+      tokens: ['foo'],
       options: {
         a: true,
+        b: true,
+        c: true,
       },
     } as ParsedCommand);
   });
