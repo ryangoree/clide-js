@@ -6,7 +6,7 @@ on:
     branches:
       - main
     paths:
-      - 'packages/clide-js/docs/**'
+      - 'packages/clide-js/src/**'
       - 'README.md'
       - '.github/workflows/docs.yml'
 
