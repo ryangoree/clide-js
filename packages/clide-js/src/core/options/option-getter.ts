@@ -91,6 +91,7 @@ export function createOptionGetter<
         break;
       case 'array':
         type = 'list';
+        break;
       case 'string':
       default:
         type = 'text';
