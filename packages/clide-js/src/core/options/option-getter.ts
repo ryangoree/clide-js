@@ -116,8 +116,8 @@ export function createOptionGetter<
               // function, so we need to check for an empty string and use the
               // default value if provided.
               // see: https://github.com/terkelg/prompts/issues/410
-              if (value === '' && config?.default) {
-                return validateFn!(config?.default);
+              if (value === '' && config?.default !== undefined) {
+                value = config?.default;
               }
               return validateFn!(value);
             }
