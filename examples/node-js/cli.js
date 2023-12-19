@@ -5,7 +5,7 @@ const { commandMenu } = require('clide-plugin-command-menu');
 async function main() {
   await run({
     plugins: [
-      help,
+      help(),
       commandMenu({
         title: 'Node.js Example',
       }),

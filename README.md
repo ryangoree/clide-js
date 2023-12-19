@@ -56,11 +56,12 @@ import { run } from 'clide-js';
 // Use argv (minus the binary name) and the default commands directory.
 run();
 
-// Or pass in your own
+// Or pass in your own + some options
 run({
   command: 'deploy dev --watch',
   commandsDir: path.join(__dirname, 'modules'),
   initialData: { ... }
+  plugins: [help()]
 })
 ```
 
@@ -105,37 +106,39 @@ export default command({
 ```ts
 import { Plugin } from 'clide-js';
 
-export const logger: Plugin = {
-  name: 'logger',
-  version: '1.0.0',
-  description: 'Logs the result of each execution step.',
-  init: ({ client, commandString, hooks }) => {
-    client.log('🪵 Received command:', commandString);
+export function logger(): Plugin {
+  return {
+    name: 'logger',
+    version: '1.0.0',
+    description: 'Logs the result of each execution step.',
+    init: ({ client, commandString, hooks }) => {
+      client.log('🪵 Received command:', commandString);
 
-    hooks.on('preNext', ({ data, state }) => {
-      client.log('🪵 Next:', {
-        commandName: state.command.commandName,
-        commandTokens: state.command.commandTokens,
-        commandPath: state.command.commandPath,
-        params: state.params,
-        data: state.data,
+      hooks.on('preNext', ({ data, state }) => {
+        client.log('🪵 Next:', {
+          commandName: state.command.commandName,
+          commandTokens: state.command.commandTokens,
+          commandPath: state.command.commandPath,
+          params: state.params,
+          data: state.data,
+        });
       });
-    });
 
-    hooks.on('preEnd', ({ data, state }) => {
-      log('🪵 End:', {
-        commandName: state.command.commandName,
-        commandTokens: state.command.commandTokens,
-        commandPath: state.command.commandPath,
-        params: state.params,
-        data: state.data,
+      hooks.on('preEnd', ({ data, state }) => {
+        log('🪵 End:', {
+          commandName: state.command.commandName,
+          commandTokens: state.command.commandTokens,
+          commandPath: state.command.commandPath,
+          params: state.params,
+          data: state.data,
+        });
       });
-    });
 
-    // return true to indicate successful initialization
-    return true;
-  },
-};
+      // return true to indicate successful initialization
+      return true;
+    },
+  };
+}
 ```
 
 ## Ideal Use Cases

@@ -1,18 +1,13 @@
-import initCliui from "cliui";
-import fs from "node:fs";
-import { getBin } from "src/utils/argv";
-import { Converted, convert } from "src/utils/convert";
-import { isDirectory } from "src/utils/fs";
-import { parseFileName } from "src/utils/parse-file-name";
-import { removeFileExtension } from "src/utils/remove-file-extension";
-import { Context } from "./context";
-import { OptionsConfig } from "./options/types";
-import { ResolvedCommand } from "./resolve";
-
-const cliui = initCliui({
-  width: 80,
-  wrap: true,
-});
+import initCliui from 'cliui';
+import fs from 'node:fs';
+import { getBin } from 'src/utils/argv';
+import { Converted, convert } from 'src/utils/convert';
+import { isDirectory } from 'src/utils/fs';
+import { parseFileName } from 'src/utils/parse-file-name';
+import { removeFileExtension } from 'src/utils/remove-file-extension';
+import { Context } from './context';
+import { OptionsConfig } from './options/types';
+import { ResolvedCommand } from './resolve';
 
 // The base indent for all rows
 const BASE_INDENT = 2;
@@ -76,6 +71,18 @@ export type Help = {
    */
 } & Converted<HelpRows, Column, string>;
 
+export interface GetHelpOptions {
+  /**
+   * The context object for the command to get help for.
+   */
+  context: Context;
+  /**
+   * The max line-length for the help text.
+   * @default 80
+   */
+  maxWidth?: number;
+}
+
 /**
  * Generates the help information for a given command based on the provided
  * tokens.
@@ -88,11 +95,19 @@ export type Help = {
  * @param context - The context object for the command.
  * @group Help
  */
-export async function getHelp(context: Context): Promise<Help> {
+export async function getHelp({
+  context,
+  maxWidth = 80,
+}: GetHelpOptions): Promise<Help> {
+  const cliui = initCliui({
+    width: maxWidth,
+    wrap: true,
+  });
+
   const rows: HelpRows = {
     usage: {
       // Start the usage string with the binary name
-      text: `Usage: ${getBin().replace(process.cwd(), "")}`,
+      text: `Usage: ${getBin().replace(process.cwd(), '')}`,
       padding: [1, 0, 0, 0],
     },
   };
@@ -108,7 +123,7 @@ export async function getHelp(context: Context): Promise<Help> {
   for (const resolved of context.resolvedCommands) {
     const { paramName, spreadOperator } = parseFileName(resolved.commandName);
     if (paramName) {
-      rows.usage.text += ` <${paramName}${spreadOperator ? " ..." : ""}>`;
+      rows.usage.text += ` <${paramName}${spreadOperator ? ' ...' : ''}>`;
     } else {
       rows.usage.text += ` ${resolved.commandName}`;
     }
@@ -126,9 +141,12 @@ export async function getHelp(context: Context): Promise<Help> {
   // Add option rows
   let hasRequiredOptions = false;
   if (Object.keys(allOptions).length) {
-    const result = await optionRows(allOptions);
+    const result = await optionRows({
+      options: allOptions,
+      maxWidth: maxWidth / 2,
+    });
     rows.optionsTitle = {
-      text: "OPTIONS:",
+      text: 'OPTIONS:',
       padding: [1, 0, 0, 0],
     };
     rows.options = result.rows;
@@ -145,6 +163,7 @@ export async function getHelp(context: Context): Promise<Help> {
         command: finalResolved,
         commandsDir: subcommandsDir,
         context,
+        maxWidth: maxWidth / 2,
       }),
     );
   }
@@ -153,13 +172,13 @@ export async function getHelp(context: Context): Promise<Help> {
   if (hasSubcommands && finalResolved?.command.isMiddleware === false) {
     rows.usage.text +=
       hasRequiredOptions || requiresSubcommand
-        ? " (<OPTIONS> | <COMMAND>)"
-        : " ([OPTIONS] | [COMMAND])";
+        ? ' (<OPTIONS> | <COMMAND>)'
+        : ' ([OPTIONS] | [COMMAND])';
   } else {
-    rows.usage.text += hasRequiredOptions ? " <OPTIONS>" : " [OPTIONS]";
+    rows.usage.text += hasRequiredOptions ? ' <OPTIONS>' : ' [OPTIONS]';
 
     if (hasSubcommands) {
-      rows.usage.text += requiresSubcommand ? " <COMMAND>" : " [COMMAND]";
+      rows.usage.text += requiresSubcommand ? ' <COMMAND>' : ' [COMMAND]';
     }
   }
 
@@ -185,13 +204,13 @@ export async function getHelp(context: Context): Promise<Help> {
   }
 
   // Add empty line to cliui
-  cliui.div({ text: "", padding: [0, 0, 0, 0] });
+  cliui.div({ text: '', padding: [0, 0, 0, 0] });
 
   // Convert cliui rows to strings
   const rowStrings = convert(
     rows,
     (value): value is { text: string } =>
-      typeof value === "object" && "text" in value,
+      typeof value === 'object' && 'text' in value,
     (value) => value.text,
   );
 
@@ -203,7 +222,7 @@ export async function getHelp(context: Context): Promise<Help> {
     ...convert(
       rowStrings,
       (value): value is string[] =>
-        Array.isArray(value) && value.every((v) => typeof v === "string"),
+        Array.isArray(value) && value.every((v) => typeof v === 'string'),
       (value) => value.filter(Boolean),
     ),
 
@@ -211,7 +230,12 @@ export async function getHelp(context: Context): Promise<Help> {
   };
 }
 
-function optionRows(options: OptionsConfig): {
+interface OptionRowsOptions {
+  options: OptionsConfig;
+  maxWidth?: number;
+}
+
+function optionRows({ options, maxWidth = 40 }: OptionRowsOptions): {
   rows: [Column, Column][];
   hasRequiredOptions: boolean;
 } {
@@ -243,19 +267,19 @@ function optionRows(options: OptionsConfig): {
       let optionString = [
         ...sortedSingleLetterKeys.map((key) => `-${key}`),
         ...sortedWordKeys.map((key) => `--${key}`),
-      ].join(", ");
+      ].join(', ');
 
       let optionValue: string | undefined;
 
       switch (option.type) {
-        case "string":
-          optionValue = "string";
+        case 'string':
+          optionValue = 'string';
           break;
-        case "number":
-          optionValue = "number";
+        case 'number':
+          optionValue = 'number';
           break;
-        case "array":
-          optionValue = "string ...";
+        case 'array':
+          optionValue = 'string ...';
       }
 
       const isRequired = !!option.required && !option.default;
@@ -276,8 +300,8 @@ function optionRows(options: OptionsConfig): {
           padding: [0, 0, 0, leftPadding],
         },
         {
-          text: `${option.description || ""}${
-            option.default ? ` (default: ${option.default})` : ""
+          text: `${option.description || ''}${
+            option.default ? ` (default: ${option.default})` : ''
           }`,
           padding: [0, 0, 0, 3],
         },
@@ -285,7 +309,7 @@ function optionRows(options: OptionsConfig): {
     },
   );
 
-  const firstColWidth = Math.min(Math.max(...firstColWidths), 40);
+  const firstColWidth = Math.min(Math.max(...firstColWidths), maxWidth);
 
   // Set the width of the first column of each option span to the max width
   for (const [firstCol] of rows) {
@@ -302,17 +326,19 @@ interface CommandRowsOptions {
   command: ResolvedCommand | undefined;
   commandsDir: string;
   context: Context;
+  maxWidth?: number;
 }
 
 async function commandRows({
   command,
   commandsDir,
   context,
+  maxWidth = 40,
 }: CommandRowsOptions): Promise<Partial<HelpRows>> {
   // Add subcommands header row
   const rows: Partial<HelpRows> = {
     subcommandsTitle: {
-      text: "COMMANDS:",
+      text: 'COMMANDS:',
       padding: [1, 0, 0, 0],
     },
   };
@@ -326,18 +352,18 @@ async function commandRows({
         .map((commandName) => {
           const { paramName, spreadOperator } = parseFileName(commandName);
           if (paramName) {
-            return `[${paramName}${spreadOperator ? " ..." : ""}]`;
+            return `[${paramName}${spreadOperator ? ' ...' : ''}]`;
           } else {
             return removeFileExtension(commandName);
           }
         })
         // TODO: Is this still necessary?
-        .filter((name) => name !== "index")
+        .filter((name) => name !== 'index')
         // Sort by alphabetical order, but put param commands at the end
         .sort((a, b) => {
-          if (a.startsWith("[") && !b.startsWith("[")) {
+          if (a.startsWith('[') && !b.startsWith('[')) {
             return 1;
-          } else if (!a.startsWith("[") && b.startsWith("[")) {
+          } else if (!a.startsWith('[') && b.startsWith('[')) {
             return -1;
           } else {
             return a.localeCompare(b);
@@ -365,14 +391,14 @@ async function commandRows({
           padding: [0, 0, 0, BASE_INDENT],
         },
         {
-          text: description || "",
+          text: description || '',
           padding: [0, 0, 0, 3],
         },
       ];
     }),
   );
 
-  const firstColWidth = Math.min(Math.max(...firstColWidths), 40);
+  const firstColWidth = Math.min(Math.max(...firstColWidths), maxWidth);
 
   // Set the width of the first column of each subcommand span to the max width
   for (const [firstCol] of rows.subcommands) {
@@ -388,7 +414,7 @@ async function commandRows({
 type Column = {
   text: string;
   width?: number;
-  align?: "right" | "left" | "center";
+  align?: 'right' | 'left' | 'center';
   padding: number[];
   border?: boolean;
 };

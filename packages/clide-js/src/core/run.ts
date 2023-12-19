@@ -86,7 +86,7 @@ export interface RunOptions {
  * @example
  * run({
  *   command: 'build ./src --watch --env=prod',
- *   plugins: [help]
+ *   plugins: [help()]
  * });
  *
  * @remarks
