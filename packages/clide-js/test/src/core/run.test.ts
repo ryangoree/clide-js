@@ -6,6 +6,7 @@ import {
 } from 'test/mocks/command-modules';
 
 import path from 'node:path';
+import { Client } from 'src/core/client';
 import { Context } from 'src/core/context';
 import { ClideError } from 'src/core/errors';
 import { HookPayload } from 'src/core/hooks';
@@ -572,6 +573,125 @@ describe('run', () => {
             plugins: [plugin],
           }),
         ).toBe(undefined);
+      });
+    });
+
+    describe('exit hook', () => {
+      const data = 'test data';
+      it('can cancel the exit', async () => {
+        mockCommandModules({
+          'commands/foo': {
+            handler: ({ context }) => {
+              context.exit();
+            },
+          },
+          'commands/foo/bar': {
+            handler: ({ end }) => {
+              console.log('end', end);
+              end(data);
+            },
+          },
+        });
+
+        // Run and expect
+        const result = await run({
+          command: 'foo bar',
+          commandsDir: 'commands',
+          onExit: ({ cancel }) => {
+            console.log('cancel', cancel);
+            cancel();
+          },
+        });
+
+        // Expect the result to be the data from the last command
+        expect(result).toBe(data);
+      });
+
+      it('is called with the correct payload', async () => {
+        const code = 1;
+        const message = 'test';
+        mockCommandModule('commands/foo', {
+          handler: ({ context }) => {
+            context.exit(code, message);
+          },
+        });
+
+        // Setup mock hook
+        const mockHook = vi.fn(({ cancel }) => {
+          cancel();
+        });
+
+        // Run
+        await run({
+          command: 'foo',
+          commandsDir: 'commands',
+          onExit: mockHook,
+        }).catch(() => {});
+
+        // Expect the hook to have been called with the correct payload
+        expect(mockHook).toHaveBeenCalledWith({
+          context: expect.any(Context),
+          code,
+          setCode: expect.any(Function),
+          message,
+          setMessage: expect.any(Function),
+          cancel: expect.any(Function),
+        } as HookPayload<'exit'>);
+      });
+
+      it('can set the exit code', async () => {
+        const originalCode = 1;
+        const hookCode = 2;
+
+        const exitSpy = vi
+          .spyOn(process, 'exit')
+          .mockImplementation((() => {}) as any);
+
+        mockCommandModule('commands/foo', {
+          handler: ({ context }) => {
+            context.exit(originalCode);
+          },
+        });
+
+        // Expect the command to throw the original error without the plugin
+        await run({
+          command: 'foo',
+          commandsDir: 'commands',
+          onExit: ({ setCode }) => {
+            setCode(hookCode);
+          },
+        });
+
+        expect(exitSpy).toHaveBeenCalledWith(hookCode);
+      });
+
+      it('can set the message', async () => {
+        const originalMessage = 'original message';
+        const hookMessage = 'hook message';
+
+        mockCommandModule('commands/foo', {
+          handler: ({ context }) => {
+            context.exit(1, originalMessage);
+          },
+        });
+
+        // Spy on the client's error method
+        const clientLogSpy = vi.spyOn(Client.prototype, 'error');
+
+        // Prevent the process from exiting
+        vi.spyOn(process, 'exit').mockImplementation((() => {}) as any);
+
+        // Expect the command to throw the original error without the plugin
+        await run({
+          command: 'foo',
+          commandsDir: 'commands',
+          onExit: ({ setMessage }) => {
+            setMessage(hookMessage);
+          },
+        });
+
+        // Expect the message from the hook to have been used
+        expect(clientLogSpy).toHaveBeenCalledWith(hookMessage);
       });
     });
   });

@@ -73,6 +73,10 @@ export interface RunOptions {
    * A hook that runs whenever an error is thrown.
    */
   onError?: (payload: HookPayload<'error'>) => void;
+  /**
+   * A hook that runs whenever a plugin or command intends to exit the process.
+   */
+  onExit?: (payload: HookPayload<'exit'>) => void;
 }
 
 /**
@@ -111,6 +115,7 @@ export async function run({
   beforeNext,
   beforeEnd,
   onError,
+  onExit,
 }: RunOptions = {}) {
   // attempt to find commands directory
   if (!commandsDir) {
@@ -149,6 +154,7 @@ export async function run({
   if (beforeNext) hooks.on('preNext', beforeNext);
   if (beforeEnd) hooks.on('preEnd', beforeEnd);
   if (onError) hooks.on('error', onError);
+  if (onExit) hooks.on('exit', onExit);
 
   // create context
   const context = new Context({
