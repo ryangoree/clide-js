@@ -137,6 +137,93 @@ describe('run', () => {
     expect(result).toBe(dataFromBar);
   });
 
+  it('ends the command chain when "end()" is called', async () => {
+    const dataFromBar = 'data from bar';
+    mockCommandModules({
+      'commands/foo': {
+        handler: ({ next }) => next('foo'),
+      },
+      'commands/foo/bar': {
+        handler: ({ end }) => end(dataFromBar),
+      },
+      'commands/foo/bar/baz': {
+        handler: ({ end }) => end('baz'),
+      },
+    });
+
+    // Run
+    const result = await run({
+      command: 'foo bar baz',
+      commandsDir: 'commands',
+      initialData: 'hello, world!',
+    });
+
+    // Expect the result to be the data from the last command
+    expect(result).toBe(dataFromBar);
+  });
+
+  it('handles commands that call an action without awaiting', async () => {
+    const endData = 'end data';
+    mockCommandModules({
+      'commands/foo': {
+        // Not awaited
+        handler: ({ next }) => {
+          next('not awaited');
+        },
+      },
+      'commands/foo/bar': {
+        // Doesn't resolve right away
+        handler: ({ end }) => {
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              end(endData);
+              resolve(undefined);
+            }, 100);
+          });
+        },
+      },
+    });
+
+    // Run
+    const result = await run({
+      command: 'foo bar',
+      commandsDir: 'commands',
+    });
+
+    // Should still get the data from the last command
+    expect(result).toBe(endData);
+  });
+
+  it("handles commands that don't call an action", async () => {
+    const endData = 'end data';
+    mockCommandModules({
+      'commands/foo': {
+        // No action
+        handler: () => {},
+      },
+      'commands/foo/bar': {
+        // Doesn't resolve right away
+        handler: ({ end }) => {
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              end(endData);
+              resolve(undefined);
+            }, 100);
+          });
+        },
+      },
+    });
+
+    // Run
+    const result = await run({
+      command: 'foo bar',
+      commandsDir: 'commands',
+    });
+
+    // Should still get the data from the last command
+    expect(result).toBe(endData);
+  });
+
   describe('lifecycle', () => {
     it('calls preParse hook with the correct payload', async () => {
       mockCommandModule('commands/foo');
