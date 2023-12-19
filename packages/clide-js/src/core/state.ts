@@ -31,6 +31,12 @@ export class State<
   private _commands: ResolvedCommand[];
   private _options: OptionsGetter<TOptions>;
   private _params: Params = {};
+  /**
+   * The number of times `next()` or `end()` has been called. This is used to
+   * prevent the process from hanging if a command handler neglects to call
+   * `next()` or `end()`.
+   */
+  private _actionCallCount = 0;
 
   /**
    * A promise that resolves when the steps are done. This is useful for
@@ -120,6 +126,7 @@ export class State<
    * @param data The data to pass to the next step or return.
    */
   readonly next = async (data?: unknown): Promise<void> => {
+    this._actionCallCount++;
     let _data = data;
     let nextCommand = this.commands[this.i + 1] as ResolvedCommand | undefined;
 
@@ -148,7 +155,14 @@ export class State<
         },
       });
 
+      const actionCallCountBefore = this._actionCallCount;
       await nextCommand.command.handler(this);
+
+      // Prevent the process from hanging if a command handler neglects to call
+      // `next()` or `end()` by checking if the action call count has changed.
+      if (actionCallCountBefore === this._actionCallCount) {
+        await this.next(_data);
+      }
     } else {
       // If there is no next command, end the steps.
       await this._setState({
@@ -170,6 +184,7 @@ export class State<
     data?: unknown,
     // endOptions: EndOptions = {},
   ): Promise<void> => {
+    this._actionCallCount++;
     let _data = data as any;
 
     await this.context.hooks.call('preEnd', {
