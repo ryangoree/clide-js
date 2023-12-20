@@ -3,7 +3,11 @@ import { getHelp } from 'src/core/help';
 import { removeOptionTokens } from 'src/core/options/remove-option-tokens';
 import { Plugin } from 'src/core/plugin';
 
-interface HelpPluginOptions {
+/**
+ * Options for the help plugin.
+ * @group Plugins
+ */
+export interface HelpPluginOptions {
   /**
    * The max line-length for the help text.
    * @default 80
