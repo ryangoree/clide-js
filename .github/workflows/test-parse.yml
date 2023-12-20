@@ -11,7 +11,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Call parse-ref-semver
-        uses: ./.github/actions/parse-ref-semver
+        uses: ./.github/workflows/parse-ref-semver.yml
         id: parse
         with:
           ref: refs/tags/hyperdrive-wasm@v1.2.3
