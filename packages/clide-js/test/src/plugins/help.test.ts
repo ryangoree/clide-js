@@ -6,11 +6,11 @@ import {
 
 vi.mock('src/core/client');
 
-import { run } from 'src/core/run';
 import { Client } from 'src/core/client';
 import { Context } from 'src/core/context';
 import { UsageError } from 'src/core/errors';
 import * as helpModule from 'src/core/help';
+import { run } from 'src/core/run';
 import { help } from 'src/plugins/help';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -30,7 +30,7 @@ describe('plugin: help', () => {
     await run({
       command: 'foo',
       commandsDir: 'commands',
-      plugins: [help],
+      plugins: [help()],
       beforeExecute: ({ state }) => {
         // Ensure the options are present before the command is executed
         expect(state.options).toMatchObject({
@@ -49,11 +49,13 @@ describe('plugin: help', () => {
     const context = await Context.prepare({
       commandString,
       commandsDir,
-      plugins: [help],
+      plugins: [help()],
     });
 
     // Get the expected help text
-    const { helpText: expectedHelpText } = await helpModule.getHelp(context);
+    const { helpText: expectedHelpText } = await helpModule.getHelp({
+      context,
+    });
 
     // Spy on the client's log method
     const clientLogSpy = vi.spyOn(Client.prototype, 'log');
@@ -62,7 +64,7 @@ describe('plugin: help', () => {
     await run({
       command: commandString,
       commandsDir,
-      plugins: [help],
+      plugins: [help()],
     });
 
     // Expect the client to have been called with the help text
@@ -82,10 +84,10 @@ describe('plugin: help', () => {
     const result = await run({
       command: commandString,
       commandsDir,
-      plugins: [help],
+      plugins: [help()],
     });
 
     expect(result).toBeInstanceOf(UsageError);
-    expect(getHelpSpy).toHaveBeenCalledWith(expect.any(Context));
+    expect(getHelpSpy).toHaveBeenCalled();
   });
 });

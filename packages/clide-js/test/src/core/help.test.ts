@@ -27,7 +27,7 @@ describe('help', () => {
     await context.prepare();
 
     // Expect a bare-bones help object
-    expect(await getHelp(context)).toMatchObject({
+    expect(await getHelp({ context })).toMatchObject({
       helpText: expect.any(String),
       usage: expect.any(String),
     } as Help);
@@ -57,7 +57,7 @@ describe('help', () => {
     await context.prepare();
 
     // // Expect a full help object
-    expect(await getHelp(context)).toMatchObject({
+    expect(await getHelp({ context })).toMatchObject({
       usage: expect.any(String),
       description: expect.any(String),
       optionsTitle: expect.any(String),
