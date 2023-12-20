@@ -26454,6 +26454,8 @@ var __webpack_exports__ = {};
 
 try {
   const ref = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('ref');
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('ref', ref);
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Parsing "${ref}"...`);
 
   /**
    * A modified version of the regex from
@@ -26471,32 +26473,34 @@ try {
   );
 
   if (!match) {
-    throw new Error('Tag does not match the expected format');
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('matched', 'false');
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`"${ref}" is not a valid semver reference.`);
+  } else {
+    const [
+      // path (e.g. "refs/tags/")
+      _,
+      // Full prefix minus the optional "v" (e.g. refs/tags/@scope/name@)
+      __,
+      // Scope with the "@" (e.g. "@scope")
+      ___,
+      scope,
+      name,
+      major,
+      minor,
+      patch,
+      prerelease,
+      build,
+    ] = match;
+
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('matched', 'true');
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('scope', scope);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('name', name);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('major', major);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('minor', minor);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('patch', patch);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('prerelease', prerelease);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('build', build);
   }
-
-  const [
-    // path (e.g. "refs/tags/")
-    _,
-    // Full prefix minus the optional "v" (e.g. refs/tags/@scope/name@)
-    __,
-    // Scope with the "@" (e.g. "@scope")
-    ___,
-    scope,
-    name,
-    major,
-    minor,
-    patch,
-    prerelease,
-    build,
-  ] = match;
-
-  _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('scope', scope);
-  _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('name', name);
-  _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('major', major);
-  _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('minor', minor);
-  _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('patch', patch);
-  _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('prerelease', prerelease);
-  _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('build', build);
 } catch (error) {
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message);
 }

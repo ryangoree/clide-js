@@ -23,33 +23,32 @@ try {
   if (!match) {
     core.setOutput('matched', 'false');
     core.info(`"${ref}" is not a valid semver reference.`);
-    return;
+  } else {
+    const [
+      // path (e.g. "refs/tags/")
+      _,
+      // Full prefix minus the optional "v" (e.g. refs/tags/@scope/name@)
+      __,
+      // Scope with the "@" (e.g. "@scope")
+      ___,
+      scope,
+      name,
+      major,
+      minor,
+      patch,
+      prerelease,
+      build,
+    ] = match;
+
+    core.setOutput('matched', 'true');
+    core.setOutput('scope', scope);
+    core.setOutput('name', name);
+    core.setOutput('major', major);
+    core.setOutput('minor', minor);
+    core.setOutput('patch', patch);
+    core.setOutput('prerelease', prerelease);
+    core.setOutput('build', build);
   }
-
-  const [
-    // path (e.g. "refs/tags/")
-    _,
-    // Full prefix minus the optional "v" (e.g. refs/tags/@scope/name@)
-    __,
-    // Scope with the "@" (e.g. "@scope")
-    ___,
-    scope,
-    name,
-    major,
-    minor,
-    patch,
-    prerelease,
-    build,
-  ] = match;
-
-  core.setOutput('matched', 'true');
-  core.setOutput('scope', scope);
-  core.setOutput('name', name);
-  core.setOutput('major', major);
-  core.setOutput('minor', minor);
-  core.setOutput('patch', patch);
-  core.setOutput('prerelease', prerelease);
-  core.setOutput('build', build);
 } catch (error) {
   core.setFailed(error.message);
 }
