@@ -26492,6 +26492,8 @@ try {
       build,
     ] = match;
 
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`matched "${match}"`);
+
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('matched', 'true');
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('scope', scope);
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('name', name);

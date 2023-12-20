@@ -40,6 +40,8 @@ try {
       build,
     ] = match;
 
+    core.info(`matched "${match}"`);
+
     core.setOutput('matched', 'true');
     core.setOutput('scope', scope);
     core.setOutput('name', name);
