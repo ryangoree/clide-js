@@ -33,5 +33,5 @@ jobs:
         run: echo "publish next"
 
       - name: publish latest
-        if: !steps.parse.outputs.prerelease
+        if: steps.parse.outputs.prerelease == ''
         run: echo "publish latest"
