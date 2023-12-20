@@ -42,7 +42,6 @@ try {
       build,
     ] = match;
 
-    core.info(`"${ref}" matched.`);
     core.info(`scope: ${scope}`);
     core.info(`name: ${name}`);
     core.info(`major: ${major}`);

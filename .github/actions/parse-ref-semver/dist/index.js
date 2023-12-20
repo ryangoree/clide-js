@@ -26494,7 +26494,6 @@ try {
       build,
     ] = match;
 
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`"${ref}" matched.`);
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`scope: ${scope}`);
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`name: ${name}`);
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`major: ${major}`);
