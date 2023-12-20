@@ -26477,12 +26477,14 @@ try {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`"${ref}" is not a valid semver reference.`);
   } else {
     const [
-      // path (e.g. "refs/tags/")
+      // Full match
       _,
-      // Full prefix minus the optional "v" (e.g. refs/tags/@scope/name@)
+      // path (e.g. "refs/tags/")
       __,
-      // Scope with the "@" (e.g. "@scope")
+      // Full prefix minus the optional "v" (e.g. refs/tags/@scope/name@)
       ___,
+      // Scope with the "@" (e.g. "@scope")
+      ____,
       scope,
       name,
       major,
@@ -26492,7 +26494,14 @@ try {
       build,
     ] = match;
 
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`matched "${match}"`);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`"${ref}" matched.`);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`scope: ${scope}`);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`name: ${name}`);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`major: ${major}`);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`minor: ${minor}`);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`patch: ${patch}`);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`prerelease: ${prerelease}`);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`build: ${build}`);
 
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('matched', 'true');
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('scope', scope);
