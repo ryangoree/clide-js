@@ -27,3 +27,11 @@ jobs:
           echo "patch=${{ steps.parse.outputs.patch }}"
           echo "prerelease=${{ steps.parse.outputs.prerelease }}"
           echo "build=${{ steps.parse.outputs.build }}"
+
+      - name: publish next
+        if: steps.parse.outputs.prerelease
+        run: echo "publish next"
+
+      - name: publish latest
+        if: !steps.parse.outputs.prerelease
+        run: echo "publish latest"
