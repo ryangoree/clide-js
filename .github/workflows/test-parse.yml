@@ -4,24 +4,24 @@ on:
   workflow_dispatch:
 
 jobs:
+  parse:
+    uses: ./.github/workflows/parse-ref-semver.yml
+    with:
+      ref: refs/tags/hyperdrive-wasm@v1.2.3
+
   test:
     runs-on: ubuntu-latest
+    needs: parse
     steps:
       - name: checkout
         uses: actions/checkout@v4
 
-      - name: Call parse-ref-semver
-        uses: ./.github/workflows/parse-ref-semver.yml
-        id: parse
-        with:
-          ref: refs/tags/hyperdrive-wasm@v1.2.3
-
       - name: Print outputs
         run: |
-          echo "package-scope=${{ steps.parse.outputs.package-scope }}"
-          echo "package-name=${{ steps.parse.outputs.package-name }}"
-          echo "major=${{ steps.parse.outputs.major }}"
-          echo "minor=${{ steps.parse.outputs.minor }}"
-          echo "patch=${{ steps.parse.outputs.patch }}"
-          echo "prerelease=${{ steps.parse.outputs.prerelease }}"
-          echo "build=${{ steps.parse.outputs.build }}"
+          echo "package-scope=${{ needs.parse.outputs.package-scope }}"
+          echo "package-name=${{ needs.parse.outputs.package-name }}"
+          echo "major=${{ needs.parse.outputs.major }}"
+          echo "minor=${{ needs.parse.outputs.minor }}"
+          echo "patch=${{ needs.parse.outputs.patch }}"
+          echo "prerelease=${{ needs.parse.outputs.prerelease }}"
+          echo "build=${{ needs.parse.outputs.build }}"
