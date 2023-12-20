@@ -14,7 +14,7 @@ jobs:
         uses: ./.github/actions/parse-ref-semver
         id: parse
         with:
-          ref: refs/tags/@scope/name@v1.2.3-alpha.1+build.123
+          ref: refs/tags/@scope/name@v1.2.3
 
       - name: Print outputs
         run: |
