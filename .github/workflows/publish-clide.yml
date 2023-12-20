@@ -34,6 +34,18 @@ jobs:
       - name: copy root readme
         run: cp README.md packages/clide-js/
 
-      - name: publish
+      - name: parse ref
+        uses: ./.github/actions/parse-ref-semver
+        id: parse
+        with:
+          ref: ${{ github.ref }}
+
+      - name: publish next
+        if: steps.parse.outputs.prerelease
+        working-directory: packages/clide-js/
+        run: npm publish --access public --tag next
+
+      - name: publish latest
+        if: steps.parse.outputs.prerelease == ''
         working-directory: packages/clide-js/
         run: npm publish --access public

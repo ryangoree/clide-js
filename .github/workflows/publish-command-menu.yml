@@ -31,6 +31,18 @@ jobs:
       - name: build
         run: yarn build:clide
 
-      - name: publish
+      - name: parse ref
+        uses: ./.github/actions/parse-ref-semver
+        id: parse
+        with:
+          ref: ${{ github.ref }}
+
+      - name: publish next
+        if: steps.parse.outputs.prerelease
+        working-directory: packages/clide-plugin-command-menu/
+        run: npm publish --access public --tag next
+
+      - name: publish latest
+        if: steps.parse.outputs.prerelease == ''
         working-directory: packages/clide-plugin-command-menu/
         run: npm publish --access public
