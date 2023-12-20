@@ -183,8 +183,8 @@ export async function run({
     // coerce non-cli errors to cli errors
     if (error instanceof ClideError) {
       throw error;
-    } else {
-      throw new ClideError(error);
     }
+
+    throw new ClideError(error);
   }
 }
