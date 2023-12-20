@@ -1,0 +1,27 @@
+name: test parse ref semver
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Call parse-ref-semver
+        uses: ./.github/actions/parse-ref-semver
+        id: parse
+        with:
+          ref: refs/tags/hyperdrive-wasm@v1.2.3
+
+      - name: Print outputs
+        run: |
+          echo "package-scope=${{ steps.parse.outputs.package-scope }}"
+          echo "package-name=${{ steps.parse.outputs.package-name }}"
+          echo "major=${{ steps.parse.outputs.major }}"
+          echo "minor=${{ steps.parse.outputs.minor }}"
+          echo "patch=${{ steps.parse.outputs.patch }}"
+          echo "prerelease=${{ steps.parse.outputs.prerelease }}"
+          echo "build=${{ steps.parse.outputs.build }}"
