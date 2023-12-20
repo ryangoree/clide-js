@@ -18,6 +18,7 @@ jobs:
 
       - name: Print outputs
         run: |
+          echo "ref=${{ steps.parse.outputs.ref }}"
           echo "matched=${{ steps.parse.outputs.matched }}"
           echo "package-scope=${{ steps.parse.outputs.package-scope }}"
           echo "package-name=${{ steps.parse.outputs.package-name }}"
