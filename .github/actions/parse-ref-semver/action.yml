@@ -9,9 +9,9 @@ outputs:
     description: The ref that was parsed
   matched:
     description: \"true\" if the ref matched the semver pattern, \"false\" otherwise
-  package-scope:
+  scope:
     description: The package scope (if any) from the tag (e.g. @scope/package-name@v1.2.3 -> scope)
-  package-name:
+  name:
     description: The package name (if any) from the tag (e.g. @scope/package-name@v1.2.3 -> package-name)
   major:
     description: The major version from the tag (e.g. v1.2.3 -> 1)

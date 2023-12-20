@@ -20,8 +20,8 @@ jobs:
         run: |
           echo "ref=${{ steps.parse.outputs.ref }}"
           echo "matched=${{ steps.parse.outputs.matched }}"
-          echo "package-scope=${{ steps.parse.outputs.package-scope }}"
-          echo "package-name=${{ steps.parse.outputs.package-name }}"
+          echo "scope=${{ steps.parse.outputs.scope }}"
+          echo "name=${{ steps.parse.outputs.name }}"
           echo "major=${{ steps.parse.outputs.major }}"
           echo "minor=${{ steps.parse.outputs.minor }}"
           echo "patch=${{ steps.parse.outputs.patch }}"
