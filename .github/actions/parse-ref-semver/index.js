@@ -20,6 +20,7 @@ try {
 
   if (!match) {
     core.setOutput('matched', false);
+    core.info(`"${ref}" is not a valid semver reference.`);
     return;
   }
 
