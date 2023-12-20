@@ -25,12 +25,14 @@ try {
     core.info(`"${ref}" is not a valid semver reference.`);
   } else {
     const [
-      // path (e.g. "refs/tags/")
+      // Full match
       _,
-      // Full prefix minus the optional "v" (e.g. refs/tags/@scope/name@)
+      // path (e.g. "refs/tags/")
       __,
-      // Scope with the "@" (e.g. "@scope")
+      // Full prefix minus the optional "v" (e.g. refs/tags/@scope/name@)
       ___,
+      // Scope with the "@" (e.g. "@scope")
+      ____,
       scope,
       name,
       major,
@@ -40,7 +42,14 @@ try {
       build,
     ] = match;
 
-    core.info(`matched "${match}"`);
+    core.info(`"${ref}" matched.`);
+    core.info(`scope: ${scope}`);
+    core.info(`name: ${name}`);
+    core.info(`major: ${major}`);
+    core.info(`minor: ${minor}`);
+    core.info(`patch: ${patch}`);
+    core.info(`prerelease: ${prerelease}`);
+    core.info(`build: ${build}`);
 
     core.setOutput('matched', 'true');
     core.setOutput('scope', scope);
