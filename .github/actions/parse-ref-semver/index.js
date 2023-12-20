@@ -19,7 +19,7 @@ try {
   );
 
   if (!match) {
-    core.setOutput('matched', false);
+    core.setOutput('matched', 'false');
     core.info(`"${ref}" is not a valid semver reference.`);
     return;
   }
@@ -40,7 +40,7 @@ try {
     build,
   ] = match;
 
-  core.setOutput('matched', true);
+  core.setOutput('matched', 'true');
   core.setOutput('scope', scope);
   core.setOutput('name', name);
   core.setOutput('major', major);
