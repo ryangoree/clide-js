@@ -34,8 +34,8 @@ jobs:
   parse:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: checkout
+        uses: actions/checkout@v4
 
       - name: Extract version from tag
         id: get_version
