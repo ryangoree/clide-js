@@ -16,6 +16,9 @@ jobs:
         with:
           ref: refs/tags/@scope/name@v1.2.3-alpha.1+build.123
 
+      - name: Print matched
+        run: echo "matched=${{ steps.parse.outputs.matched }}"
+
       - name: Print outputs
         if: ${{ steps.parse.outputs.matched == 'true'  }}
         run: |
