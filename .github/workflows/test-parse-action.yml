@@ -14,9 +14,10 @@ jobs:
         uses: ./.github/actions/parse-ref-semver
         id: parse
         with:
-          ref: ${{ github.ref }}
+          ref: refs/tags/@scope/name@v1.2.3-alpha.1+build.123
 
       - name: Print outputs
+        if: ${{ steps.parse.outputs.matched == 'true'  }}
         run: |
           echo "package-scope=${{ steps.parse.outputs.package-scope }}"
           echo "package-name=${{ steps.parse.outputs.package-name }}"

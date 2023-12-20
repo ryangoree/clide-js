@@ -5,6 +5,8 @@ inputs:
     description: 'The github ref to parse (e.g. refs/tags/v1.0.0, refs/tags/pkg@v1.2.3)'
     required: true
 outputs:
+  matched:
+    description: \"true\" if the ref matched the semver pattern, \"false\" otherwise
   package-scope:
     description: The package scope (if any) from the tag (e.g. @scope/package-name@v1.2.3 -> scope)
   package-name:

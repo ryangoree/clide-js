@@ -19,7 +19,8 @@ try {
   );
 
   if (!match) {
-    throw new Error('Tag does not match the expected format');
+    core.setOutput('matched', false);
+    return;
   }
 
   const [
@@ -38,6 +39,7 @@ try {
     build,
   ] = match;
 
+  core.setOutput('matched', true);
   core.setOutput('scope', scope);
   core.setOutput('name', name);
   core.setOutput('major', major);
