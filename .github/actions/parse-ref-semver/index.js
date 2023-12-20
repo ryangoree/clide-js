@@ -3,6 +3,7 @@ import core from '@actions/core';
 try {
   const ref = core.getInput('ref');
   core.setOutput('ref', ref);
+  core.info(`Parsing "${ref}"...`);
 
   /**
    * A modified version of the regex from
