@@ -74,6 +74,7 @@ export interface ContextOptions<
  *   before allowing the execution to proceed.
  * - Error Management: Providing a centralized mechanism for error handling
  *   during the preparation and execution phases.
+ * - Exit Management: Providing a centralized mechanism for exiting the CLI.
  *
  * @group Context
  */

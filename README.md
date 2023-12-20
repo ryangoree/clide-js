@@ -211,11 +211,11 @@ reference](/packages/clide-js/docs/interfaces/Plugin.md).
 
 ### Examples
 
-- [help](https://ryangoree.github.io/clide-js/variables/help-1.html): Adds the `--help`/`-h` option
+- [help](https://ryangoree.github.io/clide-js/functions/help-1.html): Adds the `--help`/`-h` option
   and manages printing help messages when the option is present or a
   [`UsageError`](https://ryangoree.github.io/clide-js/classes/UsageError.html) occurs.
   _Included in the core package._
-- [logger](https://ryangoree.github.io/clide-js/variables/logger.html): A simple logger that logs
+- [logger](https://ryangoree.github.io/clide-js/functions/logger.html): A simple logger that logs
   the result of each execution step. _Included in the core package._
 - [command-menu](https://github.com/ryangoree/clide-js/tree/main/packages/clide-plugin-command-menu): Prompts the user to
   select a subcommand when required.
