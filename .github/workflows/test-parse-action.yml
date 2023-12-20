@@ -16,12 +16,9 @@ jobs:
         with:
           ref: refs/tags/@scope/name@v1.2.3-alpha.1+build.123
 
-      - name: Print matched
-        run: echo "matched=${{ steps.parse.outputs.matched }}"
-
       - name: Print outputs
-        if: ${{ steps.parse.outputs.matched == 'true'  }}
         run: |
+          echo "matched=${{ steps.parse.outputs.matched }}"
           echo "package-scope=${{ steps.parse.outputs.package-scope }}"
           echo "package-name=${{ steps.parse.outputs.package-name }}"
           echo "major=${{ steps.parse.outputs.major }}"
