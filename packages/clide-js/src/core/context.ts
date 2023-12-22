@@ -300,15 +300,17 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
 
     let _initialData = initialData;
     let skip = false;
+    let newResult = initialData;
 
     await this.hooks.call('preExecute', {
       initialData,
       state,
       setInitialData: (data) => {
         _initialData = data;
+        newResult = data;
       },
       setResultAndSkip: (result) => {
-        this._result = result;
+        newResult = result;
         skip = true;
       },
       skip: () => {
@@ -330,25 +332,21 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
     if (!skip) {
       try {
         await state.start(_initialData);
+        newResult = state.data;
       } catch (error) {
         await this.throw(error);
       }
     }
 
-    let didOverrideResult = false;
-
     await this.hooks.call('postExecute', {
-      result: this._result,
+      result: newResult,
       state,
       setResult: (result) => {
-        this._result = result;
-        didOverrideResult = true;
+        newResult = result;
       },
     });
 
-    // Only set the result to the state's data if it wasn't overridden by the
-    // postExecute hook and the command wasn't skipped
-    if (!didOverrideResult && !skip) this._result = state.data;
+    this._result = newResult;
   };
 
   /**
