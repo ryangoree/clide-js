@@ -294,15 +294,23 @@ function optionRows({ options, maxWidth = 40 }: OptionRowsOptions): {
 
       firstColWidths.add(optionString.length + leftPadding);
 
+      let description = option.description || '';
+
+      if (option.default) {
+        if (option.type === 'secret') {
+          description += ' (default: *****)';
+        } else {
+          description += ` (default: ${option.default})`;
+        }
+      }
+
       return [
         {
           text: optionString,
           padding: [0, 0, 0, leftPadding],
         },
         {
-          text: `${option.description || ''}${
-            option.default ? ` (default: ${option.default})` : ''
-          }`,
+          text: description,
           padding: [0, 0, 0, 3],
         },
       ];

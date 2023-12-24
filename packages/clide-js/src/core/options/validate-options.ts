@@ -86,6 +86,7 @@ export function validateOptionType(
 ): void {
   switch (type) {
     case 'string':
+    case 'secret':
       if (typeof value !== 'string') {
         throw new OptionsError(`Option "${name}" must be a string`);
       }

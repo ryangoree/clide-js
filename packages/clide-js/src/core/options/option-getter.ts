@@ -92,6 +92,9 @@ export function createOptionGetter<
       case 'array':
         type = 'list';
         break;
+      case 'secret':
+        type = 'password';
+        break;
       case 'string':
       default:
         type = 'text';
@@ -236,6 +239,7 @@ function defaultValidate(value: unknown, optionType?: OptionType) {
 
     // Ensure strings are strings and have at least one character
     case 'string':
+    case 'secret':
     default:
       return typeof value === 'string' && value.length > 0;
   }

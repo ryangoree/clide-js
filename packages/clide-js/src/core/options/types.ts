@@ -5,7 +5,8 @@ import { MaybeReadonly } from 'src/utils/types';
  * The possible types for an option.
  * @group Options
  */
-export type OptionType = 'string' | 'number' | 'boolean' | 'array';
+// TODO: secret (should be hidden from output)
+export type OptionType = 'string' | 'number' | 'boolean' | 'array' | 'secret';
 
 /**
  * The configuration interface for an option used to define how an option will
@@ -63,13 +64,14 @@ export type OptionsConfig<
  * Get the primitive type for an option type.
  * @group Options
  */
-export type OptionPrimitiveType<T extends OptionType = OptionType> =
-  T extends 'string'
-    ? string
-    : T extends 'number'
-    ? number
-    : T extends 'boolean'
-    ? boolean
-    : T extends 'array'
-    ? string[]
-    : never;
+export type OptionPrimitiveType<T extends OptionType = OptionType> = T extends
+  | 'string'
+  | 'secret'
+  ? string
+  : T extends 'number'
+  ? number
+  : T extends 'boolean'
+  ? boolean
+  : T extends 'array'
+  ? string[]
+  : never;
