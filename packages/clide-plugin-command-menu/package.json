@@ -1,6 +1,6 @@
 {
   "name": "clide-plugin-command-menu",
-  "version": "0.0.6",
+  "version": "0.0.7-alpha.0",
   "description": "A plugin for Clide-JS CLIs to auto-prompt the user for missing required subcommands.",
   "license": "MIT",
   "type": "module",
