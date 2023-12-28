@@ -1,5 +1,5 @@
 name: 'Parse Ref Semver'
-description: 'Pase a github ref (usually a tag) and extract the semver version, optional package scope, and optional package name'
+description: 'Parse a github ref (usually a tag) and extract the semver version, optional package scope, and optional package name'
 inputs:
   ref:
     description: 'The github ref to parse (e.g. refs/tags/v1.0.0, refs/tags/pkg@v1.2.3)'
