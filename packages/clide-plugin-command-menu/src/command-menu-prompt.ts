@@ -37,7 +37,8 @@ export interface CommandMenuPromptOptions extends CommandMenuOptions {
   selectionHistory?: ResolvedCommand[];
 
   /**
-   * A function to call when the user exits the command menu.
+   * A function to call when the user exits the command menu. By default, the
+   * process will exit.
    */
   onExit?: () => void;
 }
@@ -55,7 +56,7 @@ export async function commandMenuPrompt(
     commandsDir,
     resolveFn = resolveCommand,
     selectionHistory = [],
-    onExit,
+    onExit = () => process.exit(),
   } = options;
 
   if (title) {
@@ -139,7 +140,7 @@ export async function commandMenuPrompt(
   let commandString = removeFileExtension(filename);
 
   if (paramName) {
-    commandString = await client.prompt({
+    let commandStringWithValues = await client.prompt({
       type: spreadOperator ? 'list' : 'text',
       message: spreadOperator
         ? `Enter values for ${paramName}`
@@ -147,9 +148,16 @@ export async function commandMenuPrompt(
       initial: commandString,
     });
 
-    if (Array.isArray(commandString)) {
-      commandString = commandString.join(' ');
+    if (!commandStringWithValues) {
+      onExit();
+      return selectionHistory;
     }
+
+    if (Array.isArray(commandStringWithValues)) {
+      commandStringWithValues = commandStringWithValues.join(' ');
+    }
+
+    commandString = commandStringWithValues;
   }
 
   const resolved = await resolveFn({
