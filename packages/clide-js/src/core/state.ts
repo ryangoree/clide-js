@@ -32,9 +32,11 @@ export class State<
   private _options: OptionsGetter<TOptions>;
   private _params: Params = {};
   /**
-   * The number of times `next()` or `end()` has been called. This is used to
+   * The number of times `next()` or `end()` have been called. This is used to
    * prevent the process from hanging if a command handler neglects to call
-   * `next()` or `end()`.
+   * `next()` or `end()`. If the action call count doesn't align with the
+   * expected count based on the number of steps, the next step will be called
+   * automatically.
    */
   private _actionCallCount = 0;
 
@@ -98,7 +100,7 @@ export class State<
    * @throws {ClideError} If the steps have already started.
    * @returns A promise that resolves when the steps are done.
    */
-  start = async (initialData?: unknown): Promise<void> => {
+  readonly start = async (initialData?: unknown): Promise<void> => {
     // Avoid starting the steps if they're already started.
     if (this._promise) {
       throw new ClideError('Steps have already started.');
@@ -232,6 +234,7 @@ export class State<
   private async _setState(nextState: Partial<NextState>) {
     let _changes = nextState;
 
+    // pre hook
     await this.context.hooks.call('preStateChange', {
       state: this as any,
       changes: _changes,
@@ -244,6 +247,7 @@ export class State<
       },
     });
 
+    // Set new state values if defined.
     if (_changes.i !== undefined) {
       this._i = _changes.i;
     }
@@ -259,6 +263,7 @@ export class State<
       this._data = _changes.data as any;
     }
 
+    // post hook
     await this.context.hooks.call('postStateChange', {
       state: this as any,
       changed: _changes,
