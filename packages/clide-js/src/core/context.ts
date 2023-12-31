@@ -150,25 +150,13 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
   get options() {
     return this._options;
   }
-  /** A boolean indicating whether the commands have been resolved. */
-  get isResolved() {
-    return this._isResolved;
-  }
   /** A list of the resolved commands. */
   get resolvedCommands() {
     return this._resolvedCommands;
   }
-  /** A boolean indicating whether the command string has been parsed. */
-  get isParsed() {
-    return this._isParsed;
-  }
   /** The parsed option values for the command. */
   get parsedOptions() {
     return this._parsedOptions;
-  }
-  /** A boolean indicating whether the context is ready for execution. */
-  get isReady() {
-    return this._isReady;
   }
   /** The result of the most recent execution. */
   get result() {
@@ -319,7 +307,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
     });
 
     // Ensure the context is ready before proceeding
-    if (!skip && !this.isReady) {
+    if (!skip && !this._isReady) {
       // Await this.throw which could be ignored by a hook
       await this.throw(
         new ClideError(

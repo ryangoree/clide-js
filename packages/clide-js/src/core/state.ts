@@ -74,10 +74,6 @@ export class State<
   get commands() {
     return this._commands;
   }
-  /** Whether the steps are done. */
-  get isDone() {
-    return this.i >= this.commands.length - 1;
-  }
   /** The context for the command. */
   get context() {
     return this._context;
