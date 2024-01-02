@@ -114,7 +114,7 @@ export function logger(): Plugin {
     init: ({ client, commandString, hooks }) => {
       client.log('🪵 Received command:', commandString);
 
-      hooks.on('preNext', ({ data, state }) => {
+      hooks.on('beforeNext', ({ data, state }) => {
         client.log('🪵 Next:', {
           commandName: state.command.commandName,
           commandTokens: state.command.commandTokens,
@@ -124,7 +124,7 @@ export function logger(): Plugin {
         });
       });
 
-      hooks.on('preEnd', ({ data, state }) => {
+      hooks.on('beforeEnd', ({ data, state }) => {
         log('🪵 End:', {
           commandName: state.command.commandName,
           commandTokens: state.command.commandTokens,

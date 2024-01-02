@@ -13,11 +13,11 @@ export function logger(): Plugin {
     init: ({ client, commandString, hooks }) => {
       client.log(prefix('received command'), commandString);
 
-      hooks.on('preNext', ({ data, state }) => {
+      hooks.on('beforeNext', ({ data, state }) => {
         log('next', data, state);
       });
 
-      hooks.on('preEnd', ({ data, state }) => {
+      hooks.on('beforeEnd', ({ data, state }) => {
         log('end', data, state);
       });
 

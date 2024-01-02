@@ -290,7 +290,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
     let skip = false;
     let newResult = initialData;
 
-    await this.hooks.call('preExecute', {
+    await this.hooks.call('beforeExecute', {
       initialData,
       state,
       setInitialData: (data) => {
@@ -326,7 +326,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
       }
     }
 
-    await this.hooks.call('postExecute', {
+    await this.hooks.call('afterExecute', {
       result: newResult,
       state,
       setResult: (result) => {
@@ -401,7 +401,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
 
     let resolved: ResolvedCommand | undefined;
 
-    await this.hooks.call('preResolve', {
+    await this.hooks.call('beforeResolve', {
       commandString: this.commandString,
       commandsDir: this.commandsDir,
       context: this,
@@ -430,7 +430,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
     }
 
     // Continue resolving until the last command is reached or the
-    // `preResolveNext` hook skips
+    // `beforeResolveNext` hook skips
     while (resolved && !this._isResolved) {
       // Add the command's options to the context's options config
       if (resolved.command.options) {
@@ -452,7 +452,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
         break;
       }
 
-      await this.hooks.call('preResolveNext', {
+      await this.hooks.call('beforeResolveNext', {
         commandString: resolved.remainingCommandString,
         commandsDir: resolved.subcommandsDir,
         lastResolved: resolved,
@@ -484,7 +484,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
       }
     }
 
-    await this.hooks.call('postResolve', {
+    await this.hooks.call('afterResolve', {
       resolvedCommands: this._resolvedCommands,
       addResolvedCommands: (resolvedCommands) => {
         for (const resolved of resolvedCommands) {
@@ -519,7 +519,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
   private _parse = async () => {
     if (this._isParsed) return;
 
-    await this.hooks.call('preParse', {
+    await this.hooks.call('beforeParse', {
       commandString: this.commandString,
       optionsConfig: this.options,
       setParseFn: (parseFn) => {
@@ -542,7 +542,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
       this._isParsed = true;
     }
 
-    await this.hooks.call('postParse', {
+    await this.hooks.call('afterParse', {
       parsedOptions: this._parsedOptions,
       setParsedOptions: (optionValues) => {
         this._parsedOptions = optionValues;

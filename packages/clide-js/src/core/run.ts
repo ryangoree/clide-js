@@ -38,37 +38,37 @@ export interface RunOptions {
   /**
    * A hook that runs before attempting to locate and import command modules.
    */
-  beforeResolve?: (payload: HookPayload<'preResolve'>) => void;
+  beforeResolve?: (payload: HookPayload<'beforeResolve'>) => void;
   /**
    * A hook that runs after importing command modules.
    */
-  afterResolve?: (payload: HookPayload<'postResolve'>) => void;
+  afterResolve?: (payload: HookPayload<'afterResolve'>) => void;
   /**
    * A hook that runs before parsing the command string using the options config
    * from plugins and imported command modules.
    */
-  beforeParse?: (payload: HookPayload<'preParse'>) => void;
+  beforeParse?: (payload: HookPayload<'beforeParse'>) => void;
   /**
    * A hook that runs after parsing the command string.
    */
-  afterParse?: (payload: HookPayload<'postParse'>) => void;
+  afterParse?: (payload: HookPayload<'afterParse'>) => void;
   /**
    * A hook that runs before calling the first command.
    */
-  beforeExecute?: (payload: HookPayload<'preExecute'>) => void;
+  beforeExecute?: (payload: HookPayload<'beforeExecute'>) => void;
   /**
    * A hook that runs once all commands have been called or when `context.end()`
    * is called.
    */
-  afterExecute?: (payload: HookPayload<'postExecute'>) => void;
+  afterExecute?: (payload: HookPayload<'afterExecute'>) => void;
   /**
    * A hook that runs before executing the `context.next()` function.
    */
-  beforeNext?: (payload: HookPayload<'preNext'>) => void;
+  beforeNext?: (payload: HookPayload<'beforeNext'>) => void;
   /**
    * A hook that runs before executing the `context.end()` function.
    */
-  beforeEnd?: (payload: HookPayload<'preEnd'>) => void;
+  beforeEnd?: (payload: HookPayload<'beforeEnd'>) => void;
   /**
    * A hook that runs whenever an error is thrown.
    */
@@ -145,14 +145,14 @@ export async function run({
   const hooks = new HooksEmitter();
 
   // register hooks
-  if (beforeResolve) hooks.on('preResolve', beforeResolve);
-  if (afterResolve) hooks.on('postResolve', afterResolve);
-  if (beforeParse) hooks.on('preParse', beforeParse);
-  if (afterParse) hooks.on('postParse', afterParse);
-  if (beforeExecute) hooks.on('preExecute', beforeExecute);
-  if (afterExecute) hooks.on('postExecute', afterExecute);
-  if (beforeNext) hooks.on('preNext', beforeNext);
-  if (beforeEnd) hooks.on('preEnd', beforeEnd);
+  if (beforeResolve) hooks.on('beforeResolve', beforeResolve);
+  if (afterResolve) hooks.on('afterResolve', afterResolve);
+  if (beforeParse) hooks.on('beforeParse', beforeParse);
+  if (afterParse) hooks.on('afterParse', afterParse);
+  if (beforeExecute) hooks.on('beforeExecute', beforeExecute);
+  if (afterExecute) hooks.on('afterExecute', afterExecute);
+  if (beforeNext) hooks.on('beforeNext', beforeNext);
+  if (beforeEnd) hooks.on('beforeEnd', beforeEnd);
   if (onError) hooks.on('error', onError);
   if (onExit) hooks.on('exit', onExit);
 

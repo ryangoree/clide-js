@@ -75,7 +75,7 @@ export function commandMenu({
     init: ({ hooks }) => {
       // Show the menu if the command string is empty
       hooks.on(
-        'preResolve',
+        'beforeResolve',
         async ({
           commandString,
           commandsDir,
@@ -110,7 +110,7 @@ export function commandMenu({
 
       // Show the menu if the last resolved command requires a subcommand
       hooks.on(
-        'postResolve',
+        'afterResolve',
         async ({ context, resolvedCommands, addResolvedCommands }) => {
           const parsed = await context.parseCommand();
           const shouldSkip = await _shouldSkip?.(parsed.options, context);

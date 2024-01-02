@@ -76,7 +76,7 @@ export function help({ maxWidth = 80 }: HelpPluginOptions = {}): Plugin {
       });
 
       // Allow the command to be executed with just the help flag
-      hooks.on('preResolve', async ({ commandString, skip }) => {
+      hooks.on('beforeResolve', async ({ commandString, skip }) => {
         if (!commandString.length) return;
 
         const commandStringWithoutHelp = removeOptionTokens(commandString, {
@@ -93,7 +93,7 @@ export function help({ maxWidth = 80 }: HelpPluginOptions = {}): Plugin {
 
       // Avoid continuing to resolve the command if the help flag is present or
       // if a usage error occurred previously
-      hooks.on('preResolveNext', async ({ context, skip, lastResolved }) => {
+      hooks.on('beforeResolveNext', async ({ context, skip, lastResolved }) => {
         // If there's already a usage error, skip resolving the next command
         if (usageError) {
           skip();
@@ -116,7 +116,7 @@ export function help({ maxWidth = 80 }: HelpPluginOptions = {}): Plugin {
 
       // Print the help text and skip execution if the help flag is present or if
       // a usage error occurred previously
-      hooks.on('preExecute', async ({ state, setResultAndSkip, skip }) => {
+      hooks.on('beforeExecute', async ({ state, setResultAndSkip, skip }) => {
         isExecuting = true;
 
         const { help } = await state.options.get(['help']);
@@ -143,9 +143,9 @@ export function help({ maxWidth = 80 }: HelpPluginOptions = {}): Plugin {
       });
 
       // Reset the isExecuting flag and set the result if there was a usage error
-      // and it wasn't already set in the preExecute hook. This can happen if a
+      // and it wasn't already set in the beforeExecute hook. This can happen if a
       // usage error is thrown during execution.
-      hooks.on('postExecute', async ({ setResult }) => {
+      hooks.on('afterExecute', async ({ setResult }) => {
         isExecuting = false;
 
         if (usageError && !didSetResult) {

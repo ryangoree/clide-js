@@ -226,7 +226,7 @@ describe('run', () => {
   });
 
   describe('lifecycle', () => {
-    it('calls preParse hook with the correct payload', async () => {
+    it('calls beforeParse hook with the correct payload', async () => {
       mockCommandModule('commands/foo');
 
       // Setup mock hook
@@ -247,10 +247,10 @@ describe('run', () => {
         skip: expect.any(Function),
         setParseFn: expect.any(Function),
         context: expect.any(Context),
-      } as HookPayload<'preParse'>);
+      } as HookPayload<'beforeParse'>);
     });
 
-    it('calls postParse hook with the correct payload', async () => {
+    it('calls afterParse hook with the correct payload', async () => {
       mockCommandModule('commands/foo');
 
       // Setup mock hook
@@ -268,10 +268,10 @@ describe('run', () => {
         context: expect.any(Context),
         parsedOptions: expect.any(Object),
         setParsedOptions: expect.any(Function),
-      } as HookPayload<'postParse'>);
+      } as HookPayload<'afterParse'>);
     });
 
-    it('calls preResolve hook with the correct payload', async () => {
+    it('calls beforeResolve hook with the correct payload', async () => {
       mockCommandModule('commands/foo');
 
       // Setup mock hook
@@ -293,10 +293,10 @@ describe('run', () => {
         addResolvedCommands: expect.any(Function),
         skip: expect.any(Function),
         context: expect.any(Context),
-      } as HookPayload<'preResolve'>);
+      } as HookPayload<'beforeResolve'>);
     });
 
-    it('calls postResolve hook with the correct payload', async () => {
+    it('calls afterResolve hook with the correct payload', async () => {
       mockCommandModule('commands/foo');
 
       // Setup mock hook
@@ -314,10 +314,10 @@ describe('run', () => {
         addResolvedCommands: expect.any(Function),
         context: expect.any(Context),
         resolvedCommands: expect.any(Array),
-      } as HookPayload<'postResolve'>);
+      } as HookPayload<'afterResolve'>);
     });
 
-    it('calls preExecute hook with the correct payload', async () => {
+    it('calls beforeExecute hook with the correct payload', async () => {
       mockCommandModule('commands/foo');
 
       // Setup mock hook
@@ -337,10 +337,10 @@ describe('run', () => {
         setResultAndSkip: expect.any(Function),
         skip: expect.any(Function),
         state: expect.any(State),
-      } as HookPayload<'preExecute'>);
+      } as HookPayload<'beforeExecute'>);
     });
 
-    it('calls postExecute hook with the correct payload', async () => {
+    it('calls afterExecute hook with the correct payload', async () => {
       mockCommandModule('commands/foo');
 
       // Setup mock hook
@@ -358,10 +358,10 @@ describe('run', () => {
         result: undefined,
         setResult: expect.any(Function),
         state: expect.any(State),
-      } as HookPayload<'postExecute'>);
+      } as HookPayload<'afterExecute'>);
     });
 
-    it('calls preStateChange hook with the correct payload', async () => {
+    it('calls beforeStateChange hook with the correct payload', async () => {
       mockCommandModule('commands/foo');
 
       // Setup mock hook
@@ -377,7 +377,7 @@ describe('run', () => {
             version: '0.0.0',
             init: ({ hooks }) => {
               // Register the hook
-              hooks.on('preStateChange', mockHook);
+              hooks.on('beforeStateChange', mockHook);
 
               return true;
             },
@@ -391,10 +391,10 @@ describe('run', () => {
         setChanges: expect.any(Function),
         skip: expect.any(Function),
         state: expect.any(State),
-      } as HookPayload<'preStateChange'>);
+      } as HookPayload<'beforeStateChange'>);
     });
 
-    it('calls postStateChange hook with the correct payload', async () => {
+    it('calls afterStateChange hook with the correct payload', async () => {
       mockCommandModule('commands/foo');
 
       // Setup mock hook
@@ -409,7 +409,7 @@ describe('run', () => {
             name: 'test',
             version: '0.0.0',
             init: ({ hooks }) => {
-              hooks.on('postStateChange', mockHook);
+              hooks.on('afterStateChange', mockHook);
               return true;
             },
           },
@@ -420,10 +420,10 @@ describe('run', () => {
       expect(mockHook).toHaveBeenCalledWith({
         changed: expect.any(Object),
         state: expect.any(State),
-      } as HookPayload<'postStateChange'>);
+      } as HookPayload<'afterStateChange'>);
     });
 
-    it('calls preNext hook with the correct payload', async () => {
+    it('calls beforeNext hook with the correct payload', async () => {
       mockCommandModules({
         'commands/foo': {
           handler: ({ next }) => next(),
@@ -450,10 +450,10 @@ describe('run', () => {
         setData: expect.any(Function),
         setNextCommand: expect.any(Function),
         state: expect.any(State),
-      } as HookPayload<'preNext'>);
+      } as HookPayload<'beforeNext'>);
     });
 
-    it('calls preEnd hook with the correct payload', async () => {
+    it('calls beforeEnd hook with the correct payload', async () => {
       mockCommandModule('commands/foo', {
         handler: ({ end }) => end(),
       });
@@ -473,7 +473,7 @@ describe('run', () => {
         data: undefined,
         setData: expect.any(Function),
         state: expect.any(State),
-      } as HookPayload<'preEnd'>);
+      } as HookPayload<'beforeEnd'>);
     });
 
     describe('error hook', () => {

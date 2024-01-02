@@ -11,7 +11,7 @@ import { NextState, State } from './state';
  */
 export interface Hooks {
   // called once during preparation
-  preResolve: (payload: {
+  beforeResolve: (payload: {
     /** The command string that was passed to the CLI. */
     commandString: string;
     /** The path to the directory where the commands live. */
@@ -38,7 +38,7 @@ export interface Hooks {
   }) => MaybePromise<void>;
 
   // called once for each subcommand during preparation
-  preResolveNext: (payload: {
+  beforeResolveNext: (payload: {
     /** The remaining command string that needs to be resolved. */
     commandString: string;
     /**
@@ -70,7 +70,7 @@ export interface Hooks {
   }) => MaybePromise<void>;
 
   // called once during preparation
-  postResolve: (payload: {
+  afterResolve: (payload: {
     /** The resolved commands. */
     resolvedCommands: ResolvedCommand[];
     /**
@@ -80,9 +80,9 @@ export interface Hooks {
      * @remarks
      * After each command is resolved, it's options config is merged with the
      * context's existing options config so that context is always up to date in
-     * the {@linkcode preResolveNext} hook. Because of this, resolved commands
+     * the {@linkcode beforeResolveNext} hook. Because of this, resolved commands
      * can't be replaced once resolved, only added to. If you need to manually
-     * set the resolved commands, you can use the {@linkcode preResolve} hook to
+     * set the resolved commands, you can use the {@linkcode beforeResolve} hook to
      * do so.
      */
     addResolvedCommands: (result: ResolvedCommand[]) => void;
@@ -91,7 +91,7 @@ export interface Hooks {
   }) => MaybePromise<void>;
 
   // called once during preparation
-  preParse: (payload: {
+  beforeParse: (payload: {
     /** The command string that was passed to the CLI. */
     commandString: string | string[];
     /**
@@ -116,7 +116,7 @@ export interface Hooks {
   }) => MaybePromise<void>;
 
   // called once during preparation
-  postParse: (payload: {
+  afterParse: (payload: {
     /** The resulting parsed options. */
     parsedOptions: OptionValues;
     /**
@@ -129,7 +129,7 @@ export interface Hooks {
   }) => MaybePromise<void>;
 
   // called once for every execution
-  preExecute: (payload: {
+  beforeExecute: (payload: {
     /** The initial data that was passed to the state. */
     initialData: unknown;
     /** The state object. */
@@ -146,7 +146,7 @@ export interface Hooks {
   }) => MaybePromise<void>;
 
   // called once for every execution
-  postExecute: (payload: {
+  afterExecute: (payload: {
     /** The state object. */
     state: State;
     /** The final result. */
@@ -156,7 +156,7 @@ export interface Hooks {
   }) => MaybePromise<void>;
 
   // called every time the state changes during execution
-  preStateChange: (payload: {
+  beforeStateChange: (payload: {
     /** The state object. */
     state: State;
     /** The changes that will be applied to the state. */
@@ -171,7 +171,7 @@ export interface Hooks {
   }) => MaybePromise<void>;
 
   // called every time the state changes during execution
-  postStateChange: (payload: {
+  afterStateChange: (payload: {
     /** The state object. */
     state: State;
     /** The changes that were applied to the state. */
@@ -179,7 +179,7 @@ export interface Hooks {
   }) => MaybePromise<void>;
 
   // called for every call of state.next()
-  preNext: (payload: {
+  beforeNext: (payload: {
     /** The state object. */
     state: State;
     /** The data that will be passed to the next command. */
@@ -199,7 +199,7 @@ export interface Hooks {
   }) => MaybePromise<void>;
 
   // called once per execution, but only if state.end() is called
-  preEnd: (payload: {
+  beforeEnd: (payload: {
     /** The state object. */
     state: State;
     /** The data that will be returned. */

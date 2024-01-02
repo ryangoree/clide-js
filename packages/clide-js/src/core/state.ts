@@ -128,7 +128,7 @@ export class State<
     let _data = data;
     let nextCommand = this.commands[this.i + 1] as ResolvedCommand | undefined;
 
-    await this.context.hooks.call('preNext', {
+    await this.context.hooks.call('beforeNext', {
       state: this as any,
       data,
       setData: (data) => {
@@ -185,7 +185,7 @@ export class State<
     this._actionCallCount++;
     let _data = data as any;
 
-    await this.context.hooks.call('preEnd', {
+    await this.context.hooks.call('beforeEnd', {
       state: this as any,
       data,
       setData: (data) => {
@@ -231,7 +231,7 @@ export class State<
     let _changes = nextState;
 
     // pre hook
-    await this.context.hooks.call('preStateChange', {
+    await this.context.hooks.call('beforeStateChange', {
       state: this as any,
       changes: _changes,
       setChanges: (changes: Partial<NextState>) => {
@@ -260,7 +260,7 @@ export class State<
     }
 
     // post hook
-    await this.context.hooks.call('postStateChange', {
+    await this.context.hooks.call('afterStateChange', {
       state: this as any,
       changed: _changes,
     });
