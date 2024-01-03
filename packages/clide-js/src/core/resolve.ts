@@ -73,7 +73,7 @@ export async function resolveCommand({
   const commandPath = path.join(commandsDir, formatFileName(commandName));
   const subcommandsDir = removeFileExtension(commandPath);
   const commandTokens = [commandName];
-  let remainingCommandString = remainingTokens.join(' ');
+  const remainingCommandString = remainingTokens.join(' ');
 
   let resolved: ResolvedCommand | undefined;
 
