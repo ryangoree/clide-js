@@ -1,5 +1,6 @@
 import { OptionValues, ParseCommandFn, parseCommand } from 'src/core/parse';
 import { Client } from './client';
+import { CommandModule } from './command';
 import { ClideError, RequiredSubcommandError } from './errors';
 import { HooksEmitter } from './hooks';
 import { OptionsConfig } from './options/types';
@@ -291,8 +292,8 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
     let newResult = initialData;
 
     await this.hooks.call('beforeExecute', {
-      initialData,
       state,
+      initialData,
       setInitialData: (data) => {
         _initialData = data;
         newResult = data;
@@ -335,6 +336,46 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
     });
 
     this._result = newResult;
+  };
+
+  /**
+   * Invokes a command within the same execution context.
+   *
+   * @param commandModule The command module to invoke.
+   * @param initialData Data to pass to the invoked command.
+   */
+  readonly invokeCommands = async (
+    commands: (CommandModule | ResolvedCommand)[],
+    initialData?: any,
+  ) => {
+    // Coerce all commands to `ResolvedCommand` representations
+    const resolvedCommands = commands.map((command) =>
+      'command' in command
+        ? command
+        : {
+            command,
+            commandName: 'invokedCommand',
+            remainingCommandString: '',
+            commandPath: '',
+            commandTokens: [],
+            subcommandsDir: '',
+            params: {},
+          },
+    );
+
+    // Create a new state for the invocation
+    const state = new State({
+      context: this,
+      data: initialData,
+      commands: resolvedCommands,
+    });
+
+    try {
+      await state.start(initialData);
+      return state.data;
+    } catch (error) {
+      await this.throw(error);
+    }
   };
 
   /**

@@ -10,6 +10,11 @@ interface StateOptions<TData = unknown> {
   context: Context;
   /** The initial data for the steps. */
   data?: TData;
+  /**
+   * The commands to execute. If not provided, it defaults to the commands
+   * resolved from the context.
+   */
+  commands?: ResolvedCommand[];
 }
 
 /**
@@ -49,10 +54,10 @@ export class State<
   /** A function that resolves the promise when called. */
   private _resolvePromise: ((value: void) => void) | undefined;
 
-  constructor({ context, data }: StateOptions<TData>) {
+  constructor({ context, data, commands }: StateOptions<TData>) {
     this._context = context;
     this._data = data as TData;
-    this._commands = this._context.resolvedCommands;
+    this._commands = commands || this._context.resolvedCommands;
 
     // Create a getter to dynamically get the options from context.
     this._options = createOptionsGetter({
