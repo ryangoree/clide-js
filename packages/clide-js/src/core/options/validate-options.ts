@@ -84,6 +84,10 @@ export function validateOptionType(
   name: string,
   type: OptionType,
 ): void {
+  if (value === undefined) {
+    return;
+  }
+
   switch (type) {
     case 'string':
     case 'secret':
