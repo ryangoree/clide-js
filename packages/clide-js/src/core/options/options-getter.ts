@@ -24,6 +24,11 @@ interface CreateOptionsGetterOptions<
   optionValues?: TOptions;
   /** The client to use for prompting. */
   client?: Client;
+  /**
+   * A function to call when the user exits a prompt. By default, this will
+   * exit the process.
+   */
+  onPromptExit?: () => void;
 }
 
 /**
@@ -70,6 +75,7 @@ export function createOptionsGetter<
   client = new Client(),
   optionsConfig,
   optionValues = {} as TOptionValues,
+  onPromptExit = process.exit,
 }: CreateOptionsGetterOptions<
   TOptionsConfig,
   TOptionValues
@@ -128,6 +134,7 @@ export function createOptionsGetter<
         config,
         client,
         value: keyWithValue ? optionValues[keyWithValue] : undefined,
+        onPromptExit,
       });
 
       // wrap the getter function to update the values object

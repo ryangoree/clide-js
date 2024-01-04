@@ -10,9 +10,10 @@ export default command({
       default: 'World',
     },
   },
+  requiresSubcommand: true,
   handler: async ({ options, next }) => {
     const name = await options.name({
-      // prompt: "What's your name?",
+      prompt: "What's your name?",
     });
 
     next(`Hello, ${name}!`);

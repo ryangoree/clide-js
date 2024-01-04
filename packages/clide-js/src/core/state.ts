@@ -62,13 +62,14 @@ export class State<
   constructor({ context, data, commands, options }: StateOptions<TData>) {
     this._context = context;
     this._data = data as TData;
-    this._commands = commands || this._context.resolvedCommands;
+    this._commands = commands || context.resolvedCommands;
 
     // Create a getter to dynamically get the options from context.
     this._options = createOptionsGetter({
-      client: this._context.client,
-      optionsConfig: options || this._context.options,
-      optionValues: this._context.parsedOptions,
+      client: context.client,
+      optionsConfig: options || context.options,
+      optionValues: context.parsedOptions,
+      onPromptExit: context.exit,
     }) as OptionsGetter<TOptions>;
   }
 

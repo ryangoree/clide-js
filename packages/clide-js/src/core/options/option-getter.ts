@@ -25,13 +25,17 @@ interface OptionGetterFactoryOptions<
    */
   value: TValue;
   /**
-   * The context of the command.
-   */
-  client: Client;
-  /**
    * The option config.
    */
   config?: TConfig;
+  /**
+   * The client to use for prompting.
+   */
+  client: Client;
+  /**
+   * A function to call when the user exits a prompt.
+   */
+  onPromptExit?: () => void;
 }
 
 /**
@@ -68,6 +72,7 @@ export function createOptionGetter<
   config,
   value,
   client,
+  onPromptExit,
 }: OptionGetterFactoryOptions<TConfig, TValue>): OptionGetter<TValue> {
   let cachedValue: TValue | undefined;
 
@@ -162,6 +167,9 @@ export function createOptionGetter<
       }
 
       value = await client.prompt(promptOptions);
+      if (!value) {
+        onPromptExit?.();
+      }
     }
 
     // If still no value, use the default
