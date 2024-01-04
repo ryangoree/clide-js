@@ -98,7 +98,7 @@ export function commandMenu({
               maxDescriptionLength,
               resolveFn: ({ commandString, commandsDir }) =>
                 context.resolveCommand(commandString, commandsDir),
-              onExit: async () => {
+              onCancel: async () => {
                 await context.exit();
               },
             });
@@ -129,7 +129,7 @@ export function commandMenu({
               maxDescriptionLength,
               resolveFn: ({ commandString, commandsDir }) =>
                 context.resolveCommand(commandString, commandsDir),
-              onExit: async () => {
+              onCancel: async () => {
                 await context.exit();
               },
             });

@@ -69,7 +69,7 @@ export class State<
       client: context.client,
       optionsConfig: options || context.options,
       optionValues: context.parsedOptions,
-      onPromptExit: context.exit,
+      onPromptCancel: context.exit,
     }) as OptionsGetter<TOptions>;
   }
 

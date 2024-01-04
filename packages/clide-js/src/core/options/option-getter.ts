@@ -33,9 +33,10 @@ interface OptionGetterFactoryOptions<
    */
   client: Client;
   /**
-   * A function to call when the user exits a prompt.
+   * A function to call when the user cancels a prompt. By default, this will
+   * exit the process.
    */
-  onPromptExit?: () => void;
+  onPromptCancel?: () => void;
 }
 
 /**
@@ -72,7 +73,7 @@ export function createOptionGetter<
   config,
   value,
   client,
-  onPromptExit,
+  onPromptCancel,
 }: OptionGetterFactoryOptions<TConfig, TValue>): OptionGetter<TValue> {
   let cachedValue: TValue | undefined;
 
@@ -168,7 +169,7 @@ export function createOptionGetter<
 
       value = await client.prompt(promptOptions);
       if (!value) {
-        onPromptExit?.();
+        onPromptCancel?.();
       }
     }
 

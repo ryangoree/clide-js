@@ -37,10 +37,10 @@ export interface CommandMenuPromptOptions extends CommandMenuOptions {
   selectionHistory?: ResolvedCommand[];
 
   /**
-   * A function to call when the user exits the command menu. By default, the
+   * A function to call when the user cancels the command menu. By default, the
    * process will exit.
    */
-  onExit?: () => void;
+  onCancel?: () => void;
 }
 
 export async function commandMenuPrompt(
@@ -56,7 +56,7 @@ export async function commandMenuPrompt(
     commandsDir,
     resolveFn = resolveCommand,
     selectionHistory = [],
-    onExit = () => process.exit(),
+    onCancel: onExit = process.exit,
   } = options;
 
   if (title) {
