@@ -168,7 +168,7 @@ export function createOptionGetter<
       }
 
       value = await client.prompt(promptOptions);
-      if (!value) {
+      if (value === undefined) {
         onPromptCancel?.();
       }
     }
