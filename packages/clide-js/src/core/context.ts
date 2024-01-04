@@ -341,8 +341,8 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
   /**
    * Invokes a command within the same execution context.
    *
-   * @param commandModule The command module to invoke.
-   * @param initialData Data to pass to the invoked command.
+   * @param commands - The command modules and/or resolved commands to invoke.
+   * @param initialData - Data to pass to the invoked command.
    */
   readonly invokeCommands = async (
     commands: (CommandModule<any, any> | ResolvedCommand)[],
