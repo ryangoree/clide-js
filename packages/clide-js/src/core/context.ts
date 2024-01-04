@@ -344,10 +344,17 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    * @param commands - The command modules and/or resolved commands to invoke.
    * @param initialData - Data to pass to the invoked command.
    */
-  readonly invokeCommands = async (
-    commands: (CommandModule<any, any> | ResolvedCommand)[],
-    initialData?: any,
-  ) => {
+  readonly invokeCommands = async ({
+    commands,
+    initialData,
+    optionValues,
+    paramValues,
+  }: {
+    commands: (CommandModule<any, any> | ResolvedCommand)[];
+    initialData?: any;
+    optionValues?: OptionValues;
+    paramValues?: Record<string, any>;
+  }) => {
     const resolvedCommands: ResolvedCommand[] = [];
     const resolvedCommandsOptions: OptionsConfig = {};
 
@@ -364,7 +371,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
           commandPath: '',
           commandTokens: [],
           subcommandsDir: '',
-          params: {},
+          params: paramValues,
         };
       }
 
@@ -381,6 +388,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
         ...this.options,
         ...resolvedCommandsOptions,
       },
+      optionValues,
     });
 
     try {

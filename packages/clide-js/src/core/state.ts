@@ -20,6 +20,11 @@ interface StateOptions<TData = unknown> {
    * provided, it defaults to the options config from the context.
    */
   options?: OptionsConfig;
+  /**
+   * The option values to use when creating the options getter. If not
+   * provided, it defaults to the parsed options from the context.
+   */
+  optionValues?: OptionValues;
 }
 
 /**
@@ -59,7 +64,13 @@ export class State<
   /** A function that resolves the promise when called. */
   private _resolvePromise: ((value: void) => void) | undefined;
 
-  constructor({ context, data, commands, options }: StateOptions<TData>) {
+  constructor({
+    context,
+    data,
+    commands,
+    options,
+    optionValues,
+  }: StateOptions<TData>) {
     this._context = context;
     this._data = data as TData;
     this._commands = commands || context.resolvedCommands;
@@ -68,7 +79,7 @@ export class State<
     this._options = createOptionsGetter({
       client: context.client,
       optionsConfig: options || context.options,
-      optionValues: context.parsedOptions,
+      optionValues: optionValues || context.parsedOptions,
       onPromptCancel: context.exit,
     }) as OptionsGetter<TOptions>;
   }
