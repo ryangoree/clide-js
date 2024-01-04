@@ -54,7 +54,7 @@ interface CreateOptionsGetterOptions<
  *   client: new Client(),
  * });
  * const val = optionsGetter.foo(); // 'default foo'
- * 
+ *
  * @group Options
  */
 // TODO: Cache the result of this function
@@ -181,7 +181,9 @@ export type OptionsGetter<TOptions extends OptionsConfig = OptionsConfig> = {
     [K in keyof TOptions as
       | K
       | OptionAlias<TOptions[K]>
-      | CamelCase<K | OptionAlias<TOptions[K]>>]: CommandOptionType<TOptions[K]>;
+      | CamelCase<K | OptionAlias<TOptions[K]>>]: CommandOptionType<
+      TOptions[K]
+    >;
   };
 };
 
