@@ -7,10 +7,9 @@ export default command({
       description: 'The name to greet',
       alias: ['n'],
       type: 'string',
-      default: 'World',
+      // default: 'World',
     },
   },
-  requiresSubcommand: true,
   handler: async ({ options, next }) => {
     const name = await options.name({
       prompt: "What's your name?",
