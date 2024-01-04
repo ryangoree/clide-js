@@ -345,29 +345,42 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    * @param initialData Data to pass to the invoked command.
    */
   readonly invokeCommands = async (
-    commands: (CommandModule | ResolvedCommand)[],
+    commands: (CommandModule<any, any> | ResolvedCommand)[],
     initialData?: any,
   ) => {
-    // Coerce all commands to `ResolvedCommand` representations
-    const resolvedCommands = commands.map((command) =>
-      'command' in command
-        ? command
-        : {
-            command,
-            commandName: 'invokedCommand',
-            remainingCommandString: '',
-            commandPath: '',
-            commandTokens: [],
-            subcommandsDir: '',
-            params: {},
-          },
-    );
+    const resolvedCommands: ResolvedCommand[] = [];
+    const resolvedCommandsOptions: OptionsConfig = {};
+
+    for (const command of commands) {
+      let resolved: ResolvedCommand | undefined;
+
+      if ('command' in command) {
+        resolved = command;
+      } else {
+        resolved = {
+          command,
+          commandName: 'invokedCommand',
+          remainingCommandString: '',
+          commandPath: '',
+          commandTokens: [],
+          subcommandsDir: '',
+          params: {},
+        };
+      }
+
+      Object.assign(resolvedCommandsOptions, resolved.command.options);
+      resolvedCommands.push(resolved);
+    }
 
     // Create a new state for the invocation
     const state = new State({
       context: this,
       data: initialData,
       commands: resolvedCommands,
+      options: {
+        ...this.options,
+        ...resolvedCommandsOptions,
+      },
     });
 
     try {
