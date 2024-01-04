@@ -70,7 +70,7 @@ export function command<
   requiresSubcommand = false,
   isMiddleware = true,
   ...rest
-}: Partial<CommandModule<TData, TOptions>>) {
+}: CommandModule<TData, TOptions>) {
   let mod = {
     requiresSubcommand,
     isMiddleware,
