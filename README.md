@@ -156,18 +156,21 @@ elaborate command-line tools.
 ## Running
 
 Clide-JS is designed to be straightforward to run. The primary entry point is
-the [`run`](https://ryangoree.github.io/clide-js/functions/run.html) function, which orchestrates
-the command execution flow. It parses and executes commands based on your
-configuration, handles plugins, and utilizes hooks for lifecycle management.
+the [`run`](https://ryangoree.github.io/clide-js/functions/run.html) function,
+which orchestrates the command execution flow. It parses and executes commands
+based on your configuration, handles plugins, and utilizes hooks for lifecycle
+management.
 
-The [`run`](https://ryangoree.github.io/clide-js/functions/run.html) function takes an optional
-[configuration object](https://ryangoree.github.io/clide-js/interfaces/RunOptions.html)
+The [`run`](https://ryangoree.github.io/clide-js/functions/run.html) function
+takes an optional [configuration
+object](https://ryangoree.github.io/clide-js/interfaces/RunOptions.html)
 allowing you to specify commands, plugins, and hooks. This level of
 customization makes it adaptable to various CLI application requirements.
 
 For detailed API information on the
-[`run`](https://ryangoree.github.io/clide-js/functions/run.html) function, please refer to the
-[Typedoc reference](https://ryangoree.github.io/clide-js/functions/run.html).
+[`run`](https://ryangoree.github.io/clide-js/functions/run.html) function,
+please refer to the [Typedoc
+reference](https://ryangoree.github.io/clide-js/functions/run.html).
 
 ## Creating Commands
 
@@ -178,12 +181,13 @@ your commands can be organized hierarchically, with support for nested and
 parameterized commands.
 
 To create a command, use the
-[`command`](https://ryangoree.github.io/clide-js/functions/command.html) factory function. This
-function takes an object with your command's metadata, options, and the handler
-function. The handler function, which is where the main logic of your command
-lives, receives a [`State`](https://ryangoree.github.io/clide-js/classes/State.html) object.
-This object provides access to parsed options, command parameters, and the
-ability to control the command execution flow.
+[`command`](https://ryangoree.github.io/clide-js/functions/command.html) factory
+function. This function takes an object with your command's metadata, options,
+and the handler function. The handler function, which is where the main logic of
+your command lives, receives a
+[`State`](https://ryangoree.github.io/clide-js/classes/State.html) object. This
+object provides access to parsed options, command parameters, and the ability to
+control the command execution flow.
 
 For a comprehensive guide on creating commands, including handling options and
 parameters, see the [Typedoc
@@ -193,17 +197,19 @@ reference](https://ryangoree.github.io/clide-js/functions/command.html).
 
 Plugins in Clide-JS offer a way to extend and customize the framework's
 functionality. A plugin is an object that includes metadata (name, version,
-description) and an [`init`](https://ryangoree.github.io/clide-js/interfaces/Plugin.html#init)
+description) and an
+[`init`](https://ryangoree.github.io/clide-js/interfaces/Plugin.html#init)
 function. This function is called during the CLI application's initialization
 phase and receives the application's
 [`Context`](https://ryangoree.github.io/clide-js/classes/Context.html). The
-[`Context`](https://ryangoree.github.io/clide-js/classes/Context.html) provides access to hooks, commands, and other
-critical framework components.
+[`Context`](https://ryangoree.github.io/clide-js/classes/Context.html) provides
+access to hooks, commands, and other critical framework components.
 
 You can create plugins to add new features, integrate with external services,
 modify existing behavior, or inject middleware for advanced use cases. The
-[`init`](https://ryangoree.github.io/clide-js/interfaces/Plugin.html#init) function should
-return a boolean indicating whether the initialization was successful.
+[`init`](https://ryangoree.github.io/clide-js/interfaces/Plugin.html#init)
+function should return a boolean indicating whether the initialization was
+successful.
 
 For more information on developing plugins, including accessing and modifying
 the application context, refer to the [Typedoc
@@ -211,32 +217,35 @@ reference](/packages/clide-js/docs/interfaces/Plugin.md).
 
 ### Examples
 
-- [help](https://ryangoree.github.io/clide-js/functions/help-1.html): Adds the `--help`/`-h` option
-  and manages printing help messages when the option is present or a
-  [`UsageError`](https://ryangoree.github.io/clide-js/classes/UsageError.html) occurs.
-  _Included in the core package._
-- [logger](https://ryangoree.github.io/clide-js/functions/logger.html): A simple logger that logs
-  the result of each execution step. _Included in the core package._
-- [command-menu](https://github.com/ryangoree/clide-js/tree/main/packages/clide-plugin-command-menu): Prompts the user to
-  select a subcommand when required.
+- [help](https://ryangoree.github.io/clide-js/functions/help-1.html): Adds the
+  `--help`/`-h` option and manages printing help messages when the option is
+  present or a
+  [`UsageError`](https://ryangoree.github.io/clide-js/classes/UsageError.html)
+  occurs. _Included in the core package._
+- [logger](https://ryangoree.github.io/clide-js/functions/logger.html): A simple
+  logger that logs the result of each execution step. _Included in the core
+  package._
+- [command-menu](https://github.com/ryangoree/clide-js/tree/main/packages/clide-plugin-command-menu):
+  Prompts the user to select a subcommand when required.
 
 ## Routing and Command Resolution
 
 ### Default Commands Directory
 
 If you don't explicitly provide a commands directory when calling the
-[`run`](https://ryangoree.github.io/clide-js/functions/run.html) function, the framework
-automatically attempts to locate the commands directory in two ways:
+[`run`](https://ryangoree.github.io/clide-js/functions/run.html) function, the
+framework automatically attempts to locate the commands directory in two ways:
 
 1. **Current Working Directory:** It first checks for a directory named
    "commands" directly in your current working directory. This is useful if you
    want to keep your "commands" directory at the root of your project.
 2. **Caller Directory:** If no "commands" directory is found in the current
    working directory, the framework looks for a "commands" folder adjacent to
-   the file that called the [`run`](https://ryangoree.github.io/clide-js/functions/run.html)
-   function. This is helpful for scenarios where your CLI script lives in a
-   specific directory within your project (e.g., "cli/bin.js") and the commands
-   are kept in a sibling directory called "cli/commands".
+   the file that called the
+   [`run`](https://ryangoree.github.io/clide-js/functions/run.html) function.
+   This is helpful for scenarios where your CLI script lives in a specific
+   directory within your project (e.g., "cli/bin.js") and the commands are kept
+   in a sibling directory called "cli/commands".
 
 ### Command File/Module Resolution Steps
 
@@ -251,7 +260,8 @@ automatically attempts to locate the commands directory in two ways:
   specified commands directory.
 - If the file exists, it imports the module and checks for a default export,
   which should be the
-  [`CommandModule`](https://ryangoree.github.io/clide-js/types/CommandModule.html) object.
+  [`CommandModule`](https://ryangoree.github.io/clide-js/types/CommandModule.html)
+  object.
 
 **3. Handle Non-existent Files:**
 
@@ -299,7 +309,8 @@ mycli list
 The framework searches for `list.js` in the commands directory. If found, it
 imports the module and executes its handler.
 
-![Basic Command Files](https://raw.githubusercontent.com/ryangoree/clide-js/main/assets/basic-command-resolution.png)
+![Basic Command
+Files](https://raw.githubusercontent.com/ryangoree/clide-js/main/assets/basic-command-resolution.png)
 
 **2. Pass-through Command:**
 
@@ -310,7 +321,8 @@ mycli settings ...
 The framework identifies `settings` as a directory, treats it as a pass-through
 command, and expects further command resolution within the `settings` directory.
 
-![Directory Files](https://raw.githubusercontent.com/ryangoree/clide-js/main/assets/directory-resolution.png)
+![Directory
+Files](https://raw.githubusercontent.com/ryangoree/clide-js/main/assets/directory-resolution.png)
 
 **4. Subcommand:**
 
@@ -320,10 +332,10 @@ mycli users create
 
 - Either `users.js` or a `users` directory is first resolved, then `create` is
   identified as a subcommand.
-- The framework looks for `create.js` in the `users`
-  directory.
+- The framework looks for `create.js` in the `users` directory.
 
-![Subcommand Resolution Files](https://raw.githubusercontent.com/ryangoree/clide-js/main/assets/subcommand-resolution.png)
+![Subcommand Resolution
+Files](https://raw.githubusercontent.com/ryangoree/clide-js/main/assets/subcommand-resolution.png)
 
 **3. Parameterized Command:**
 
@@ -338,7 +350,8 @@ mycli deploy prod
 - The module is imported and the `environment` is set to `prod` in the
   [`State.params`](https://ryangoree.github.io/clide-js/classes/State.html#params).
 
-![Parameterized Command Files](https://raw.githubusercontent.com/ryangoree/clide-js/main/assets/parameterized-command.png)
+![Parameterized Command
+Files](https://raw.githubusercontent.com/ryangoree/clide-js/main/assets/parameterized-command.png)
 
 ### Key Points
 
@@ -356,9 +369,9 @@ execution, making it ideal for building versatile CLI applications.
 Clide-JS introduces a dynamic and user-centric approach to handling command
 options, distinguishing it from many other CLI frameworks. Instead of validating
 options before execution, Clide-JS's
-[`OptionsGetter`](https://ryangoree.github.io/clide-js/types/OptionsGetter.html) allows
-command handlers to address missing or invalid options dynamically, enhancing
-the user experience and offering more flexibility:
+[`OptionsGetter`](https://ryangoree.github.io/clide-js/types/OptionsGetter.html)
+allows command handlers to address missing or invalid options dynamically,
+enhancing the user experience and offering more flexibility:
 
 - **Lazy Evaluation:** Options are not immediately validated upon command
   execution. Instead, they are evaluated dynamically when accessed by the
@@ -384,8 +397,9 @@ the user experience and offering more flexibility:
 ### Usage in Commands
 
 When creating commands, the
-[`OptionsGetter`](https://ryangoree.github.io/clide-js/types/OptionsGetter.html) provides a
-straightforward and intuitive interface for accessing and handling options.
+[`OptionsGetter`](https://ryangoree.github.io/clide-js/types/OptionsGetter.html)
+provides a straightforward and intuitive interface for accessing and handling
+options.
 
 ```ts
 // Example usage in a command
@@ -419,17 +433,19 @@ straightforward and intuitive interface for accessing and handling options.
 
 ## CLI Examples
 
-Visit the [examples](https://github.com/ryangoree/clide-js/tree/main/examples) directory to see Clide-JS in action.
+Visit the [examples](https://github.com/ryangoree/clide-js/tree/main/examples)
+directory to see Clide-JS in action.
 
 ## Reference
 
 Clide-JS uses Typedoc to autogenerate detailed references for each major
 component of the framework. See the [Typedoc
-reference](https://ryangoree.github.io/clide-js/modules.html) for a full breakdown of
-Clide-JS's APIs.
+reference](https://ryangoree.github.io/clide-js/modules.html) for a full
+breakdown of Clide-JS's APIs.
 
 ## Contributing
 
 Clide-JS is a new framework still under development. Contributions are welcome!
-If you're unsure where to start, or if a feature would be welcomed, open an
-issue and start a conversation.
+You can get a brief overview of the code base in
+[/notes/source-code.md](/notes/source-code.md). If you're unsure where to start,
+or if a feature would be welcomed, open an issue and start a conversation.
