@@ -28,7 +28,7 @@
 - [ ] User config
   - Started work in [extras/config](/packages/extras/src/config/)
 - [ ] Create script `npx create-clide-js-app`, `npx create-clide-app`
-- [ ] Command Chaining (maybe done?)
+- [x] Command Chaining
 - [ ] VSCode plugin
   - [ ] Param types
   - [ ] Inherited option types
