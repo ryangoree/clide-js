@@ -9,7 +9,7 @@ import { validateOptionType } from './validate-options';
  * @group Options
  */
 export type OptionGetter<T> = (
-  getterOptions?: OptionGetterOptions,
+  getterOptions?: OptionGetterOptions<T>,
 ) => Promise<T>;
 
 interface OptionGetterFactoryOptions<
@@ -77,7 +77,7 @@ export function createOptionGetter<
 }: OptionGetterFactoryOptions<TConfig, TValue>): OptionGetter<TValue> {
   let cachedValue: TValue | undefined;
 
-  return async ({ prompt, validate }: OptionGetterOptions = {}) => {
+  return async ({ prompt, validate }: OptionGetterOptions<TValue> = {}) => {
     // Avoid prompting for the same option multiple times
     if (cachedValue !== undefined) {
       return cachedValue;
@@ -128,7 +128,8 @@ export function createOptionGetter<
               if (value === '' && config?.default !== undefined) {
                 value = config?.default;
               }
-              return validateFn!(value);
+              const preppedValue = prepValueForValidation(value, config?.type);
+              return validateFn!(preppedValue as TValue);
             }
           : undefined,
         // options passed to the getter take precedence over the config
@@ -202,11 +203,27 @@ export function createOptionGetter<
   };
 }
 
+function prepValueForValidation<TOptionConfig extends OptionType = OptionType>(
+  value: unknown,
+  optionType?: TOptionConfig,
+): OptionPrimitiveType<TOptionConfig> {
+  switch (optionType) {
+    case 'array':
+      if (typeof value === 'string') {
+        return value.split(',') as OptionPrimitiveType<TOptionConfig>;
+      }
+      return value as OptionPrimitiveType<TOptionConfig>;
+
+    default:
+      return value as OptionPrimitiveType<TOptionConfig>;
+  }
+}
+
 /**
  * Configuration options for the {@linkcode OptionGetter} function.
  * @Group Options
  */
-interface OptionGetterOptions {
+interface OptionGetterOptions<T> {
   /**
    * The prompt to show the user if no value is provided (optional).
    */
@@ -214,7 +231,7 @@ interface OptionGetterOptions {
   /**
    * The validation function (optional).
    */
-  validate?: (value: unknown) => MaybePromise<boolean>;
+  validate?: (value: T) => MaybePromise<boolean>;
 }
 
 /**

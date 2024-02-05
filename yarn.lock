@@ -1064,23 +1064,6 @@ cli-table@^0.3.11:
   dependencies:
     colors "1.0.3"
 
-clide-js@*:
-  version "0.0.16"
-  resolved "https://registry.yarnpkg.com/clide-js/-/clide-js-0.0.16.tgz#1092ea272efba5729567ad6b6b0f3926e913f71e"
-  integrity sha512-4CUX4ttWQLOudO3XBSmA1Nsa5Pef3taolczPCwEpUzC6a0jdkyfZEW/kGHQ1Z2LUWRgV0KBK6hp41DqctiLGFw==
-  dependencies:
-    cliui "^8.0.1"
-    prompts "^2.4.2"
-    yargs-parser "^21.1.1"
-
-clide-plugin-command-menu@*:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/clide-plugin-command-menu/-/clide-plugin-command-menu-0.0.6.tgz#bee64efaaa42b7645d11978a81aa6fbff652ac5b"
-  integrity sha512-uIiRkEyxn/ruP3tASbU4v05S5Ua1krR4KaN/eRKmgD6fVRCOP1HMC+7a8o10+2VIX8NVRtTRNU78UPSh4QoiwA==
-  dependencies:
-    cfonts "^3.2.0"
-    colors "^1.4.0"
-
 cliui@^8.0.1:
   version "8.0.1"
   resolved "https://registry.yarnpkg.com/cliui/-/cliui-8.0.1.tgz#0c04b075db02cbfe60dc8e6cf2f5486b1a3608aa"
