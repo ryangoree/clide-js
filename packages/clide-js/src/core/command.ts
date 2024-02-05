@@ -69,12 +69,16 @@ export function command<
   // Apply defaults
   requiresSubcommand = false,
   isMiddleware = true,
-  ...rest
+  options = {} as TOptions,
+  handler,
+  description = '',
 }: CommandModule<TData, TOptions>) {
   let mod = {
     requiresSubcommand,
     isMiddleware,
-    ...rest,
+    options,
+    handler,
+    description,
   };
 
   if (!mod.handler) {

@@ -352,6 +352,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
   }: {
     commands: (CommandModule<any, any> | ResolvedCommand)[];
     initialData?: any;
+    // TODO: strict type for optionValues and paramValues
     optionValues?: OptionValues;
     paramValues?: Record<string, any>;
   }) => {
@@ -388,7 +389,10 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
         ...this.options,
         ...resolvedCommandsOptions,
       },
-      optionValues,
+      optionValues: {
+        ...this.parsedOptions,
+        ...optionValues,
+      },
     });
 
     try {
