@@ -103,6 +103,8 @@ export function createOptionsGetter<
     const config = optionsConfig[configKey];
 
     // get all keys for the option, including the option key and all aliases
+    // FIXME: This doesn't include camelCased keys, so any options already set with
+    // camelCased keys will be overwritten/ignored
     const allKeysForOption: string[] = [configKey, ...(config.alias || [])];
 
     // loop through the keys once to find the first one with an entry in
@@ -120,6 +122,7 @@ export function createOptionsGetter<
       const camelCaseKey = camelCase(key);
 
       // set values
+      // to be set if there was a keyWithValue?
       if (keyWithValue) {
         getter.values[key] = optionValues[keyWithValue];
         getter.values[camelCaseKey] = optionValues[keyWithValue];
@@ -140,11 +143,13 @@ export function createOptionsGetter<
       // wrap the getter function to update the values object
       const wrappedGetterFn = async (...args: Parameters<typeof getterFn>) => {
         const value = (await getterFn(...args)) as OptionPrimitiveType;
+        // FIXME: This isn't setting all keys for the option
         getter.values[key] = value;
         getter.values[camelCaseKey] = value;
         return value;
       };
 
+      // FIXME: If the camelCased key was in the list, we could just set the `key`
       getter[key] = wrappedGetterFn;
       getter[camelCaseKey] = wrappedGetterFn;
     }

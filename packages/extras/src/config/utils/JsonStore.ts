@@ -110,11 +110,11 @@ export class JsonStore<T extends object = Record<string, unknown>> {
       data = JSON.parse(raw);
     } catch (err) {
       data = this.defaults as T;
-      this._save(data);
+      this.save(data);
       return data;
     }
 
-    this._validate(data);
+    this.validate(data);
     return data;
   }
 
@@ -138,7 +138,7 @@ export class JsonStore<T extends object = Record<string, unknown>> {
       Object.assign(data, keyOrValues);
     }
 
-    this._save(data);
+    this.save(data);
   }
 
   /**
@@ -190,7 +190,7 @@ export class JsonStore<T extends object = Record<string, unknown>> {
     }
 
     if (didDeleteSome) {
-      this._save(data);
+      this.save(data);
     }
 
     return didDeleteAll;
@@ -200,14 +200,14 @@ export class JsonStore<T extends object = Record<string, unknown>> {
    * Reset config to defaults
    */
   reset(): void {
-    this._save(this.defaults as T);
+    this.save(this.defaults as T);
   }
 
   /**
    * Throw an error if the data doesn't match the schema
    * @param data - The data to validate against the schema
    */
-  private _validate(data: T | unknown): void {
+  private validate(data: T | unknown): void {
     if (!this._validator) {
       return;
     }
@@ -233,8 +233,8 @@ export class JsonStore<T extends object = Record<string, unknown>> {
    * Save the store as JSON
    * @param data - The store data
    */
-  private _save(data: T): true {
-    this._validate(data);
+  private save(data: T): true {
+    this.validate(data);
 
     const json = JSON.stringify(data, null, 2);
 

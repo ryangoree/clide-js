@@ -1,3 +1,4 @@
+import { CommandModule } from './command';
 import { Context } from './context';
 import { ClideError } from './errors';
 import { OptionsGetter, createOptionsGetter } from './options/options-getter';
@@ -40,12 +41,6 @@ export class State<
   TData = unknown,
   TOptions extends OptionsConfig = OptionsConfig,
 > {
-  private _context: Context;
-  private _data: TData;
-  private _i = -1;
-  private _commands: ResolvedCommand[];
-  private _options: OptionsGetter<TOptions>;
-  private _params: Params = {};
   /**
    * The number of times `next()` or `end()` have been called. This is used to
    * prevent the process from hanging if a command handler neglects to call
@@ -53,16 +48,22 @@ export class State<
    * expected count based on the number of steps, the next step will be called
    * automatically.
    */
-  private _actionCallCount = 0;
+  private actionCallCount = 0;
+  private _context: Context;
+  private _data: TData;
+  private _i = -1;
+  private _commands: ResolvedCommand[];
+  private _options: OptionsGetter<TOptions>;
+  private _params: Params = {};
 
   /**
    * A promise that resolves when the steps are done. This is useful for
    * ensuring that all steps have completed without requiring each handler to
    * worry about awaiting the next step or returning a promise.
    */
-  private _promise: Promise<void> | undefined;
+  private executionPromise: Promise<void> | undefined;
   /** A function that resolves the promise when called. */
-  private _resolvePromise: ((value: void) => void) | undefined;
+  private resolvePromise: ((value: void) => void) | undefined;
 
   constructor({
     context,
@@ -120,23 +121,23 @@ export class State<
    */
   readonly start = async (initialData?: unknown): Promise<void> => {
     // Avoid starting the steps if they're already started.
-    if (this._promise) {
+    if (this.executionPromise) {
       throw new ClideError('Steps have already started.');
     }
 
     // Create a promise that will resolve when the steps are done.
-    this._promise = new Promise((resolve) => {
-      this._resolvePromise = resolve;
+    this.executionPromise = new Promise((resolve) => {
+      this.resolvePromise = resolve;
     });
 
     // Start the steps.
     await this.next(initialData);
 
     // Return the promise so that the caller can wait for the steps to complete.
-    return this._promise.then(() => {
+    return this.executionPromise.then(() => {
       // Reset the promise and resolve function so that the steps can be
       // started again.
-      this._promise = undefined;
+      this.executionPromise = undefined;
     });
   };
 
@@ -146,7 +147,7 @@ export class State<
    * @param data The data to pass to the next step or return.
    */
   readonly next = async (data?: unknown): Promise<void> => {
-    this._actionCallCount++;
+    this.actionCallCount++;
     let _data = data;
     let nextCommand = this.commands[this.i + 1] as ResolvedCommand | undefined;
 
@@ -165,7 +166,7 @@ export class State<
     if (nextCommand) {
       // If there is a next command, increment the step index and call the
       // command handler.
-      await this._setState({
+      await this.applyState({
         data: _data as any,
         i: this.i + 1,
         // Merge params from previous steps with params from the next command.
@@ -175,23 +176,23 @@ export class State<
         },
       });
 
-      const actionCallCountBefore = this._actionCallCount;
+      const actionCallCountBefore = this.actionCallCount;
       await nextCommand.command.handler(this);
 
       // Prevent the process from hanging if a command handler neglects to call
       // `next()` or `end()` by checking if the action call count has changed.
-      if (actionCallCountBefore === this._actionCallCount) {
+      if (actionCallCountBefore === this.actionCallCount) {
         await this.next(_data);
       }
     } else {
       // If there is no next command, end the steps.
-      await this._setState({
+      await this.applyState({
         data: _data as any,
       });
 
       // Resolve the promise to return the data to callers of `start()`.
-      if (this._resolvePromise) {
-        this._resolvePromise();
+      if (this.resolvePromise) {
+        this.resolvePromise();
       }
     }
   };
@@ -204,7 +205,7 @@ export class State<
     data?: unknown,
     // endOptions: EndOptions = {},
   ): Promise<void> => {
-    this._actionCallCount++;
+    this.actionCallCount++;
     let _data = data as any;
 
     await this.context.hooks.call('beforeEnd', {
@@ -233,15 +234,74 @@ export class State<
     //   );
     // }
 
-    await this._setState({
+    await this.applyState({
       data: _data,
       i: this.commands.length - 1,
     });
 
     // Resolve the promise to return the data to callers of `start()`.
-    if (this._resolvePromise) {
-      this._resolvePromise();
+    if (this.resolvePromise) {
+      this.resolvePromise();
     }
+  };
+
+  /**
+   * Fork the state and execute a new set of commands with the same context.
+   * @returns The data from the last command.
+   */
+  readonly fork = async ({
+    commands,
+    initialData,
+    optionValues,
+    paramValues,
+  }: {
+    commands: (CommandModule<any, any> | ResolvedCommand)[];
+    initialData?: any;
+    // TODO: strict type for optionValues and paramValues
+    optionValues?: OptionValues;
+    paramValues?: Record<string, any>;
+  }) => {
+    const resolvedCommands: ResolvedCommand[] = [];
+    const resolvedCommandsOptions: OptionsConfig = {};
+
+    for (const command of commands) {
+      let resolved: ResolvedCommand | undefined;
+
+      if ('command' in command) {
+        resolved = command;
+      } else {
+        resolved = {
+          command,
+          commandName: 'invokedCommand',
+          remainingCommandString: '',
+          commandPath: '',
+          commandTokens: [],
+          subcommandsDir: '',
+          params: paramValues,
+        };
+      }
+
+      Object.assign(resolvedCommandsOptions, resolved.command.options);
+      resolvedCommands.push(resolved);
+    }
+
+    // Create a new state for the invocation
+    const state = new State({
+      context: this.context,
+      data: initialData,
+      commands: resolvedCommands,
+      options: {
+        ...this.context.options,
+        ...resolvedCommandsOptions,
+      },
+      optionValues: {
+        ...this.options.values,
+        ...optionValues,
+      },
+    });
+
+    await state.start(initialData);
+    return state.data;
   };
 
   /**
@@ -249,7 +309,7 @@ export class State<
    * @param nextState The next state values to set.
    */
   // Should be called every state change.
-  private async _setState(nextState: Partial<NextState>) {
+  private async applyState(nextState: Partial<NextState>) {
     let _changes = nextState;
 
     // pre hook

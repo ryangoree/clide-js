@@ -8,6 +8,8 @@
 - [x] Filesystem based command router
 - [x] Param routes
 - [x] Options getter
+  - [ ] Custom option types (e.g., "bigint", "number-string", "hex") with custom
+        validation and input masking
   - [x] Options config
   - [x] Option parsing
     - [x] string

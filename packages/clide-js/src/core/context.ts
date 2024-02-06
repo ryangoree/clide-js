@@ -1,6 +1,5 @@
 import { OptionValues, ParseCommandFn, parseCommand } from 'src/core/parse';
 import { Client } from './client';
-import { CommandModule } from './command';
 import { ClideError, RequiredSubcommandError } from './errors';
 import { HooksEmitter } from './hooks';
 import { OptionsConfig } from './options/types';
@@ -99,14 +98,14 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
     }
   >;
 
+  private isReady = false;
+  private isResolved = false;
+  private resolveFn: ResolveCommandFn;
+  private isParsed = false;
   private _plugins: Plugin[];
   private _options: TOptions;
   private _result: unknown;
-  private _isReady = false;
-  private _isResolved = false;
   private _resolvedCommands: ResolvedCommand[] = [];
-  private _resolveFn: ResolveCommandFn;
-  private _isParsed = false;
   private _parsedOptions: OptionValues = {};
   private _parseFn: ParseCommandFn;
 
@@ -132,9 +131,9 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
         ]),
       ),
     );
+    this.resolveFn = resolveFn;
     this._plugins = plugins;
     this._options = options as TOptions;
-    this._resolveFn = resolveFn;
     this._parseFn = parseFn;
   }
 
@@ -176,7 +175,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    * @remarks This method is idempotent.
    */
   readonly prepare = async () => {
-    if (this._isReady) return;
+    if (this.isReady) return;
 
     try {
       // 1. Initialize plugins
@@ -197,7 +196,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
     }
 
     // Mark the context as ready
-    this._isReady = true;
+    this.isReady = true;
   };
 
   /**
@@ -228,7 +227,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
     commandString: string = this.commandString,
     commandsDir: string = this.commandsDir,
   ) => {
-    const resolved = await this._resolveFn({
+    const resolved = await this.resolveFn({
       commandString,
       commandsDir,
       parseFn: this.parseCommand,
@@ -308,7 +307,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
     });
 
     // Ensure the context is ready before proceeding
-    if (!skip && !this._isReady) {
+    if (!skip && !this.isReady) {
       // Await this.throw which could be ignored by a hook
       await this.throw(
         new ClideError(
@@ -336,71 +335,6 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
     });
 
     this._result = newResult;
-  };
-
-  /**
-   * Invokes a command within the same execution context.
-   *
-   * @param commands - The command modules and/or resolved commands to invoke.
-   * @param initialData - Data to pass to the invoked command.
-   */
-  readonly invokeCommands = async ({
-    commands,
-    initialData,
-    optionValues,
-    paramValues,
-  }: {
-    commands: (CommandModule<any, any> | ResolvedCommand)[];
-    initialData?: any;
-    // TODO: strict type for optionValues and paramValues
-    optionValues?: OptionValues;
-    paramValues?: Record<string, any>;
-  }) => {
-    const resolvedCommands: ResolvedCommand[] = [];
-    const resolvedCommandsOptions: OptionsConfig = {};
-
-    for (const command of commands) {
-      let resolved: ResolvedCommand | undefined;
-
-      if ('command' in command) {
-        resolved = command;
-      } else {
-        resolved = {
-          command,
-          commandName: 'invokedCommand',
-          remainingCommandString: '',
-          commandPath: '',
-          commandTokens: [],
-          subcommandsDir: '',
-          params: paramValues,
-        };
-      }
-
-      Object.assign(resolvedCommandsOptions, resolved.command.options);
-      resolvedCommands.push(resolved);
-    }
-
-    // Create a new state for the invocation
-    const state = new State({
-      context: this,
-      data: initialData,
-      commands: resolvedCommands,
-      options: {
-        ...this.options,
-        ...resolvedCommandsOptions,
-      },
-      optionValues: {
-        ...this.parsedOptions,
-        ...optionValues,
-      },
-    });
-
-    try {
-      await state.start(initialData);
-      return state.data;
-    } catch (error) {
-      await this.throw(error);
-    }
   };
 
   /**
@@ -463,7 +397,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    * @remarks This method is idempotent.
    */
   private _resolve = async () => {
-    if (this._isResolved) return;
+    if (this.isResolved) return;
 
     let resolved: ResolvedCommand | undefined;
 
@@ -472,7 +406,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
       commandsDir: this.commandsDir,
       context: this,
       setResolveFn: (resolveFn) => {
-        this._resolveFn = resolveFn;
+        this.resolveFn = resolveFn;
       },
       setParseFn: (parseFn) => {
         this._parseFn = parseFn;
@@ -486,18 +420,18 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
         }
       },
       skip: () => {
-        this._isResolved = true;
+        this.isResolved = true;
       },
     });
 
     // Don't resolve if the hook skipped
-    if (!this._isResolved) {
+    if (!this.isResolved) {
       resolved = await this.resolveCommand();
     }
 
     // Continue resolving until the last command is reached or the
     // `beforeResolveNext` hook skips
-    while (resolved && !this._isResolved) {
+    while (resolved && !this.isResolved) {
       // Add the command's options to the context's options config
       if (resolved.command.options) {
         this.addOptions(resolved.command.options);
@@ -514,7 +448,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
       // If the command doesn't have a resolveNext function and doesn't require
       // a subcommand, then we're done resolving.
       if (!resolved.resolveNext && !resolved.command.requiresSubcommand) {
-        this._isResolved = true;
+        this.isResolved = true;
         break;
       }
 
@@ -523,13 +457,13 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
         commandsDir: resolved.subcommandsDir,
         lastResolved: resolved,
         setResolveFn: (resolveFn) => {
-          this._resolveFn = resolveFn;
+          this.resolveFn = resolveFn;
         },
         setParseFn: (parseFn) => {
           this._parseFn = parseFn;
         },
         skip: () => {
-          this._isResolved = true;
+          this.isResolved = true;
         },
         addResolvedCommands: (resolvedCommands) => {
           for (const resolved of resolvedCommands) {
@@ -543,7 +477,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
       });
 
       // Don't resolve if the hook skipped
-      if (!this._isResolved) {
+      if (!this.isResolved) {
         // Set the next resolved command to the result of the resolveNext
         // function, or undefined if the command doesn't have a resolveNext
         resolved = await resolved.resolveNext?.();
@@ -573,7 +507,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
     }
 
     // Mark the context as resolved
-    this._isResolved = true;
+    this.isResolved = true;
   };
 
   /**
@@ -583,7 +517,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    * @remarks This method is idempotent.
    */
   private _parse = async () => {
-    if (this._isParsed) return;
+    if (this.isParsed) return;
 
     await this.hooks.call('beforeParse', {
       commandString: this.commandString,
@@ -593,19 +527,19 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
       },
       setParsedOptionsAndSkip: (optionValues) => {
         this._parsedOptions = optionValues;
-        this._isParsed = true;
+        this.isParsed = true;
       },
       skip: () => {
-        this._isParsed = true;
+        this.isParsed = true;
       },
       context: this,
     });
 
     // Don't parse if the hook skipped
-    if (!this._isParsed) {
+    if (!this.isParsed) {
       const { options } = await parseCommand(this.commandString, this.options);
       this._parsedOptions = options;
-      this._isParsed = true;
+      this.isParsed = true;
     }
 
     await this.hooks.call('afterParse', {

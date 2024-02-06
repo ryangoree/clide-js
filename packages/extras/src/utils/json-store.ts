@@ -75,7 +75,7 @@ export class JsonStore<T extends object = Record<string, unknown>> {
   /**
    * Ensures the JSON matches the schema if provided
    */
-  private _validator?: ValidateFunction;
+  private validator?: ValidateFunction;
 
   /**
    * Use a JSON file to persist key-value data
@@ -103,11 +103,11 @@ export class JsonStore<T extends object = Record<string, unknown>> {
       data = JSON.parse(raw);
     } catch (err) {
       data = this.defaults as T;
-      this._save(data);
+      this.save(data);
       return data;
     }
 
-    this._validate(data);
+    this.validate(data);
     return data;
   }
 
@@ -121,7 +121,7 @@ export class JsonStore<T extends object = Record<string, unknown>> {
       additionalProperties: false,
     };
 
-    this._validator = ajv.compile(storeSchema);
+    this.validator = ajv.compile(storeSchema);
   }
 
   /**
@@ -144,7 +144,7 @@ export class JsonStore<T extends object = Record<string, unknown>> {
       Object.assign(data, keyOrValues);
     }
 
-    this._save(data);
+    this.save(data);
   }
 
   /**
@@ -196,7 +196,7 @@ export class JsonStore<T extends object = Record<string, unknown>> {
     }
 
     if (didDeleteSome) {
-      this._save(data);
+      this.save(data);
     }
 
     return didDeleteAll;
@@ -206,25 +206,25 @@ export class JsonStore<T extends object = Record<string, unknown>> {
    * Reset config to defaults
    */
   reset(): void {
-    this._save(this.defaults as T);
+    this.save(this.defaults as T);
   }
 
   /**
    * Throw an error if the data doesn't match the schema
    * @param data - The data to validate against the schema
    */
-  private _validate(data: T | unknown): void {
-    if (!this._validator) {
+  private validate(data: T | unknown): void {
+    if (!this.validator) {
       return;
     }
 
-    const valid = this._validator(data);
+    const valid = this.validator(data);
 
-    if (valid || !this._validator.errors) {
+    if (valid || !this.validator.errors) {
       return;
     }
 
-    const errors = this._validator.errors.map(
+    const errors = this.validator.errors.map(
       ({ instancePath, message = '', params }) => {
         if (params.additionalProperty) {
           return `property \`${params.additionalProperty}\` not allowed`;
@@ -239,8 +239,8 @@ export class JsonStore<T extends object = Record<string, unknown>> {
    * Save the store as JSON
    * @param data - The store data
    */
-  private _save(data: T): true {
-    this._validate(data);
+  private save(data: T): true {
+    this.validate(data);
 
     const json = JSON.stringify(data, null, 2);
 
