@@ -46,7 +46,7 @@ const PARAM_FILE_NAME_REGEX = /^\[(\.{3})?([a-zA-Z_][\w-]*)\](\.\w+)?$/;
  * //   paramName: undefined,
  * //   extension: undefined,
  * // }
- * 
+ *
  * @group Utils
  */
 export function parseFileName(fileName: string): {

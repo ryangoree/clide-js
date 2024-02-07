@@ -251,7 +251,7 @@ export class State<
    */
   readonly fork = async ({
     commands,
-    initialData,
+    initialData = this.data,
     optionValues,
     paramValues,
   }: {
