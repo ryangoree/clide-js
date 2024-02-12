@@ -272,7 +272,7 @@ export class State<
       } else {
         resolved = {
           command,
-          commandName: 'invokedCommand',
+          commandName: 'fork-command',
           remainingCommandString: '',
           commandPath: '',
           commandTokens: [],
