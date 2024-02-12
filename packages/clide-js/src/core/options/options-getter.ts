@@ -102,10 +102,13 @@ export function createOptionsGetter<
     // get the config for the option's key
     const config = optionsConfig[configKey];
 
-    // get all keys for the option, including the option key and all aliases
-    // FIXME: This doesn't include camelCased keys, so any options already set with
-    // camelCased keys will be overwritten/ignored
-    const allKeysForOption: string[] = [configKey, ...(config.alias || [])];
+    // get all keys for the option, including the option key, aliases, and
+    // camelCased versions of each
+    let allKeysForOption: string[] = [configKey, ...(config.alias || [])];
+    allKeysForOption = [
+      ...allKeysForOption,
+      ...allKeysForOption.map((key) => camelCase(key)),
+    ];
 
     // loop through the keys once to find the first one with an entry in
     // optionValues
@@ -119,17 +122,11 @@ export function createOptionsGetter<
 
     // loop through the keys again to set values and create getters
     for (const key of allKeysForOption) {
-      const camelCaseKey = camelCase(key);
-
       // set values
       // to be set if there was a keyWithValue?
-      if (keyWithValue) {
-        getter.values[key] = optionValues[keyWithValue];
-        getter.values[camelCaseKey] = optionValues[keyWithValue];
-      } else {
-        getter.values[key] = config.default as OptionPrimitiveType;
-        getter.values[camelCaseKey] = config.default as OptionPrimitiveType;
-      }
+      getter.values[key] = keyWithValue
+        ? optionValues[keyWithValue]
+        : (config.default as OptionPrimitiveType | undefined);
 
       // create a getter fn for the key
       const getterFn = createOptionGetter({
@@ -143,15 +140,15 @@ export function createOptionsGetter<
       // wrap the getter function to update the values object
       const wrappedGetterFn = async (...args: Parameters<typeof getterFn>) => {
         const value = (await getterFn(...args)) as OptionPrimitiveType;
-        // FIXME: This isn't setting all keys for the option
+        // TODO: Update all keys for the option? This would add more overhead to
+        // the getter, but could potentially improve the experience for complex
+        // commands chains that may access the same option multiple times with
+        // different keys.
         getter.values[key] = value;
-        getter.values[camelCaseKey] = value;
         return value;
       };
 
-      // FIXME: If the camelCased key was in the list, we could just set the `key`
       getter[key] = wrappedGetterFn;
-      getter[camelCaseKey] = wrappedGetterFn;
     }
   }
 
