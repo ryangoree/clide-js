@@ -1,6 +1,7 @@
 {
   "name": "clide-extras",
   "version": "0.0.0",
+  "private": true,
   "description": "A framework for building helpful CLIs",
   "main": "dist/index.cjs",
   "exports": {

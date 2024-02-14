@@ -1,6 +1,7 @@
 {
   "name": "clide-ts-example",
-  "version": "1.0.0",
+  "version": "0.0.0",
+  "private": true,
   "main": "dist/cli.js",
   "license": "MIT",
   "bin": "dist/cli.js",
