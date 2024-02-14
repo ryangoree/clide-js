@@ -21,6 +21,8 @@ export interface OptionConfig<
   alias?: MaybeReadonly<TAlias[]>;
   /** The type of the option. */
   type: T;
+  /** Whether the option is a string (optional, inferred from `type`). */
+  string?: boolean;
   /** The number of arguments the option accepts (optional). */
   nargs?: number;
   /** The description of the option (optional, has default based on `name`). */
