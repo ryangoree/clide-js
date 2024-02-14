@@ -1,12 +1,13 @@
 {
   "private": true,
   "scripts": {
-    "build": "turbo run build",
     "build:clide": "turbo run build --filter=./packages/clide*",
-    "test": "turbo run test:ci",
+    "build": "turbo run build",
+    "format": "prettier --write \"**/*.{ts,md}\"",
     "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck",
-    "format": "prettier --write \"**/*.{ts,md}\""
+    "release": "turbo run build && changeset release",
+    "test": "turbo run test:ci",
+    "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
