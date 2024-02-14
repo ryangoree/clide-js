@@ -5,7 +5,7 @@
     "build": "turbo run build",
     "format": "prettier --write \"**/*.{ts,md}\"",
     "lint": "turbo run lint",
-    "release": "turbo run build && changeset release",
+    "release": "turbo run build && changeset publish",
     "test": "turbo run test:ci",
     "typecheck": "turbo run typecheck"
   },
