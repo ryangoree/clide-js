@@ -180,7 +180,7 @@ async function resolveParamCommand({
         tokens = parsedString.tokens;
       }
 
-      // If the param has a spread operator (e.g., [...param].ts), then pass the
+      // If the param has a spread operator (e.g., [...param].ts), then pass
       // all command tokens as the param value. Otherwise, pass only the first
       // command token.
       const params = {
