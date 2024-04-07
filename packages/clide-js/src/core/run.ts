@@ -180,11 +180,11 @@ export async function run({
       return error;
     }
 
-    // coerce non-cli errors to cli errors
     if (error instanceof ClideError) {
       throw error;
     }
 
+    // coerce non-cli errors to cli errors
     throw new ClideError(error);
   }
 }
