@@ -70,8 +70,8 @@ export async function resolveCommand({
     throw new NotFoundError(commandName, commandsDir);
   }
 
-  const commandPath = path.join(commandsDir, formatFileName(commandName));
-  const subcommandsDir = removeFileExtension(commandPath);
+  const subcommandsDir = path.join(commandsDir, commandName);
+  const commandPath = formatFileName(subcommandsDir);
   const commandTokens = [commandName];
   const remainingCommandString = remainingTokens.join(' ');
 
