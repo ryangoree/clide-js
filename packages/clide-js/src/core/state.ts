@@ -320,7 +320,13 @@ export class State<
         _changes = changes;
       },
       skip: () => {
-        this.context.client.warn('State change cancelled.');
+        this.context.client.warn(
+          `Skipping state update. Next state: ${JSON.stringify(
+            _changes,
+            null,
+            2,
+          )}`,
+        );
         _changes = {};
       },
     });
