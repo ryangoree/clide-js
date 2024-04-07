@@ -8,7 +8,7 @@
  *
  * @returns The converted value.
  * 
- * @ignore
+ * @internal
  */
 export function convert<T, TOriginal, TNew>(
   value: T,
