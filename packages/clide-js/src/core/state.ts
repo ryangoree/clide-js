@@ -150,7 +150,8 @@ export class State<
   readonly next = async (data?: unknown): Promise<void> => {
     this.actionCallCount++;
     let _data = data;
-    let nextCommand = this.commands[this.i + 1] as ResolvedCommand | undefined;
+    let nextIndex = this.i + 1;
+    let nextCommand = this.commands[nextIndex] as ResolvedCommand | undefined;
 
     await this.context.hooks.call('beforeNext', {
       state: this as any,
@@ -169,7 +170,7 @@ export class State<
       // command handler.
       await this.applyState({
         data: _data as any,
-        i: this.i + 1,
+        i: nextIndex,
         // Merge params from previous steps with params from the next command.
         params: {
           ...this.params,
