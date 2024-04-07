@@ -138,6 +138,7 @@ export class State<
       // Reset the promise and resolve function so that the steps can be
       // started again.
       this.executionPromise = undefined;
+      this.resolvePromise = undefined;
     });
   };
 
