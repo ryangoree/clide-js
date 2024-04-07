@@ -193,9 +193,7 @@ export class State<
       });
 
       // Resolve the promise to return the data to callers of `start()`.
-      if (this.resolvePromise) {
-        this.resolvePromise();
-      }
+      this.resolvePromise?.();
     }
   };
 
