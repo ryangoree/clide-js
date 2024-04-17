@@ -433,8 +433,9 @@ options.
 
 ## CLI Examples
 
-Visit the [examples](https://github.com/ryangoree/clide-js/tree/main/examples)
-directory to see Clide-JS in action.
+- [@delvtech/council-cli](https://github.com/delvtech/council-kit/tree/main/packages/council-cli) - A CLI for building on the [Council](https://github.com/delvtech/council) governance protocol.
+
+*Visit the [examples](https://github.com/ryangoree/clide-js/tree/main/examples) directory for some basic setups.*
 
 ## Reference
 
