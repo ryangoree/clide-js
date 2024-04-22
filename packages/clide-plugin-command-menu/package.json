@@ -17,7 +17,7 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "clide-js": "^0.1.5"
+    "clide-js": "^0.1"
   },
   "dependencies": {
     "cfonts": "^3.2.0",
