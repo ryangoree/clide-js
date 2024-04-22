@@ -1,6 +1,6 @@
 /**
  * Added to every error name.
- * @ignore
+ * @internal
  */
 export const ERROR_PREFIX = '✖ ';
 

@@ -138,6 +138,7 @@ export class State<
       // Reset the promise and resolve function so that the steps can be
       // started again.
       this.executionPromise = undefined;
+      this.resolvePromise = undefined;
     });
   };
 
@@ -149,7 +150,8 @@ export class State<
   readonly next = async (data?: unknown): Promise<void> => {
     this.actionCallCount++;
     let _data = data;
-    let nextCommand = this.commands[this.i + 1] as ResolvedCommand | undefined;
+    let nextIndex = this.i + 1;
+    let nextCommand = this.commands[nextIndex] as ResolvedCommand | undefined;
 
     await this.context.hooks.call('beforeNext', {
       state: this as any,
@@ -168,7 +170,7 @@ export class State<
       // command handler.
       await this.applyState({
         data: _data as any,
-        i: this.i + 1,
+        i: nextIndex,
         // Merge params from previous steps with params from the next command.
         params: {
           ...this.params,
@@ -191,9 +193,7 @@ export class State<
       });
 
       // Resolve the promise to return the data to callers of `start()`.
-      if (this.resolvePromise) {
-        this.resolvePromise();
-      }
+      this.resolvePromise?.();
     }
   };
 
@@ -320,7 +320,13 @@ export class State<
         _changes = changes;
       },
       skip: () => {
-        this.context.client.warn('State change cancelled.');
+        this.context.client.warn(
+          `Skipping state update. Next state: ${JSON.stringify(
+            _changes,
+            null,
+            2,
+          )}`,
+        );
         _changes = {};
       },
     });

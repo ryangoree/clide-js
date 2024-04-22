@@ -2,7 +2,7 @@ type Clonable = Record<string | number | symbol, any>;
 
 /**
  * Freezes an object and all of its properties recursively in place.
- * @ignore
+ * @internal
  */
 export function deepFreeze<TObject extends Clonable>(
   obj: TObject,
@@ -21,7 +21,7 @@ export function deepFreeze<TObject extends Clonable>(
 
 /**
  * Creates a deep clone of an object and freezes it and all of its properties.
- * @ignore
+ * @internal
  */
 export function deepFreezeClone<TObject extends Clonable>(
   obj: TObject,
@@ -41,7 +41,7 @@ export function deepFreezeClone<TObject extends Clonable>(
 
 /**
  * A type that makes all properties of an object readonly recursively.
- * @ignore
+ * @internal
  */
 export type DeepReadonly<T> = {
   readonly [P in keyof T]: T[P] extends Function | Date | RegExp

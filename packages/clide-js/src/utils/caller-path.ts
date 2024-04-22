@@ -1,6 +1,7 @@
 /**
- * Attempts to get the path to the file that contains the code that called this
- * function.
+ * Attempts to get the path to the file that contains the code that called the
+ * code that called this function. I know, it's confusing, but it's cool.
+ *
  * @example
  *
  * #### Caller:
@@ -21,7 +22,7 @@
  *  console.log(getCallerPath()); // /path/to/file.ts
  * }
  * ```
- * 
+ *
  * @group Utils
  */
 export function getCallerPath(): string | undefined {

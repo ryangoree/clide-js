@@ -46,19 +46,15 @@ interface CreateOptionsGetterOptions<
  * key-value pairs.
  *
  * @example
- * const options = {
+ * const optionsConfig = {
  *   f: {
  *     type: 'string',
  *     alias: ['foo'],
  *     default: 'default foo'
  *   },
  * };
- * const optionsGetter = createOptionsGetter({
- *   options,
- *   originalGetter: optionsGetter({}),
- *   client: new Client(),
- * });
- * const val = optionsGetter.foo(); // 'default foo'
+ * const optionsGetter = createOptionsGetter({ optionsConfig });
+ * const val = await optionsGetter.foo(); // 'default foo'
  *
  * @group Options
  */

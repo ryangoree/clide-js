@@ -70,8 +70,8 @@ export async function resolveCommand({
     throw new NotFoundError(commandName, commandsDir);
   }
 
-  const commandPath = path.join(commandsDir, formatFileName(commandName));
-  const subcommandsDir = removeFileExtension(commandPath);
+  const subcommandsDir = path.join(commandsDir, commandName);
+  const commandPath = formatFileName(subcommandsDir);
   const commandTokens = [commandName];
   const remainingCommandString = remainingTokens.join(' ');
 
@@ -180,7 +180,7 @@ async function resolveParamCommand({
         tokens = parsedString.tokens;
       }
 
-      // If the param has a spread operator (e.g., [...param].ts), then pass the
+      // If the param has a spread operator (e.g., [...param].ts), then pass
       // all command tokens as the param value. Otherwise, pass only the first
       // command token.
       const params = {
