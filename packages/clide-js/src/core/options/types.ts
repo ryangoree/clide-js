@@ -27,8 +27,6 @@ export interface OptionConfig<
   nargs?: number;
   /** The description of the option (optional, has default based on `name`). */
   description?: string;
-  /** The prompt to show the user if no value is provided (optional). */
-  prompt?: string | PromptOptions;
   /**
    * The default value to use. This will be the initial value that the getter
    * prompt will show (optional).
