@@ -1,5 +1,12 @@
 # clide-js
 
+## 0.1.5
+
+### Patch Changes
+
+- ae0a2a8: Removed the unimplemented option config param `prompt`. Implemented the previously unimplemented option config param `nargs`.
+- ae0a2a8: Implemented strong types for the `fork` method's `optionValues` field.
+
 ## 0.1.4
 
 ### Patch Changes
