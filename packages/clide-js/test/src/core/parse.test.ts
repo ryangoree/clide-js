@@ -42,6 +42,37 @@ describe('parse', () => {
     } as ParsedCommand);
   });
 
+  // Types
+  it('parses number options', async () => {
+    const commandString =
+      'foo -a 1 -b 1.2 -c .3 -d 1e3 -e 1.2e3 -f 1.2e-3 -g -1 -h 1.0';
+
+    expect(
+      await parseCommand(commandString, {
+        a: { type: 'number' },
+        b: { type: 'number' },
+        c: { type: 'number' },
+        d: { type: 'number' },
+        e: { type: 'number' },
+        f: { type: 'number' },
+        g: { type: 'number' },
+        h: { type: 'number' },
+      }),
+    ).toMatchObject({
+      tokens: ['foo'],
+      options: {
+        a: 1,
+        b: 1.2,
+        c: 0.3,
+        d: 1000,
+        e: 1200,
+        f: 0.0012,
+        g: -1,
+        h: 1,
+      },
+    } as ParsedCommand);
+  });
+
   it('parses array options', async () => {
     const commandString = 'foo -a=one two three -b do re mi';
 
@@ -59,6 +90,21 @@ describe('parse', () => {
     } as ParsedCommand);
   });
 
+  it('parses secret options', async () => {
+    const command = 'foo -a secret';
+
+    expect(
+      await parseCommand(command, {
+        a: { type: 'secret' },
+      }),
+    ).toMatchObject({
+      tokens: ['foo'],
+      options: {
+        a: 'secret',
+      },
+    } as ParsedCommand);
+  });
+
   it('parses unknown options as booleans', async () => {
     const commandString = 'foo -a -b -c';
 
@@ -72,6 +118,56 @@ describe('parse', () => {
         a: true,
         b: true,
         c: true,
+      },
+    } as ParsedCommand);
+  });
+
+  // Options
+  it('parses options with aliases', async () => {
+    const commandString = 'foo --alpha aval --beta bval';
+
+    expect(
+      await parseCommand(commandString, {
+        a: { type: 'string', alias: ['alpha'] },
+        b: { type: 'string', alias: ['beta'] },
+      }),
+    ).toMatchObject({
+      tokens: ['foo'],
+      options: {
+        a: 'aval',
+        b: 'bval',
+        alpha: 'aval',
+        beta: 'bval',
+      },
+    } as ParsedCommand);
+  });
+
+  it('parses array options with string values', async () => {
+    const commandString = 'foo -a 1 2';
+
+    expect(
+      await parseCommand(commandString, {
+        a: { type: 'array', string: true },
+      }),
+    ).toMatchObject({
+      tokens: ['foo'],
+      options: {
+        a: ['1', '2'],
+      },
+    } as ParsedCommand);
+  });
+
+  it('parses options with nargs', async () => {
+    const commandString = 'foo -a bar baz qux';
+
+    expect(
+      await parseCommand(commandString, {
+        a: { type: 'string', nargs: 2 },
+      }),
+    ).toMatchObject({
+      tokens: ['foo', 'qux'],
+      options: {
+        a: ['bar', 'baz'],
       },
     } as ParsedCommand);
   });
