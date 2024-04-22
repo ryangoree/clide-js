@@ -1,5 +1,7 @@
-import { MaybePromise } from 'src/utils/types';
+import { CamelCase } from 'src/utils/camel-case';
+import { MaybePromise, MergeKeys, Prettify } from 'src/utils/types';
 import parse from 'yargs-parser';
+import { OptionAlias } from './options/options-getter';
 import { OptionPrimitiveType, OptionsConfig } from './options/types';
 
 /**
@@ -12,7 +14,19 @@ export type Tokens = string[];
  * The values for each option.
  * @group Parse
  */
-export type OptionValues = Record<string, OptionPrimitiveType | undefined>;
+export type OptionValues<TOptions extends OptionsConfig = OptionsConfig> =
+  MergeKeys<TOptions> extends infer TMerged extends OptionsConfig
+    ? Prettify<
+        {
+          [K in keyof TMerged as
+            | K
+            | OptionAlias<TMerged[K]>
+            | CamelCase<K | OptionAlias<TMerged[K]>>]?: OptionPrimitiveType<
+            TMerged[K]['type']
+          >;
+        } & Record<string, OptionPrimitiveType | undefined>
+      >
+    : Record<string, OptionPrimitiveType | undefined>;
 
 /**
  * The result of parsing a command string.

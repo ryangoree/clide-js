@@ -210,8 +210,8 @@ export type OptionAlias<T extends OptionConfig> = T extends {
 type CommandOptionType<T extends OptionConfig> = T['required'] extends true
   ? OptionPrimitiveType<T['type']>
   : T['default'] extends MaybeReadonly<OptionPrimitiveType<T['type']>>
-  ? OptionPrimitiveType<T['type']>
-  : OptionPrimitiveType<T['type']> | undefined;
+    ? OptionPrimitiveType<T['type']>
+    : OptionPrimitiveType<T['type']> | undefined;
 
 /**
  * Get the primitive type for each option in an options config.

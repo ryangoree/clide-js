@@ -249,16 +249,20 @@ export class State<
    * Fork the state and execute a new set of commands with the same context.
    * @returns The data from the last command.
    */
-  readonly fork = async ({
+  readonly fork = async <TCommand extends CommandModule<any, any>>({
     commands,
     initialData = this.data,
     optionValues,
     paramValues,
   }: {
-    commands: (CommandModule<any, any> | ResolvedCommand)[];
+    commands: (TCommand | ResolvedCommand)[];
     initialData?: any;
-    // TODO: strict type for optionValues and paramValues
-    optionValues?: OptionValues;
+    optionValues?: OptionValues<
+    TCommand['options'] extends OptionsConfig
+    ? TCommand['options']
+    : OptionsConfig
+    >;
+    // TODO: strict type for paramValues
     paramValues?: Record<string, any>;
   }) => {
     const resolvedCommands: ResolvedCommand[] = [];
