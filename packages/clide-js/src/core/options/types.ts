@@ -1,4 +1,3 @@
-import { PromptOptions } from 'src/core/client';
 import { MaybeReadonly } from 'src/utils/types';
 
 /**
@@ -21,7 +20,10 @@ export interface OptionConfig<
   alias?: MaybeReadonly<TAlias[]>;
   /** The type of the option. */
   type: T;
-  /** Whether the option is a string (optional, inferred from `type`). */
+  /**
+   * Whether the option is a string (optional, inferred from `type`). Useful
+   * for array options to specify the type of the array values.
+   */
   string?: boolean;
   /** The number of arguments the option accepts (optional). */
   nargs?: number;
@@ -69,9 +71,9 @@ export type OptionPrimitiveType<T extends OptionType = OptionType> = T extends
   | 'secret'
   ? string
   : T extends 'number'
-  ? number
-  : T extends 'boolean'
-  ? boolean
-  : T extends 'array'
-  ? string[]
-  : never;
+    ? number
+    : T extends 'boolean'
+      ? boolean
+      : T extends 'array'
+        ? string[]
+        : never;

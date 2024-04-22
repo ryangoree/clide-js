@@ -54,11 +54,16 @@ export function parseCommand(
     boolean: [],
     number: [],
     string: [],
+    narg: {},
   };
 
   for (const [key, option] of Object.entries(optionsConfig)) {
     if (option.alias) {
       parseOptions.alias![key] = option.alias as string[];
+    }
+
+    if (option.nargs) {
+      parseOptions.narg![key] = option.nargs;
     }
 
     switch (option.type) {
@@ -80,8 +85,6 @@ export function parseCommand(
         break;
     }
   }
-
-  // TODO:  const nargs: Record<string, number> = {};
 
   // Parse the command string with yargs-parser
   let { _: tokens, ...options } = parse(commandString, {
