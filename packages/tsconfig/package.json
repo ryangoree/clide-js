@@ -4,6 +4,6 @@
   "private": true,
   "license": "MIT",
   "devDependencies": {
-    "@tsconfig/node-lts": "^18.12.5"
+    "@tsconfig/node-lts": "^20.1.3"
   }
 }
