@@ -424,7 +424,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
       },
     });
 
-    // Don't resolve if the hook skipped
+    // Only resolve if the hook didn't skip
     if (!this.isResolved) {
       resolved = await this.resolveCommand();
     }

@@ -69,7 +69,7 @@ export async function resolveCommand(
     throw new OptionsError(`Unknown option "${commandName}"`);
   }
 
-  // Check if the command name is a path (e.g., ./foo, ../foo, /foo)
+  // Check if the command name is a relative path (e.g., ./foo, ../foo, /foo)
   if (/^(\.|\/)/.test(commandName)) {
     throw new UsageError(`Invalid command name: ${commandName}`);
   }

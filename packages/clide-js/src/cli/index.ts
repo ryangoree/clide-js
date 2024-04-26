@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { run } from 'src/core/run';
 import { help } from 'src/plugins/help';
 import { logger } from 'src/plugins/logger';
