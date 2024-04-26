@@ -4,6 +4,7 @@ import { CommandModule, passThroughCommand } from 'src/core/command';
 import {
   MissingDefaultExportError,
   NotFoundError,
+  OptionsError,
   UsageError,
 } from 'src/core/errors';
 import { ParseCommandFn, parseCommand } from 'src/core/parse';
@@ -56,14 +57,22 @@ export interface ResolveCommandOptions {
  * not found, or missing default export.
  * @group Resolve
  */
-export async function resolveCommand({
-  commandString,
-  commandsDir,
-  parseFn = parseCommand,
-}: ResolveCommandOptions): Promise<ResolvedCommand> {
+export async function resolveCommand(
+  { commandString, commandsDir, parseFn = parseCommand }: ResolveCommandOptions,
+): Promise<ResolvedCommand> {
   if (!commandString.length) throw new UsageError('Command required.');
 
   const [commandName, ...remainingTokens] = commandString.split(' ');
+
+  // Check if the first token is an option.
+  if (commandName.startsWith('-')) {
+    throw new OptionsError(`Unknown option "${commandName}"`);
+  }
+
+  // Check if the command name is a path (e.g., ./foo, ../foo, /foo)
+  if (/^(\.|\/)/.test(commandName)) {
+    throw new UsageError(`Invalid command name: ${commandName}`);
+  }
 
   // Ensure the command directory exists.
   if (!isDirectory(commandsDir)) {
@@ -136,11 +145,9 @@ export async function resolveCommand({
  * Attempts to load a command module by finding a param file name in the
  * given directory.
  */
-async function resolveParamCommand({
-  commandString,
-  commandsDir,
-  parseFn = parseCommand,
-}: ResolveCommandOptions): Promise<ResolvedCommand | undefined> {
+async function resolveParamCommand(
+  { commandString, commandsDir, parseFn = parseCommand }: ResolveCommandOptions,
+): Promise<ResolvedCommand | undefined> {
   const fileNames = await fs.promises.readdir(commandsDir);
   let tokens = commandString.split(' ');
   let resolved: ResolvedCommand | undefined;
