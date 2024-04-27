@@ -253,126 +253,118 @@ export interface Hooks {
  * A generic type for the payload of a hook.
  * @group Hooks
  */
-export type HookPayload<THook extends keyof Hooks> = Parameters<
-  Hooks[THook]
+export type HookPayload<TEventName extends keyof Hooks> = Parameters<
+  Hooks[TEventName]
 >[0];
 
 /**
- * A class for registering, un-registering, and calling hooks. The hooks called
- * by the CLI engine are defined in the {@linkcode Hooks} type, but any string
- * can be used as a hook name, allowing plugins to define their own hooks.
+ * A class for registering, un-registering, and calling hooks. The events that
+ * can be hooked into are defined in the {@linkcode Hooks} type, but any string
+ * can be used as an event name, allowing plugins to define their own hooks.
  *
  * @remarks
- * Each registered hook handler is awaited in series to ensure that hooks are
+ * Each registered hook is awaited in series to ensure that hooks are
  * called in the order they were registered.
  * @group Hooks
  */
 // similar to EventEmitter, but blocking
 export class HooksEmitter {
-  private hooks: Record<
-    string,
-    {
-      handlers: ((...args: any) => any)[];
-    }
-  > = {};
+  private hooks: {
+    [event: string]: ((...args: any) => any)[];
+  } = {};
 
   /**
-   * Register a new hook handler for a given hook.
-   * @param hook - The hook to register the handler for.
-   * @param fn - The function to call when the hook is called.
+   * Register a new hook for a given lifecycle event.
+   * @param event - The event to register the hook for.
+   * @param hook - The function to call when the event is triggered.
    */
-  on<THook extends keyof Hooks>(hook: THook, fn: Hooks[THook]): void;
-  on<THook extends keyof Hooks | string>(
-    hook: string,
-    fn: THook extends keyof Hooks ? Hooks[THook] : (...args: any) => any,
+  on<TEvent extends keyof Hooks>(event: TEvent, hook: Hooks[TEvent]): void;
+  on<TEvent extends keyof Hooks | string>(
+    event: string,
+    hook: TEvent extends keyof Hooks ? Hooks[TEvent] : (...args: any) => any,
   ): void;
-  on(hook: string, fn: (...args: any) => any): void {
-    const hooks = this.hooks[hook];
-    if (hooks) {
-      hooks.handlers.push(fn);
+  on(event: string, hook: (...args: any) => any): void {
+    const existing = this.hooks[event];
+    if (existing) {
+      existing.push(hook);
     } else {
-      this.hooks[hook] = {
-        handlers: [fn],
-      };
+      this.hooks[event] = [hook];
     }
   }
 
   /**
-   * Un-register a hook handler for a given hook.
-   * @param hook - The hook to un-register the handler for.
-   * @param fn - The function to un-register.
-   * @returns Whether or not the handler was un-registered.
+   * Un-register a hook for a given lifecycle event.
+   * @param event - The event to un-register the hook for.
+   * @param hook - The function to un-register.
+   * @returns Whether a hook was un-registered.
    */
-  off<THook extends keyof Hooks>(hook: THook, fn: Hooks[THook]): boolean;
-  off<THook extends keyof Hooks | string>(
-    hook: string,
-    fn: THook extends keyof Hooks ? Hooks[THook] : (...args: any) => any,
+  off<TEventName extends keyof Hooks>(
+    event: TEventName,
+    hook: Hooks[TEventName],
   ): boolean;
-  off(hook: string, fn: (...args: any) => any) {
+  off<TEventName extends keyof Hooks | string>(
+    event: string,
+    hook: TEventName extends keyof Hooks
+      ? Hooks[TEventName]
+      : (...args: any) => any,
+  ): boolean;
+  off(event: string, hook: (...args: any) => any) {
     let didRemove = false;
-    if (this.hooks[hook]) {
-      this.hooks[hook].handlers = this.hooks[hook].handlers.filter(
-        (handler) => {
-          if (handler === fn) {
-            didRemove = true;
-            return false;
-          }
-          return true;
-        },
-      );
+    const existing = this.hooks[event];
+    if (existing) {
+      this.hooks[event] = existing.filter((handler) => {
+        if (handler === hook) {
+          didRemove = true;
+          return false;
+        }
+        return true;
+      });
     }
     return didRemove;
   }
 
   /**
-   * Register a new hook handler for a given hook that will only be called once,
-   * then un-registered.
-   * @param hook - The hook to register the handler for.
-   * @param fn - The function to call when the hook is called.
+   * Register a new hook for a given lifecycle event that will only be called
+   * once, then un-registered.
+   * @param event - The event to register the hook for.
+   * @param hook - The function to call when the event is triggered.
    */
-  once<THook extends keyof Hooks>(hook: THook, fn: Hooks[THook]): void;
-  once<THook extends keyof Hooks | string>(
-    hook: string,
-    fn: THook extends keyof Hooks ? Hooks[THook] : (...args: any) => any,
+  once<TEventName extends keyof Hooks>(
+    event: TEventName,
+    hook: Hooks[TEventName],
   ): void;
-  once(hook: string, fn: (...args: any) => any) {
+  once<TEventName extends keyof Hooks | string>(
+    event: string,
+    hook: TEventName extends keyof Hooks
+      ? Hooks[TEventName]
+      : (...args: any) => any,
+  ): void;
+  once(event: string, hook: (...args: any) => any) {
     const wrapped = (...args: any) => {
-      this.off(hook, wrapped);
-      fn(...args);
+      this.off(event, wrapped);
+      hook(...args);
     };
-    this.on(hook, wrapped);
+    this.on(event, wrapped);
   }
 
   /**
-   * Call a hook with the given arguments.
-   * @param hook - The hook to call.
-   * @param args - The arguments to pass to the hook handlers.
+   * Call all hooks for a given event.
+   * @param event - The event to call the hooks for.
+   * @param args - The arguments to pass to the hooks.
    */
-  call<THook extends keyof Hooks>(
-    hook: THook,
-    ...args: Parameters<Hooks[THook]>
+  call<TEventName extends keyof Hooks>(
+    event: TEventName,
+    ...args: Parameters<Hooks[TEventName]>
   ): Promise<void>;
-  call<THook extends keyof Hooks | string = keyof Hooks>(
-    hook: THook,
-    ...args: typeof hook extends keyof Hooks ? Parameters<Hooks[THook]> : any[]
+  call<TEventName extends keyof Hooks | string = keyof Hooks>(
+    event: TEventName,
+    ...args: typeof event extends keyof Hooks
+      ? Parameters<Hooks[TEventName]>
+      : any[]
   ): Promise<void>;
-  async call(hook: string, ...args: any) {
-    const { handlers } = this.hooks[hook] || {};
-    for (const handler of handlers || []) {
-      await (handler as any)(...args);
+  async call(event: string, ...args: any) {
+    for (const hook of this.hooks[event] || []) {
+      await (hook as any)(...args);
     }
   }
 }
-
-// wip idea: passing data via hooks
-
-// hooks.on('connected', ({ wallet }) => setWallet(wallet));
-// hooks.call('connect');
-
-// myPlugin = ({ hooks }) => {
-//   hooks.on('connect', () => {
-//     // get wallet...
-
-//     hooks.call('connected', { wallet: new Wallet(/* ... */) });
-//   });
-// };
