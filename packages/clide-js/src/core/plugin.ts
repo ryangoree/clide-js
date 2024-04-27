@@ -22,7 +22,7 @@ export type Plugin<TMeta extends Meta = any> = Prettify<
  * @catgory Core
  * @group Plugin
  */
-export type PluginInfo<TMeta extends Meta> = Prettify<
+export type PluginInfo<TMeta extends Meta = any> = Prettify<
   {
     name: string;
     version: string;
