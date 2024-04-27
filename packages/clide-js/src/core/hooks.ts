@@ -6,7 +6,8 @@ import { ResolveCommandFn, ResolvedCommand } from './resolve';
 import { NextState, State } from './state';
 
 /**
- * The hooks that can be used to customize the CLI engine.
+ * The hooks that can be registered and called to modify the behavior of the
+ * CLI, keyed by event name.
  * @group Hooks
  */
 export interface Hooks {
@@ -250,14 +251,6 @@ export interface Hooks {
 }
 
 /**
- * A generic type for the payload of a hook.
- * @group Hooks
- */
-export type HookPayload<TEventName extends keyof Hooks> = Parameters<
-  Hooks[TEventName]
->[0];
-
-/**
  * A class for registering, un-registering, and calling hooks. The events that
  * can be hooked into are defined in the {@linkcode Hooks} type, but any string
  * can be used as an event name, allowing plugins to define their own hooks.
@@ -268,9 +261,9 @@ export type HookPayload<TEventName extends keyof Hooks> = Parameters<
  * @group Hooks
  */
 // similar to EventEmitter, but blocking
-export class HooksEmitter {
+export class HooksEmitter<THooks extends HooksObject = Hooks> {
   private hooks: {
-    [event: string]: ((...args: any) => any)[];
+    [event: string]: ((...args: any) => void)[];
   } = {};
 
   /**
@@ -278,10 +271,12 @@ export class HooksEmitter {
    * @param event - The event to register the hook for.
    * @param hook - The function to call when the event is triggered.
    */
-  on<TEvent extends keyof Hooks>(event: TEvent, hook: Hooks[TEvent]): void;
-  on<TEvent extends keyof Hooks | string>(
+  on<TEvent extends keyof THooks>(event: TEvent, hook: THooks[TEvent]): void;
+  on<TEvent extends keyof THooks | string>(
     event: string,
-    hook: TEvent extends keyof Hooks ? Hooks[TEvent] : (...args: any) => any,
+    hook: TEvent extends keyof THooks
+      ? THooks[TEvent]
+      : (...args: any[]) => void,
   ): void;
   on(event: string, hook: (...args: any) => any): void {
     const existing = this.hooks[event];
@@ -298,14 +293,14 @@ export class HooksEmitter {
    * @param hook - The function to un-register.
    * @returns Whether a hook was un-registered.
    */
-  off<TEventName extends keyof Hooks>(
+  off<TEventName extends keyof THooks>(
     event: TEventName,
-    hook: Hooks[TEventName],
+    hook: THooks[TEventName],
   ): boolean;
-  off<TEventName extends keyof Hooks | string>(
+  off<TEventName extends keyof THooks | string>(
     event: string,
-    hook: TEventName extends keyof Hooks
-      ? Hooks[TEventName]
+    hook: TEventName extends keyof THooks
+      ? THooks[TEventName]
       : (...args: any) => any,
   ): boolean;
   off(event: string, hook: (...args: any) => any) {
@@ -329,22 +324,22 @@ export class HooksEmitter {
    * @param event - The event to register the hook for.
    * @param hook - The function to call when the event is triggered.
    */
-  once<TEventName extends keyof Hooks>(
+  once<TEventName extends keyof THooks>(
     event: TEventName,
-    hook: Hooks[TEventName],
+    hook: THooks[TEventName],
   ): void;
-  once<TEventName extends keyof Hooks | string>(
+  once<TEventName extends keyof THooks | string>(
     event: string,
-    hook: TEventName extends keyof Hooks
-      ? Hooks[TEventName]
+    hook: TEventName extends keyof THooks
+      ? THooks[TEventName]
       : (...args: any) => any,
   ): void;
   once(event: string, hook: (...args: any) => any) {
     const wrapped = (...args: any) => {
-      this.off(event, wrapped);
+      this.off(event, wrapped as any);
       hook(...args);
     };
-    this.on(event, wrapped);
+    this.on(event, wrapped as any);
   }
 
   /**
@@ -352,14 +347,18 @@ export class HooksEmitter {
    * @param event - The event to call the hooks for.
    * @param args - The arguments to pass to the hooks.
    */
-  call<TEventName extends keyof Hooks>(
+  call<TEventName extends keyof THooks>(
     event: TEventName,
-    ...args: Parameters<Hooks[TEventName]>
+    ...args: THooks[TEventName] extends (...args: any) => any
+      ? Parameters<THooks[TEventName]>
+      : any[]
   ): Promise<void>;
-  call<TEventName extends keyof Hooks | string = keyof Hooks>(
+  call<TEventName extends keyof THooks | string = keyof THooks>(
     event: TEventName,
-    ...args: typeof event extends keyof Hooks
-      ? Parameters<Hooks[TEventName]>
+    ...args: typeof event extends keyof THooks
+      ? THooks[TEventName] extends (...args: any) => any
+        ? Parameters<THooks[TEventName]>
+        : any[]
       : any[]
   ): Promise<void>;
   async call(event: string, ...args: any) {
@@ -368,3 +367,20 @@ export class HooksEmitter {
     }
   }
 }
+
+/**
+ * A generic type for the payload of a hook.
+ * @group Hooks
+ */
+export type HookPayload<
+  TEventName extends keyof THooks,
+  THooks extends HooksObject = Hooks,
+> = THooks[TEventName] extends (...args: any) => any
+  ? Parameters<THooks[TEventName]>[0]
+  : unknown;
+
+export type HooksObject =
+  | {
+      [event: string]: (payload: any) => void;
+    }
+  | Hooks;
