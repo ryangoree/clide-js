@@ -5,7 +5,7 @@ import { Context } from './context';
  * A Clide-JS plugin
  * @group Plugin
  */
-export type Plugin<TMeta extends Meta = any> = Prettify<
+export type Plugin<TMeta extends PluginMeta = any> = Prettify<
   PluginInfo<TMeta> & {
     /**
      * Initialize the plugin.
@@ -22,7 +22,7 @@ export type Plugin<TMeta extends Meta = any> = Prettify<
  * @catgory Core
  * @group Plugin
  */
-export type PluginInfo<TMeta extends Meta = any> = Prettify<
+export type PluginInfo<TMeta extends PluginMeta = any> = Prettify<
   {
     name: string;
     version: string;
@@ -52,4 +52,4 @@ export type PluginInfo<TMeta extends Meta = any> = Prettify<
       })
 >;
 
-type Meta = Record<string, any> | Nothing;
+export type PluginMeta = Record<string, any> | Nothing;
