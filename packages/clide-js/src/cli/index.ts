@@ -4,10 +4,15 @@ import { help } from 'src/plugins/help';
 import { logger } from 'src/plugins/logger';
 
 const result = await run({
-  plugins: [logger(), help()],
+  plugins: [
+    logger({
+      enabled: process.env.NODE_ENV === 'development',
+    }),
+    help(),
+  ],
 }).catch((e) => {
   console.error(e);
   process.exit(1);
 });
 
-console.log('result', result);
+console.log('result:', result);
