@@ -24,6 +24,7 @@ export * from './utils/argv';
 export * from './utils/caller-path';
 export * from './utils/camel-case';
 export * from './utils/find-similar';
+export * from './utils/format-file-name';
 export * from './utils/fs';
 export * from './utils/parse-file-name';
 export * from './utils/remove-file-extension';
