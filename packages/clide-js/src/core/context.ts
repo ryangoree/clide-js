@@ -140,11 +140,11 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
   /**
    * Create a new `Context` instance and automatically prep it for execution.
    */
-  static prepare = async (options: ContextOptions) => {
+  static async prepare(options: ContextOptions) {
     const context = new Context(options);
     await context.prepare();
     return context;
-  };
+  }
 
   /** The options config for the command. */
   get options() {
@@ -174,7 +174,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    *
    * @remarks This method is idempotent.
    */
-  readonly prepare = async () => {
+  async prepare() {
     if (this.isReady) return;
 
     try {
@@ -205,7 +205,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    * @param options - The options config to be merged with the context's options
    * config.
    */
-  readonly addOptions = (options: OptionsConfig) => {
+  addOptions(options: OptionsConfig) {
     Object.assign(this._options, options);
   };
 
@@ -223,10 +223,10 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    *
    * @returns A `ResolvedCommand` object.
    */
-  readonly resolveCommand = async (
+  async resolveCommand (
     commandString: string = this.commandString,
     commandsDir: string = this.commandsDir,
-  ) => {
+  ) {
     const resolved = await this.resolveFn({
       commandString,
       commandsDir,
@@ -260,10 +260,10 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    * @returns A `ParsedCommand` object containing the parsed command tokens and
    * option values.
    */
-  readonly parseCommand = (
+  parseCommand(
     commandString: string = this.commandString,
     optionsConfig?: OptionsConfig,
-  ) => {
+  ) {
     return this._parseFn(commandString, {
       ...this.options,
       ...optionsConfig,
@@ -279,7 +279,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    * @param initialData - Optional data to be passed to the first command in the
    * chain.
    */
-  readonly execute = async (initialData?: any) => {
+  async execute(initialData?: any) {
     // Create a new state for each execution
     const state = new State({
       context: this,
@@ -341,7 +341,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    * Throw an error, allowing hooks to modify the error or ignore it.
    * @param error - The error to be thrown.
    */
-  readonly throw = async (error: unknown) => {
+  async throw(error: unknown) {
     let _error = error;
     let ignore = false;
 
@@ -364,7 +364,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    * @param code - The exit code. Defaults to 0.
    * @param message - The message to be displayed before exiting.
    */
-  readonly exit = async (code = 0, message?: any) => {
+  async exit(code = 0, message?: any) {
     let _code = code;
     let _message = message;
     let cancel = false;
@@ -396,7 +396,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    *
    * @remarks This method is idempotent.
    */
-  private _resolve = async () => {
+  private async _resolve() {
     if (this.isResolved) return;
 
     let resolved: ResolvedCommand | undefined;
@@ -508,7 +508,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
 
     // Mark the context as resolved
     this.isResolved = true;
-  };
+  }
 
   /**
    * Parse the command string with the final options config from plugins and
@@ -516,7 +516,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    *
    * @remarks This method is idempotent.
    */
-  private _parse = async () => {
+  private async _parse() {
     if (this.isParsed) return;
 
     await this.hooks.call('beforeParse', {
@@ -549,5 +549,5 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
       },
       context: this,
     });
-  };
+  }
 }
