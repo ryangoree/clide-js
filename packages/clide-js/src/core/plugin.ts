@@ -33,9 +33,9 @@ export type PluginInfo<TMeta extends PluginMeta = any> = Prettify<
          * Additional metadata about the plugin that doesn't fit in the standard
          * fields.
          *
-         * Note: Plugin info on the {@linkcode Context} object will be frozen after
-         * the plugin is initialized. Use this field to store mutable metadata that
-         * can be updated during the plugin's lifecycle.
+         * Note: Plugin info on the {@linkcode Context} object will be frozen
+         * after the plugin is initialized. However, the freeze is shallow, so
+         * the fields of this object will be mutable by default.
          */
         meta?: Record<string, any>;
       }
@@ -44,9 +44,9 @@ export type PluginInfo<TMeta extends PluginMeta = any> = Prettify<
          * Additional metadata about the plugin that doesn't fit in the standard
          * fields.
          *
-         * Note: Plugin info on the {@linkcode Context} object will be frozen after
-         * the plugin is initialized. Use this field to store mutable metadata that
-         * can be updated during the plugin's lifecycle.
+         * Note: Plugin info on the {@linkcode Context} object will be frozen
+         * after the plugin is initialized. However, the freeze is shallow, so
+         * the fields of this object will be mutable by default.
          */
         meta: TMeta;
       })
