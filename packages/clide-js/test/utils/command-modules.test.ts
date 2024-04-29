@@ -28,7 +28,6 @@ describe('mockCommandModule', () => {
       handler: expect.any(Function),
     });
 
-
     mock.handler({ next: (data: unknown) => data, data: 'foo' } as any);
     expect(mock.handler).toHaveBeenCalledTimes(1);
 

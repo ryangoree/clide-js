@@ -106,7 +106,9 @@ export function mockCommandModule<T extends CommandModule | undefined>(
     mockCommandDirs.set(commandDir, new Set([commandName]));
   }
 
-  const mock = commandModule || mockedCommandModule;
+  const mock = commandModule || {
+    handler: vi.fn(({ next, data }) => next(data)),
+  };
 
   vi.doMock(formattedFilePath, () => {
     return {
@@ -185,10 +187,6 @@ export function mockCommandStringModules<TCommandString extends string>(
 
 type MockCommandModule = {
   handler: Mock<[state: Readonly<State>]>;
-};
-
-const mockedCommandModule: MockCommandModule = {
-  handler: vi.fn(({ next, data }) => next(data)),
 };
 
 /**
