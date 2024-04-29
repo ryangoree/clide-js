@@ -197,7 +197,12 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
 
     // Mark the context as ready
     this.isReady = true;
-  };
+  }
+
+  // Note: The following methods are defined as arrow functions to ensure that
+  // they are bound to the context instance. This is necessary to allow them to
+  // be passed as callbacks to hooks and other functions while maintaining the
+  // correct `this` context.
 
   /**
    * Append additional options to the context's options config. Typically, this
@@ -205,7 +210,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    * @param options - The options config to be merged with the context's options
    * config.
    */
-  addOptions(options: OptionsConfig) {
+  readonly addOptions = (options: OptionsConfig) => {
     Object.assign(this._options, options);
   };
 
@@ -223,10 +228,10 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    *
    * @returns A `ResolvedCommand` object.
    */
-  async resolveCommand (
+  readonly resolveCommand = async (
     commandString: string = this.commandString,
     commandsDir: string = this.commandsDir,
-  ) {
+  ) => {
     const resolved = await this.resolveFn({
       commandString,
       commandsDir,
@@ -260,10 +265,10 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    * @returns A `ParsedCommand` object containing the parsed command tokens and
    * option values.
    */
-  parseCommand(
+  readonly parseCommand = (
     commandString: string = this.commandString,
     optionsConfig?: OptionsConfig,
-  ) {
+  ) => {
     return this._parseFn(commandString, {
       ...this.options,
       ...optionsConfig,
@@ -279,11 +284,11 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    * @param initialData - Optional data to be passed to the first command in the
    * chain.
    */
-  async execute(initialData?: any) {
+  readonly execute = async (initialData?: any) => {
     // Create a new state for each execution
     const state = new State({
       context: this,
-      data: initialData,
+      initialData,
     });
 
     let _initialData = initialData;
@@ -341,7 +346,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    * Throw an error, allowing hooks to modify the error or ignore it.
    * @param error - The error to be thrown.
    */
-  async throw(error: unknown) {
+  readonly throw = async (error: unknown) => {
     let _error = error;
     let ignore = false;
 
@@ -364,7 +369,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    * @param code - The exit code. Defaults to 0.
    * @param message - The message to be displayed before exiting.
    */
-  async exit(code = 0, message?: any) {
+  readonly exit = async (code = 0, message?: any) => {
     let _code = code;
     let _message = message;
     let cancel = false;
