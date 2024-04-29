@@ -1,5 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from 'fs';
+import path from 'path';
 import { getAppRootDir } from './getAppRootDir';
 
 export const DEFAULT_CONFIG_FILE_NAME = 'clide.config';

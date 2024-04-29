@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import fs from 'fs';
 import { removeFileExtension } from './remove-file-extension';
 
 /**
@@ -50,8 +50,7 @@ export function isFile(
  * Attempt to determine if an error is a module not found error.
  * @group Utils
  * @remarks
- * This function is not guaranteed to be accurate in every environment and is
- * meant to be used when the source of the error is known.
+ * This function is not guaranteed to be accurate in every environment.
  */
 function isModuleNotFoundError(err: unknown): boolean {
   if (err && (err as any).code === 'ENOENT') return true;

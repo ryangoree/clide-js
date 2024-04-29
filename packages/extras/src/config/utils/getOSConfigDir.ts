@@ -1,5 +1,5 @@
-import os from 'node:os';
-import path from 'node:path';
+import os from 'os';
+import path from 'path';
 
 /**
  * Get the path to an app specific config directory based on operating system
@@ -22,11 +22,11 @@ export function getOSConfigDir(projectName: string): string {
     configDir = process.env.APPDATA || path.join(homeDir, 'AppData', 'Roaming');
 
     // https://github.com/dirs-dev/directories-rs/issues/62
-    } else if (platform === 'darwin') {
-      // macOS
-      // https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/MacOSXDirectories/MacOSXDirectories.html
-      // https://apple.fandom.com/wiki/Application_Support_folder
-      configDir = path.join(homeDir, 'Library', 'Application Support');
+  } else if (platform === 'darwin') {
+    // macOS
+    // https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/MacOSXDirectories/MacOSXDirectories.html
+    // https://apple.fandom.com/wiki/Application_Support_folder
+    configDir = path.join(homeDir, 'Library', 'Application Support');
   } else {
     // Linux and others
     // https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html

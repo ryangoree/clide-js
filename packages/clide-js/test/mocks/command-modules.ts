@@ -1,4 +1,4 @@
-import path from 'node:path';
+import path from 'path';
 import { CommandModule } from 'src/core/command';
 import { NotFoundError } from 'src/core/errors';
 import { parseCommand } from 'src/core/parse';
@@ -8,7 +8,7 @@ import { vi } from 'vitest';
 
 const mockCommandDirs = new Map<string, Set<string>>();
 
-vi.mock('node:fs', async (importOriginal) => {
+vi.mock('fs', async (importOriginal) => {
   const fs = (await importOriginal()) as typeof import('fs');
   const mod = {
     ...fs,

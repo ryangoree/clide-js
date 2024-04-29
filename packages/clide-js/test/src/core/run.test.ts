@@ -5,7 +5,7 @@ import {
   unmockAllCommandModules,
 } from 'test/mocks/command-modules';
 
-import path from 'node:path';
+import path from 'path';
 import { Client } from 'src/core/client';
 import { Context } from 'src/core/context';
 import { ClideError } from 'src/core/errors';

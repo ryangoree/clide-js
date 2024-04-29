@@ -1,12 +1,12 @@
-const { resolve } = require("node:path");
+const path = require('path');
 
-const project = resolve(process.cwd(), "tsconfig.json");
+const project = path.resolve(process.cwd(), 'tsconfig.json');
 
 module.exports = {
   extends: [
-    "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:import/recommended",
+    'plugin:@typescript-eslint/eslint-recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:import/recommended',
 
     /**
      * Prettier must be the last extension in the list.
@@ -15,17 +15,17 @@ module.exports = {
      * (If another active ESLint rule disagrees with prettier about how code
      * should be formatted, it will be impossible to avoid lint errors.)
      */
-    "prettier",
+    'prettier',
   ].map(require.resolve),
   parserOptions: {
     project,
   },
   settings: {
-    "import/resolver": {
+    'import/resolver': {
       typescript: {
         project,
       },
     },
   },
-  ignorePatterns: ["node_modules/", "dist/"],
+  ignorePatterns: ['node_modules/', 'dist/'],
 };

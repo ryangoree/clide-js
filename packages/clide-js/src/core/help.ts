@@ -1,5 +1,5 @@
 import initCliui from 'cliui';
-import fs from 'node:fs';
+import fs from 'fs';
 import { getBin } from 'src/utils/argv';
 import { Converted, convert } from 'src/utils/convert';
 import { isDirectory } from 'src/utils/fs';
