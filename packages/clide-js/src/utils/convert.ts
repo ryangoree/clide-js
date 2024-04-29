@@ -1,5 +1,10 @@
 /**
- * Deeply converts values in an object or array or a single value.
+ * Recursively converts a type to a new type. The `predicateFn` is
+ * used to determine if the `converterFn` should be run on the value.
+ *
+ * The function first checks the value itself, if the `predicateFn` returns
+ * false and the value is an array or object, the function will recursively
+ * check each item in the array or object.
  *
  * @param value - The value or object/array containing values to convert.
  * @param predicateFn - The predicate function to determine if a value should be
@@ -7,7 +12,7 @@
  * @param converterFn - The function to convert the value.
  *
  * @returns The converted value.
- * 
+ *
  * @internal
  */
 export function convert<T, TOriginal, TNew>(
@@ -40,11 +45,14 @@ export function convert<T, TOriginal, TNew>(
   return value as Converted<T, TOriginal, TNew>;
 }
 
-/** The type of a deeply converted value. */
+/**
+ * The converted type of `T` where all instances of `TOriginal` are replaced
+ * with `TNew`.
+ */
 export type Converted<T, TOriginal, TNew> = T extends TOriginal
   ? TNew
   : T extends Array<infer U>
-  ? Converted<U, TOriginal, TNew>[]
-  : T extends object
-  ? { [K in keyof T]: Converted<T[K], TOriginal, TNew> }
-  : T;
+    ? Converted<U, TOriginal, TNew>[]
+    : T extends object
+      ? { [K in keyof T]: Converted<T[K], TOriginal, TNew> }
+      : T;
