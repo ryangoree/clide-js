@@ -69,8 +69,8 @@ export class State<
     context,
     data,
     commands,
-    options,
-    optionValues,
+    options = context.options,
+    optionValues = context.parsedOptions,
   }: StateOptions<TData>) {
     this._context = context;
     this._data = data as TData;
@@ -79,8 +79,8 @@ export class State<
     // Create a getter to dynamically get the options from context.
     this._options = createOptionsGetter({
       client: context.client,
-      optionsConfig: options || context.options,
-      optionValues: optionValues || context.parsedOptions,
+      optionsConfig: options,
+      optionValues: optionValues,
       onPromptCancel: context.exit,
     }) as OptionsGetter<TOptions>;
   }
@@ -112,6 +112,10 @@ export class State<
   /** An `OptionsGetter` to dynamically retrieve options. */
   get options() {
     return this._options;
+  }
+  /** The client for the command. */
+  get client() {
+    return this.context.client;
   }
 
   /**
@@ -258,9 +262,9 @@ export class State<
     commands: (TCommand | ResolvedCommand)[];
     initialData?: any;
     optionValues?: OptionValues<
-    TCommand['options'] extends OptionsConfig
-    ? TCommand['options']
-    : OptionsConfig
+      TCommand['options'] extends OptionsConfig
+        ? TCommand['options']
+        : OptionsConfig
     >;
     // TODO: strict type for paramValues
     paramValues?: Record<string, any>;
