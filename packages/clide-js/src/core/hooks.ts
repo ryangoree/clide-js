@@ -7,11 +7,13 @@ import { NextState, State } from './state';
 
 /**
  * The hooks that can be registered and called to modify the behavior of the
- * CLI, keyed by event name.
+ * CLI, keyed by event name, listed in the order they are called.
  * @group Hooks
  */
 export interface Hooks {
-  // called once during preparation
+  /**
+   * 1. Called once during preparation.
+   */
   beforeResolve: (payload: {
     /** The command string that was passed to the CLI. */
     commandString: string;
@@ -38,7 +40,9 @@ export interface Hooks {
     context: Context;
   }) => MaybePromise<void>;
 
-  // called once for each subcommand during preparation
+  /**
+   * 2. Called once for each subcommand during preparation.
+   */
   beforeResolveNext: (payload: {
     /** The remaining command string that needs to be resolved. */
     commandString: string;
@@ -70,7 +74,9 @@ export interface Hooks {
     context: Context;
   }) => MaybePromise<void>;
 
-  // called once during preparation
+  /**
+   * 3. Called once during preparation.
+   */
   afterResolve: (payload: {
     /** The resolved commands. */
     resolvedCommands: ResolvedCommand[];
@@ -91,7 +97,9 @@ export interface Hooks {
     context: Context;
   }) => MaybePromise<void>;
 
-  // called once during preparation
+  /**
+   * 4. Called once during preparation.
+   */
   beforeParse: (payload: {
     /** The command string that was passed to the CLI. */
     commandString: string | string[];
@@ -116,7 +124,9 @@ export interface Hooks {
     context: Context;
   }) => MaybePromise<void>;
 
-  // called once during preparation
+  /**
+   * 5. Called once during preparation.
+   */
   afterParse: (payload: {
     /** The resulting parsed options. */
     parsedOptions: OptionValues;
@@ -129,7 +139,9 @@ export interface Hooks {
     context: Context;
   }) => MaybePromise<void>;
 
-  // called once for every execution
+  /**
+   * 6. Called once for every execution.
+   */
   beforeExecute: (payload: {
     /** The initial data that was passed to the state. */
     initialData: unknown;
@@ -146,40 +158,12 @@ export interface Hooks {
     skip: () => void;
   }) => MaybePromise<void>;
 
-  // called once for every execution
-  afterExecute: (payload: {
-    /** The state object. */
-    state: State;
-    /** The final result. */
-    result: unknown;
-    /** Override the final result. */
-    setResult: (result: unknown) => void;
-  }) => MaybePromise<void>;
-
-  // called every time the state changes during execution
-  beforeStateChange: (payload: {
-    /** The state object. */
-    state: State;
-    /** The changes that will be applied to the state. */
-    changes: Partial<NextState>;
-    /**
-     * Override the changes that will be applied to the state.
-     * @param changes - The new changes.
-     */
-    setChanges: (state: Partial<NextState>) => void;
-    /** Skip the state change. */
-    skip: () => void;
-  }) => MaybePromise<void>;
-
-  // called every time the state changes during execution
-  afterStateChange: (payload: {
-    /** The state object. */
-    state: State;
-    /** The changes that were applied to the state. */
-    changed: Partial<NextState>;
-  }) => MaybePromise<void>;
-
-  // called for every call of state.next()
+  /**
+   * 7. Called for every call of `state.next()`.
+   *
+   * @remarks `state.start()` calls `state.next()` internally, so this hook is
+   * called before the first command is executed.
+   */
   beforeNext: (payload: {
     /** The state object. */
     state: State;
@@ -199,7 +183,37 @@ export interface Hooks {
     setNextCommand: (command: ResolvedCommand) => void;
   }) => MaybePromise<void>;
 
-  // called once per execution, but only if state.end() is called
+  /**
+   * 8. Called every time the state changes during execution.
+   */
+  beforeStateChange: (payload: {
+    /** The state object. */
+    state: State;
+    /** The changes that will be applied to the state. */
+    changes: Partial<NextState>;
+    /**
+     * Override the changes that will be applied to the state.
+     * @param changes - The new changes.
+     */
+    setChanges: (state: Partial<NextState>) => void;
+    /** Skip the state change. */
+    skip: () => void;
+  }) => MaybePromise<void>;
+
+  /**
+   * 9. Called every time the state changes during execution.
+   */
+  afterStateChange: (payload: {
+    /** The state object. */
+    state: State;
+    /** The changes that were applied to the state. */
+    changed: Partial<NextState>;
+  }) => MaybePromise<void>;
+
+  /**
+   * 10. Called once per execution, *before* the final state change, if
+   *     `state.end()` is called.
+   */
   beforeEnd: (payload: {
     /** The state object. */
     state: State;
@@ -212,7 +226,24 @@ export interface Hooks {
     setData: (data: unknown) => void;
   }) => MaybePromise<void>;
 
-  // called whenever an error is thrown
+  /**
+   * 11. Called once for every execution.
+   */
+  afterExecute: (payload: {
+    /** The state object. */
+    state: State;
+    /** The final result. */
+    result: unknown;
+    /** Override the final result. */
+    setResult: (result: unknown) => void;
+  }) => MaybePromise<void>;
+
+  // The following hooks are not part of the core lifecycle, but are included
+  // for convenience.
+
+  /**
+   * Called whenever an error is thrown.
+   */
   error: (payload: {
     /** The command's context object. */
     context: Context;
@@ -227,7 +258,9 @@ export interface Hooks {
     ignore: () => void;
   }) => MaybePromise<void>;
 
-  // called whenever a plugin or command intend to exit the process
+  /**
+   * Called whenever a plugin or command intend to exit the process.
+   */
   exit: (payload: {
     /** The command's context object. */
     context: Context;
