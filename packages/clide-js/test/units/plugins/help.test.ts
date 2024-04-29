@@ -2,7 +2,7 @@
 import {
   mockCommandModule,
   unmockAllCommandModules,
-} from 'test/mocks/command-modules';
+} from 'test/utils/command-modules';
 
 vi.mock('src/core/client');
 

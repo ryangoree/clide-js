@@ -2,7 +2,7 @@
 import {
   mockCommandModules,
   unmockAllCommandModules,
-} from 'test/mocks/command-modules';
+} from 'test/utils/command-modules';
 
 import { ResolvedCommand, resolveCommand } from 'src/core/resolve';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -44,44 +44,38 @@ describe('resolve', () => {
       commandsDir,
     });
 
-    expect(resolved).toEqual(
-      expect.objectContaining({
-        command: commandModules['commands/foo.js'],
-        commandPath: 'commands/foo.js',
-        commandName: 'foo',
-        commandTokens: ['foo'],
-        remainingCommandString: 'bar baz',
-        resolveNext: expect.any(Function),
-        subcommandsDir: 'commands/foo',
-      } as ResolvedCommand),
-    );
+    expect(resolved).toMatchObject({
+      command: commandModules['commands/foo.js'],
+      commandPath: 'commands/foo.js',
+      commandName: 'foo',
+      commandTokens: ['foo'],
+      remainingCommandString: 'bar baz',
+      resolveNext: expect.any(Function),
+      subcommandsDir: 'commands/foo',
+    } as ResolvedCommand);
 
     resolved = await resolved.resolveNext!();
 
-    expect(resolved).toEqual(
-      expect.objectContaining({
-        command: commandModules['commands/foo/bar.js'],
-        commandPath: 'commands/foo/bar.js',
-        commandName: 'bar',
-        commandTokens: ['bar'],
-        remainingCommandString: 'baz',
-        resolveNext: expect.any(Function),
-        subcommandsDir: 'commands/foo/bar',
-      } as ResolvedCommand),
-    );
+    expect(resolved).toMatchObject({
+      command: commandModules['commands/foo/bar.js'],
+      commandPath: 'commands/foo/bar.js',
+      commandName: 'bar',
+      commandTokens: ['bar'],
+      remainingCommandString: 'baz',
+      resolveNext: expect.any(Function),
+      subcommandsDir: 'commands/foo/bar',
+    } as ResolvedCommand);
 
     resolved = await resolved.resolveNext!();
 
-    expect(resolved).toEqual(
-      expect.objectContaining({
-        command: commandModules['commands/foo/bar/baz.js'],
-        commandPath: 'commands/foo/bar/baz.js',
-        commandName: 'baz',
-        commandTokens: ['baz'],
-        remainingCommandString: '',
-        subcommandsDir: 'commands/foo/bar/baz',
-      } as ResolvedCommand),
-    );
+    expect(resolved).toMatchObject({
+      command: commandModules['commands/foo/bar/baz.js'],
+      commandPath: 'commands/foo/bar/baz.js',
+      commandName: 'baz',
+      commandTokens: ['baz'],
+      remainingCommandString: '',
+      subcommandsDir: 'commands/foo/bar/baz',
+    } as ResolvedCommand);
   });
 
   it('resolves param commands', async () => {

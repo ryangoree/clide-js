@@ -49,6 +49,14 @@
       },
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./test-utils": {
+      "types": {
+        "import": "./dist/test-utils.d.ts",
+        "require": "./dist/test-utils.d.cts"
+      },
+      "import": "./dist/test-utils.js",
+      "require": "./dist/test-utils.cjs"
     }
   },
   "main": "dist/index.js",
