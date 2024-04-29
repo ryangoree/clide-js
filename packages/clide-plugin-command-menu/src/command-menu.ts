@@ -67,8 +67,8 @@ export function commandMenu({
   skip: _shouldSkip,
 }: CommandMenuOptions = {}): Plugin {
   return {
-    name: 'clide-command-menu',
-    version: '0.0.0',
+    name: 'command-menu',
+    version: '0.0.8',
     description:
       'Prompts the user to select a subcommand when a command requires one.',
 
