@@ -2,8 +2,8 @@ import path from 'path';
 import { CommandModule } from 'src/core/command';
 import { NotFoundError } from 'src/core/errors';
 import { parseCommand } from 'src/core/parse';
-import { formatFileName } from 'src/core/resolve';
 import { State } from 'src/core/state';
+import { formatFileName } from 'src/utils/format-file-name';
 import { vi } from 'vitest';
 
 const mockCommandDirs = new Map<string, Set<string>>();

@@ -8,6 +8,7 @@ import {
   UsageError,
 } from 'src/core/errors';
 import { ParseCommandFn, parseCommand } from 'src/core/parse';
+import { formatFileName } from 'src/utils/format-file-name';
 import { isDirectory, isFile } from 'src/utils/fs';
 import { parseFileName } from 'src/utils/parse-file-name';
 import { removeFileExtension } from 'src/utils/remove-file-extension';
@@ -57,9 +58,11 @@ export interface ResolveCommandOptions {
  * not found, or missing default export.
  * @group Resolve
  */
-export async function resolveCommand(
-  { commandString, commandsDir, parseFn = parseCommand }: ResolveCommandOptions,
-): Promise<ResolvedCommand> {
+export async function resolveCommand({
+  commandString,
+  commandsDir,
+  parseFn = parseCommand,
+}: ResolveCommandOptions): Promise<ResolvedCommand> {
   if (!commandString.length) throw new UsageError('Command required.');
 
   const [commandName, ...remainingTokens] = commandString.split(' ');
@@ -145,9 +148,11 @@ export async function resolveCommand(
  * Attempts to load a command module by finding a param file name in the
  * given directory.
  */
-async function resolveParamCommand(
-  { commandString, commandsDir, parseFn = parseCommand }: ResolveCommandOptions,
-): Promise<ResolvedCommand | undefined> {
+async function resolveParamCommand({
+  commandString,
+  commandsDir,
+  parseFn = parseCommand,
+}: ResolveCommandOptions): Promise<ResolvedCommand | undefined> {
   const fileNames = await fs.promises.readdir(commandsDir);
   let tokens = commandString.split(' ');
   let resolved: ResolvedCommand | undefined;
@@ -351,12 +356,4 @@ export interface ResolvedCommand {
    * The params associated with the resolved command.
    */
   params?: Params;
-}
-
-/**
- * Formats a file name to ensure it ends with `.js`.
- * @group Resolve
- */
-export function formatFileName(fileName: string) {
-  return `${removeFileExtension(fileName)}.js`;
 }
