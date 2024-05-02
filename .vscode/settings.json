@@ -2,6 +2,7 @@
   "cSpell.words": ["cfonts", "cliui", "divs", "signale", "unmock"],
   "editor.defaultFormatter": "biomejs.biome",
   "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
     "quickfix.biome": true,
     "source.organizeImports.biome": true
   },
