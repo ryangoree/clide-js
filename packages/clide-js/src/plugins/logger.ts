@@ -1,9 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { Client } from 'src/core/client';
-import type { Context } from 'src/core/context';
-import { HookPayload } from 'src/core/hooks';
-import { Plugin } from 'src/core/plugin';
+import type { Client } from 'src/core/client';
+import type { HookPayload } from 'src/core/hooks';
+import type { Plugin } from 'src/core/plugin';
 
 interface LoggerOptions {
   /**
@@ -32,6 +31,10 @@ interface LoggerOptions {
    */
   enabled?: boolean;
 }
+
+export let disableLogger: () => void;
+export let enableLogger: () => void;
+export let toggleLogger: () => void;
 
 /**
  * A minimal logger plugin that logs the result of each execution step. By
@@ -80,7 +83,7 @@ interface LoggerOptions {
  * ### Enable/Disable/Toggle the logger in a command
  *
  * ```ts
- * import { command } from 'clide-js';
+ * import { command, disableLogger, enableLogger } from 'clide-js';
  *
  * export default command({
  *   options: {
@@ -94,9 +97,9 @@ interface LoggerOptions {
  *     const verbose = await options.verbose();
  *
  *     if (verbose) {
- *       await context.hooks.call('enableLogger');
+ *       enableLogger();
  *     } else {
- *       await context.hooks.call('disableLogger');
+ *       disableLogger();
  *     }
  *
  *     // rest of the command...
@@ -124,11 +127,11 @@ export function logger({
 
   // Create a function to centralize the logging logic.
   function log(client: Client, message: string, ...data: any[]) {
-    message = `${prefixFn()}${message}`;
+    const prefixedMessage = `${prefixFn()}${message}`;
     if (logFile) {
-      logToFile(logFile, message, ...data);
+      logToFile(logFile, prefixedMessage, ...data);
     } else {
-      client.log(`${message}:`, ...data);
+      client.log(`${prefixedMessage}:`, ...data);
     }
   }
 
@@ -157,33 +160,31 @@ export function logger({
     logTransition('end', payload);
   }
 
-  // Create a meta object to provide read-only access to the enabled state.
-  // It's important that the enabled state can't be modified directly because
-  // the hooks need to be aware of the state changes.
-  const meta: LoggerMeta = {
-    get enabled() {
-      return enabled;
-    },
-  };
-
   // Return the plugin object.
   return {
     name: 'logger',
     version: '0.0.1',
     description: 'Logs the result of each execution step.',
-    meta,
+    meta: {
+      // Create a meta object to provide read-only access to the enabled state.
+      // It's important that the enabled state can't be modified directly because
+      // the hooks need to be aware of the state changes.
+      get enabled() {
+        return enabled;
+      },
+    },
     init: async ({ client, commandString, hooks }) => {
       // Create functions to enable and disable the hooks.
-      function enableLogger() {
+      enableLogger = () => {
         hooks.on('beforeNext', beforeNext);
         hooks.on('beforeEnd', beforeEnd);
         enabled = true;
-      }
-      function disableLogger() {
+      };
+      disableLogger = () => {
         hooks.off('beforeNext', beforeNext);
         hooks.off('beforeEnd', beforeEnd);
         enabled = false;
-      }
+      };
 
       // Log the command if the logger is enabled.
       if (enabled) {
