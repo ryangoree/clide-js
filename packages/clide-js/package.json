@@ -1,6 +1,6 @@
 {
   "name": "clide-js",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "A framework for building flexible and extensible CLIs",
   "license": "MIT",
   "type": "module",
@@ -60,5 +60,7 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"]
+  "files": [
+    "dist"
+  ]
 }
