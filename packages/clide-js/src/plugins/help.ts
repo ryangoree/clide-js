@@ -27,7 +27,7 @@ export interface HelpPluginOptions {
 export function help({ maxWidth = 80 }: HelpPluginOptions = {}): Plugin {
   return {
     name: 'help',
-    version: '0.0.0',
+    version: '0.0.1',
     description:
       'Prints help information on execution if the -h or --help flags are present or when a usage error occurs.',
     init: ({ addOptions, client, hooks }) => {

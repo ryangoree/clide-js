@@ -1,27 +1,22 @@
 {
   "private": true,
+  "type": "module",
   "scripts": {
     "build:clide": "turbo run build --filter=./packages/clide*",
     "build": "turbo run build",
-    "format": "prettier --write \"**/*.{ts,md}\"",
-    "lint": "turbo run lint",
+    "format": "biome format --write ./packages/",
+    "lint": "biome lint ./packages/",
     "release": "turbo run build && changeset publish",
     "test": "turbo run test:ci",
     "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.7.2",
     "@changesets/cli": "^2.27.1",
-    "eslint": "^9.1.0",
-    "prettier": "^3.2.5",
-    "prettier-plugin-organize-imports": "^3.2.4",
     "tsconfig": "*",
     "turbo": "latest"
   },
   "name": "clide",
   "packageManager": "yarn@1.22.19",
-  "workspaces": [
-    "packages/*",
-    "examples/*",
-    ".github/actions/*"
-  ]
+  "workspaces": ["packages/*", "examples/*", ".github/actions/*"]
 }

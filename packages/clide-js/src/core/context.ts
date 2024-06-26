@@ -140,11 +140,11 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
   /**
    * Create a new `Context` instance and automatically prep it for execution.
    */
-  static prepare = async (options: ContextOptions) => {
+  static async prepare(options: ContextOptions) {
     const context = new Context(options);
     await context.prepare();
     return context;
-  };
+  }
 
   /** The options config for the command. */
   get options() {
@@ -174,7 +174,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    *
    * @remarks This method is idempotent.
    */
-  readonly prepare = async () => {
+  async prepare() {
     if (this.isReady) return;
 
     try {
@@ -197,7 +197,12 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
 
     // Mark the context as ready
     this.isReady = true;
-  };
+  }
+
+  // Note: The following methods are defined as arrow functions to ensure that
+  // they are bound to the context instance. This is necessary to allow them to
+  // be passed as callbacks to hooks and other functions while maintaining the
+  // correct `this` context.
 
   /**
    * Append additional options to the context's options config. Typically, this
@@ -283,7 +288,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
     // Create a new state for each execution
     const state = new State({
       context: this,
-      data: initialData,
+      initialData,
     });
 
     let _initialData = initialData;
@@ -396,7 +401,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    *
    * @remarks This method is idempotent.
    */
-  private _resolve = async () => {
+  private async _resolve() {
     if (this.isResolved) return;
 
     let resolved: ResolvedCommand | undefined;
@@ -424,7 +429,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
       },
     });
 
-    // Don't resolve if the hook skipped
+    // Only resolve if the hook didn't skip
     if (!this.isResolved) {
       resolved = await this.resolveCommand();
     }
@@ -508,7 +513,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
 
     // Mark the context as resolved
     this.isResolved = true;
-  };
+  }
 
   /**
    * Parse the command string with the final options config from plugins and
@@ -516,7 +521,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    *
    * @remarks This method is idempotent.
    */
-  private _parse = async () => {
+  private async _parse() {
     if (this.isParsed) return;
 
     await this.hooks.call('beforeParse', {
@@ -549,5 +554,5 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
       },
       context: this,
     });
-  };
+  }
 }

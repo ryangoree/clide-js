@@ -1,4 +1,4 @@
-import { Context, OptionValues, Plugin } from 'clide-js';
+import { OptionValues, Plugin } from 'clide-js';
 import { commandMenuPrompt } from './command-menu-prompt.js';
 
 export interface CommandMenuOptions {
@@ -35,13 +35,12 @@ export interface CommandMenuOptions {
   maxDescriptionLength?: number;
 
   /**
-   * A predicate function that determines whether the command menu should be
-   * shown.
+   * Whether the command menu is enabled. Can be a boolean or a  predicate
+   * function that determines whether the command menu should be shown. The
+   * predicate will only be called if the conditions for showing the menu are
+   * met.
    */
-  skip?: (
-    options: OptionValues,
-    context: Context,
-  ) => Promise<boolean> | boolean;
+  enabled?: boolean | ((options: OptionValues) => Promise<boolean> | boolean);
 }
 
 /**
@@ -64,15 +63,19 @@ export function commandMenu({
   message = 'Choose a command',
   showDescriptions = true,
   maxDescriptionLength = 60,
-  skip: _shouldSkip,
+  enabled,
 }: CommandMenuOptions = {}): Plugin {
   return {
-    name: 'clide-command-menu',
-    version: '0.0.0',
+    name: 'command-menu',
+    version: '0.1.0',
     description:
       'Prompts the user to select a subcommand when a command requires one.',
 
     init: ({ hooks }) => {
+      if (enabled === false) return true;
+      const isPermanentlyEnabled = enabled === true;
+      const isEnabledFn = typeof enabled === 'function' ? enabled : () => true;
+
       // Show the menu if the command string is empty
       hooks.on(
         'beforeResolve',
@@ -83,10 +86,13 @@ export function commandMenu({
           addResolvedCommands,
           skip,
         }) => {
-          const parsed = await context.parseCommand();
-          const shouldSkip = await _shouldSkip?.(parsed.options, context);
+          if (commandString.length) return;
 
-          if (shouldSkip) return;
+          if (!isPermanentlyEnabled) {
+            const parsed = await context.parseCommand();
+            const isEnabled = await isEnabledFn(parsed.options);
+            if (!isEnabled) return;
+          }
 
           if (!commandString.length) {
             const selectedCommands = await commandMenuPrompt({
@@ -112,10 +118,11 @@ export function commandMenu({
       hooks.on(
         'afterResolve',
         async ({ context, resolvedCommands, addResolvedCommands }) => {
-          const parsed = await context.parseCommand();
-          const shouldSkip = await _shouldSkip?.(parsed.options, context);
-
-          if (shouldSkip) return;
+          if (!isPermanentlyEnabled) {
+            const parsed = await context.parseCommand();
+            const isEnabled = await isEnabledFn(parsed.options);
+            if (!isEnabled) return;
+          }
 
           const lastResolved = resolvedCommands[resolvedCommands.length - 1];
 

@@ -1,14 +1,14 @@
-import path from 'node:path';
+import path from 'path';
 import { CommandModule } from 'src/core/command';
 import { NotFoundError } from 'src/core/errors';
 import { parseCommand } from 'src/core/parse';
-import { formatFileName } from 'src/core/resolve';
 import { State } from 'src/core/state';
-import { vi } from 'vitest';
+import { formatFileName } from 'src/utils/format-file-name';
+import { Mock, vi } from 'vitest';
 
 const mockCommandDirs = new Map<string, Set<string>>();
 
-vi.mock('node:fs', async (importOriginal) => {
+vi.mock('fs', async (importOriginal) => {
   const fs = (await importOriginal()) as typeof import('fs');
   const mod = {
     ...fs,
@@ -88,10 +88,13 @@ export async function unmockAllCommandModules() {
  *  handler: ({ result, data }) => result(data),
  * });
  */
-export function mockCommandModule(
+export function mockCommandModule<T extends CommandModule | undefined>(
   commandPath: string,
-  commandModule?: CommandModule,
-) {
+  commandModule?: T,
+): {
+  mock: undefined extends T ? MockCommandModule : T;
+  unmock: () => void;
+} {
   const formattedFilePath = formatFileName(commandPath);
   const commandDir = path.dirname(commandPath);
   const commandName = path.basename(commandPath);
@@ -104,7 +107,7 @@ export function mockCommandModule(
   }
 
   const mock = commandModule || {
-    handler: vi.fn(({ next, data }: State) => next(data)),
+    handler: vi.fn(({ next, data }) => next(data)),
   };
 
   vi.doMock(formattedFilePath, () => {
@@ -115,7 +118,7 @@ export function mockCommandModule(
   });
 
   return {
-    mock,
+    mock: mock as any,
     unmock: () => {
       vi.doUnmock(formattedFilePath);
     },
@@ -135,17 +138,16 @@ export function mockCommandModule(
  *   },
  * });
  */
-export function mockCommandModules(
-  commandModules: Record<string, CommandModule>,
-) {
+export function mockCommandModules<
+  TModules extends Record<string, CommandModule>,
+>(commandModules: TModules) {
   const results = Object.entries(commandModules).map(
     ([commandPath, commandModule]) =>
       mockCommandModule(commandPath, commandModule),
   );
+
   return {
-    mocks: Object.fromEntries(
-      results.map(({ mock }, i) => [Object.keys(commandModules)[i], mock]),
-    ),
+    mocks: commandModules,
     unmock: () => {
       for (const { unmock } of results) unmock();
     },
@@ -156,10 +158,11 @@ export function mockCommandModules(
  * Mock the command modules for the given command string so that they can be
  * imported and resolved during testing.
  */
-export function mockCommandStringModules(
-  commandString: string,
+export function mockCommandStringModules<TCommandString extends string>(
+  commandString: TCommandString,
   commandsDir: string,
 ) {
+  const mocks: Record<string, MockCommandModule> = {};
   const unMockFns: (() => void)[] = [];
   const { tokens } = parseCommand(commandString, {});
   let commandPath = commandsDir;
@@ -167,15 +170,41 @@ export function mockCommandStringModules(
   // mock each command in the command string
   for (const token of tokens) {
     commandPath = path.join(commandPath, token);
-    const { unmock } = mockCommandModule(commandPath, {
+    const { mock, unmock } = mockCommandModule(commandPath, {
       handler: vi.fn(({ next, data }) => next(data)),
     });
+    mocks[token] = mock;
     unMockFns.push(unmock);
   }
 
   return {
+    mocks: mocks as CommandMap<TCommandString, MockCommandModule>,
     unmock: () => {
       for (const unmock of unMockFns) unmock();
     },
   };
 }
+
+type MockCommandModule = {
+  handler: Mock<[state: Readonly<State>]>;
+};
+
+/**
+ * A utility type that converts a command string into a map of command modules
+ * with the command names as keys.
+ */
+type CommandMap<
+  TString extends string,
+  TValues = any,
+  TResult extends Record<string, any> = {},
+> = Prettify<
+  TString extends `${infer Word} ${infer Rest}`
+    ? Word extends `-${string}`
+      ? CommandMap<Rest, TValues, TResult>
+      : CommandMap<Rest, TValues, TResult & { [k in Word]: TValues }>
+    : TString extends `-${string}`
+      ? TResult
+      : TResult & { [k in TString]: TValues }
+>;
+
+type Prettify<T> = { [K in keyof T]: T[K] } & unknown;

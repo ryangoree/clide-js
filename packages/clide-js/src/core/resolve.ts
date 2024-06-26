@@ -1,12 +1,14 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from 'fs';
+import path from 'path';
 import { CommandModule, passThroughCommand } from 'src/core/command';
 import {
   MissingDefaultExportError,
   NotFoundError,
+  OptionsError,
   UsageError,
 } from 'src/core/errors';
 import { ParseCommandFn, parseCommand } from 'src/core/parse';
+import { formatFileName } from 'src/utils/format-file-name';
 import { isDirectory, isFile } from 'src/utils/fs';
 import { parseFileName } from 'src/utils/parse-file-name';
 import { removeFileExtension } from 'src/utils/remove-file-extension';
@@ -64,6 +66,16 @@ export async function resolveCommand({
   if (!commandString.length) throw new UsageError('Command required.');
 
   const [commandName, ...remainingTokens] = commandString.split(' ');
+
+  // Check if the first token is an option.
+  if (commandName.startsWith('-')) {
+    throw new OptionsError(`Unknown option "${commandName}"`);
+  }
+
+  // Check if the command name is a relative path (e.g., ./foo, ../foo, /foo)
+  if (/^(\.|\/)/.test(commandName)) {
+    throw new UsageError(`Invalid command name: ${commandName}`);
+  }
 
   // Ensure the command directory exists.
   if (!isDirectory(commandsDir)) {
@@ -344,12 +356,4 @@ export interface ResolvedCommand {
    * The params associated with the resolved command.
    */
   params?: Params;
-}
-
-/**
- * Formats a file name to ensure it ends with `.js`.
- * @group Resolve
- */
-export function formatFileName(fileName: string) {
-  return `${removeFileExtension(fileName)}.js`;
 }

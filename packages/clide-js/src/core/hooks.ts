@@ -6,11 +6,14 @@ import { ResolveCommandFn, ResolvedCommand } from './resolve';
 import { NextState, State } from './state';
 
 /**
- * The hooks that can be used to customize the CLI engine.
+ * The hooks that can be registered and called to modify the behavior of the
+ * CLI, keyed by event name, listed in the order they are called.
  * @group Hooks
  */
 export interface Hooks {
-  // called once during preparation
+  /**
+   * 1. Called once during preparation.
+   */
   beforeResolve: (payload: {
     /** The command string that was passed to the CLI. */
     commandString: string;
@@ -37,7 +40,9 @@ export interface Hooks {
     context: Context;
   }) => MaybePromise<void>;
 
-  // called once for each subcommand during preparation
+  /**
+   * 2. Called once for each subcommand during preparation.
+   */
   beforeResolveNext: (payload: {
     /** The remaining command string that needs to be resolved. */
     commandString: string;
@@ -69,7 +74,9 @@ export interface Hooks {
     context: Context;
   }) => MaybePromise<void>;
 
-  // called once during preparation
+  /**
+   * 3. Called once during preparation.
+   */
   afterResolve: (payload: {
     /** The resolved commands. */
     resolvedCommands: ResolvedCommand[];
@@ -90,7 +97,9 @@ export interface Hooks {
     context: Context;
   }) => MaybePromise<void>;
 
-  // called once during preparation
+  /**
+   * 4. Called once during preparation.
+   */
   beforeParse: (payload: {
     /** The command string that was passed to the CLI. */
     commandString: string | string[];
@@ -115,7 +124,9 @@ export interface Hooks {
     context: Context;
   }) => MaybePromise<void>;
 
-  // called once during preparation
+  /**
+   * 5. Called once during preparation.
+   */
   afterParse: (payload: {
     /** The resulting parsed options. */
     parsedOptions: OptionValues;
@@ -128,7 +139,9 @@ export interface Hooks {
     context: Context;
   }) => MaybePromise<void>;
 
-  // called once for every execution
+  /**
+   * 6. Called once for every execution.
+   */
   beforeExecute: (payload: {
     /** The initial data that was passed to the state. */
     initialData: unknown;
@@ -145,40 +158,12 @@ export interface Hooks {
     skip: () => void;
   }) => MaybePromise<void>;
 
-  // called once for every execution
-  afterExecute: (payload: {
-    /** The state object. */
-    state: State;
-    /** The final result. */
-    result: unknown;
-    /** Override the final result. */
-    setResult: (result: unknown) => void;
-  }) => MaybePromise<void>;
-
-  // called every time the state changes during execution
-  beforeStateChange: (payload: {
-    /** The state object. */
-    state: State;
-    /** The changes that will be applied to the state. */
-    changes: Partial<NextState>;
-    /**
-     * Override the changes that will be applied to the state.
-     * @param changes - The new changes.
-     */
-    setChanges: (state: Partial<NextState>) => void;
-    /** Skip the state change. */
-    skip: () => void;
-  }) => MaybePromise<void>;
-
-  // called every time the state changes during execution
-  afterStateChange: (payload: {
-    /** The state object. */
-    state: State;
-    /** The changes that were applied to the state. */
-    changed: Partial<NextState>;
-  }) => MaybePromise<void>;
-
-  // called for every call of state.next()
+  /**
+   * 7. Called for every call of `state.next()`.
+   *
+   * @remarks `state.start()` calls `state.next()` internally, so this hook is
+   * called before the first command is executed.
+   */
   beforeNext: (payload: {
     /** The state object. */
     state: State;
@@ -198,7 +183,37 @@ export interface Hooks {
     setNextCommand: (command: ResolvedCommand) => void;
   }) => MaybePromise<void>;
 
-  // called once per execution, but only if state.end() is called
+  /**
+   * 8. Called every time the state changes during execution.
+   */
+  beforeStateChange: (payload: {
+    /** The state object. */
+    state: State;
+    /** The changes that will be applied to the state. */
+    changes: Partial<NextState>;
+    /**
+     * Override the changes that will be applied to the state.
+     * @param changes - The new changes.
+     */
+    setChanges: (state: Partial<NextState>) => void;
+    /** Skip the state change. */
+    skip: () => void;
+  }) => MaybePromise<void>;
+
+  /**
+   * 9. Called every time the state changes during execution.
+   */
+  afterStateChange: (payload: {
+    /** The state object. */
+    state: State;
+    /** The changes that were applied to the state. */
+    changed: Partial<NextState>;
+  }) => MaybePromise<void>;
+
+  /**
+   * 10. Called once per execution, *before* the final state change, if
+   *     `state.end()` is called.
+   */
   beforeEnd: (payload: {
     /** The state object. */
     state: State;
@@ -211,7 +226,24 @@ export interface Hooks {
     setData: (data: unknown) => void;
   }) => MaybePromise<void>;
 
-  // called whenever an error is thrown
+  /**
+   * 11. Called once for every execution.
+   */
+  afterExecute: (payload: {
+    /** The state object. */
+    state: State;
+    /** The final result. */
+    result: unknown;
+    /** Override the final result. */
+    setResult: (result: unknown) => void;
+  }) => MaybePromise<void>;
+
+  // The following hooks are not part of the core lifecycle, but are included
+  // for convenience.
+
+  /**
+   * Called whenever an error is thrown.
+   */
   error: (payload: {
     /** The command's context object. */
     context: Context;
@@ -226,7 +258,9 @@ export interface Hooks {
     ignore: () => void;
   }) => MaybePromise<void>;
 
-  // called whenever a plugin or command intend to exit the process
+  /**
+   * Called whenever a plugin or command intend to exit the process.
+   */
   exit: (payload: {
     /** The command's context object. */
     context: Context;
@@ -250,129 +284,136 @@ export interface Hooks {
 }
 
 /**
- * A generic type for the payload of a hook.
- * @group Hooks
- */
-export type HookPayload<THook extends keyof Hooks> = Parameters<
-  Hooks[THook]
->[0];
-
-/**
- * A class for registering, un-registering, and calling hooks. The hooks called
- * by the CLI engine are defined in the {@linkcode Hooks} type, but any string
- * can be used as a hook name, allowing plugins to define their own hooks.
+ * A class for registering, un-registering, and calling hooks. The events that
+ * can be hooked into are defined in the {@linkcode Hooks} type, but any string
+ * can be used as an event name, allowing plugins to define their own hooks.
  *
  * @remarks
- * Each registered hook handler is awaited in series to ensure that hooks are
+ * Each registered hook is awaited in series to ensure that hooks are
  * called in the order they were registered.
  * @group Hooks
  */
 // similar to EventEmitter, but blocking
-export class HooksEmitter {
-  private hooks: Record<
-    string,
-    {
-      handlers: ((...args: any) => any)[];
-    }
-  > = {};
+export class HooksEmitter<THooks extends HooksObject = Hooks> {
+  private hooks: {
+    [event: string]: ((...args: any) => void)[];
+  } = {};
 
   /**
-   * Register a new hook handler for a given hook.
-   * @param hook - The hook to register the handler for.
-   * @param fn - The function to call when the hook is called.
+   * Register a new hook for a given lifecycle event.
+   * @param event - The event to register the hook for.
+   * @param hook - The function to call when the event is triggered.
    */
-  on<THook extends keyof Hooks>(hook: THook, fn: Hooks[THook]): void;
-  on<THook extends keyof Hooks | string>(
-    hook: string,
-    fn: THook extends keyof Hooks ? Hooks[THook] : (...args: any) => any,
+  on<TEvent extends keyof THooks>(event: TEvent, hook: THooks[TEvent]): void;
+  on<TEvent extends keyof THooks | string>(
+    event: string,
+    hook: TEvent extends keyof THooks
+      ? THooks[TEvent]
+      : (...args: any[]) => void,
   ): void;
-  on(hook: string, fn: (...args: any) => any): void {
-    const hooks = this.hooks[hook];
-    if (hooks) {
-      hooks.handlers.push(fn);
+  on(event: string, hook: (...args: any) => any): void {
+    const existing = this.hooks[event];
+    if (existing) {
+      existing.push(hook);
     } else {
-      this.hooks[hook] = {
-        handlers: [fn],
-      };
+      this.hooks[event] = [hook];
     }
   }
 
   /**
-   * Un-register a hook handler for a given hook.
-   * @param hook - The hook to un-register the handler for.
-   * @param fn - The function to un-register.
-   * @returns Whether or not the handler was un-registered.
+   * Un-register a hook for a given lifecycle event.
+   * @param event - The event to un-register the hook for.
+   * @param hook - The function to un-register.
+   * @returns Whether a hook was un-registered.
    */
-  off<THook extends keyof Hooks>(hook: THook, fn: Hooks[THook]): boolean;
-  off<THook extends keyof Hooks | string>(
-    hook: string,
-    fn: THook extends keyof Hooks ? Hooks[THook] : (...args: any) => any,
+  off<TEventName extends keyof THooks>(
+    event: TEventName,
+    hook: THooks[TEventName],
   ): boolean;
-  off(hook: string, fn: (...args: any) => any) {
+  off<TEventName extends keyof THooks | string>(
+    event: string,
+    hook: TEventName extends keyof THooks
+      ? THooks[TEventName]
+      : (...args: any) => any,
+  ): boolean;
+  off(event: string, hook: (...args: any) => any) {
     let didRemove = false;
-    if (this.hooks[hook]) {
-      this.hooks[hook].handlers = this.hooks[hook].handlers.filter(
-        (handler) => {
-          if (handler === fn) {
-            didRemove = true;
-            return false;
-          }
-          return true;
-        },
-      );
+    const existing = this.hooks[event];
+    if (existing) {
+      this.hooks[event] = existing.filter((handler) => {
+        if (handler === hook) {
+          didRemove = true;
+          return false;
+        }
+        return true;
+      });
     }
     return didRemove;
   }
 
   /**
-   * Register a new hook handler for a given hook that will only be called once,
-   * then un-registered.
-   * @param hook - The hook to register the handler for.
-   * @param fn - The function to call when the hook is called.
+   * Register a new hook for a given lifecycle event that will only be called
+   * once, then un-registered.
+   * @param event - The event to register the hook for.
+   * @param hook - The function to call when the event is triggered.
    */
-  once<THook extends keyof Hooks>(hook: THook, fn: Hooks[THook]): void;
-  once<THook extends keyof Hooks | string>(
-    hook: string,
-    fn: THook extends keyof Hooks ? Hooks[THook] : (...args: any) => any,
+  once<TEventName extends keyof THooks>(
+    event: TEventName,
+    hook: THooks[TEventName],
   ): void;
-  once(hook: string, fn: (...args: any) => any) {
+  once<TEventName extends keyof THooks | string>(
+    event: string,
+    hook: TEventName extends keyof THooks
+      ? THooks[TEventName]
+      : (...args: any) => any,
+  ): void;
+  once(event: string, hook: (...args: any) => any) {
     const wrapped = (...args: any) => {
-      this.off(hook, wrapped);
-      fn(...args);
+      this.off(event, wrapped as any);
+      hook(...args);
     };
-    this.on(hook, wrapped);
+    this.on(event, wrapped as any);
   }
 
   /**
-   * Call a hook with the given arguments.
-   * @param hook - The hook to call.
-   * @param args - The arguments to pass to the hook handlers.
+   * Call all hooks for a given event.
+   * @param event - The event to call the hooks for.
+   * @param args - The arguments to pass to the hooks.
    */
-  call<THook extends keyof Hooks>(
-    hook: THook,
-    ...args: Parameters<Hooks[THook]>
+  call<TEventName extends keyof THooks>(
+    event: TEventName,
+    ...args: THooks[TEventName] extends (...args: any) => any
+      ? Parameters<THooks[TEventName]>
+      : any[]
   ): Promise<void>;
-  call<THook extends keyof Hooks | string = keyof Hooks>(
-    hook: THook,
-    ...args: typeof hook extends keyof Hooks ? Parameters<Hooks[THook]> : any[]
+  call<TEventName extends keyof THooks | string = keyof THooks>(
+    event: TEventName,
+    ...args: typeof event extends keyof THooks
+      ? THooks[TEventName] extends (...args: any) => any
+        ? Parameters<THooks[TEventName]>
+        : any[]
+      : any[]
   ): Promise<void>;
-  async call(hook: string, ...args: any) {
-    const { handlers } = this.hooks[hook] || {};
-    for (const handler of handlers || []) {
-      await (handler as any)(...args);
+  async call(event: string, ...args: any) {
+    for (const hook of this.hooks[event] || []) {
+      await (hook as any)(...args);
     }
   }
 }
 
-// wip idea: passing data via hooks
+/**
+ * A generic type for the payload of a hook.
+ * @group Hooks
+ */
+export type HookPayload<
+  TEventName extends keyof THooks,
+  THooks extends HooksObject = Hooks,
+> = THooks[TEventName] extends (...args: any) => any
+  ? Parameters<THooks[TEventName]>[0]
+  : unknown;
 
-// hooks.on('connected', ({ wallet }) => setWallet(wallet));
-// hooks.call('connect');
-
-// myPlugin = ({ hooks }) => {
-//   hooks.on('connect', () => {
-//     // get wallet...
-
-//     hooks.call('connected', { wallet: new Wallet(/* ... */) });
-//   });
-// };
+export type HooksObject =
+  | {
+      [event: string]: (payload: any) => void;
+    }
+  | Hooks;

@@ -10,7 +10,7 @@ interface StateOptions<TData = unknown> {
   /** The context for the command. */
   context: Context;
   /** The initial data for the steps. */
-  data?: TData;
+  initialData?: TData;
   /**
    * The commands to execute. If not provided, it defaults to the commands
    * resolved from the context.
@@ -67,20 +67,20 @@ export class State<
 
   constructor({
     context,
-    data,
+    initialData,
     commands,
-    options,
-    optionValues,
+    options = context.options,
+    optionValues = context.parsedOptions,
   }: StateOptions<TData>) {
     this._context = context;
-    this._data = data as TData;
+    this._data = initialData as TData;
     this._commands = commands || context.resolvedCommands;
 
     // Create a getter to dynamically get the options from context.
     this._options = createOptionsGetter({
       client: context.client,
-      optionsConfig: options || context.options,
-      optionValues: optionValues || context.parsedOptions,
+      optionsConfig: options,
+      optionValues: optionValues,
       onPromptCancel: context.exit,
     }) as OptionsGetter<TOptions>;
   }
@@ -113,13 +113,17 @@ export class State<
   get options() {
     return this._options;
   }
+  /** The client for the command. */
+  get client() {
+    return this.context.client;
+  }
 
   /**
    * Start the steps.
    * @throws {ClideError} If the steps have already started.
    * @returns A promise that resolves when the steps are done.
    */
-  readonly start = async (initialData?: unknown): Promise<void> => {
+  readonly start = async (initialData: unknown = this._data): Promise<void> => {
     // Avoid starting the steps if they're already started.
     if (this.executionPromise) {
       throw new ClideError('Steps have already started.');
@@ -258,9 +262,9 @@ export class State<
     commands: (TCommand | ResolvedCommand)[];
     initialData?: any;
     optionValues?: OptionValues<
-    TCommand['options'] extends OptionsConfig
-    ? TCommand['options']
-    : OptionsConfig
+      Required<TCommand>['options'] extends OptionsConfig
+      ? Required<TCommand>['options']
+      : OptionsConfig
     >;
     // TODO: strict type for paramValues
     paramValues?: Record<string, any>;
@@ -292,7 +296,7 @@ export class State<
     // Create a new state for the invocation
     const state = new State({
       context: this.context,
-      data: initialData,
+      initialData: initialData,
       commands: resolvedCommands,
       options: {
         ...this.context.options,

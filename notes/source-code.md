@@ -35,12 +35,11 @@ notes/ # misc notes
 packages/ # package directories
 ├─ clide-js/ # core package
 ├─ clide-plugin-command-menu/ # a plugin to prompt users for missing subcommands
-├─ esling-config/ # shared eslint config
 ├─ extras/ # utilities from CLIs I've written in the past that might get used later.
 ├─ tsconfig/ # shared tsconfig
 ```
 
-The 2 published packages are [clide-js](https://www.npmjs.com/package/clide-js) and [clide-plugin-command-menu](https://www.npmjs.com/package/clide-plugin-command-menu) 
+The 2 published packages are [clide-js](https://www.npmjs.com/package/clide-js) and [clide-plugin-command-menu](https://www.npmjs.com/package/clide-plugin-command-menu)
 
 ## Clide-JS Source Code
 
@@ -94,7 +93,7 @@ plugin](https://github.com/ryangoree/clide-js/blob/main/packages/clide-js/src/pl
 
 The
 [run](https://github.com/ryangoree/clide-js/blob/main/packages/clide-js/src/core/run.ts)
-module contains  the `run` function which is the primary entry to framework,
+module contains the `run` function which is the primary entry to framework,
 used in the bin file of CLIs. It offers a simple unified API for running a CLI with
 the Clide-JS framework. It manages registering hooks, creating a
 `Context` instance, adding options, preparing and executing the context, and catching
