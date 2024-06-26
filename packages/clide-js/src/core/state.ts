@@ -262,9 +262,9 @@ export class State<
     commands: (TCommand | ResolvedCommand)[];
     initialData?: any;
     optionValues?: OptionValues<
-      TCommand['options'] extends OptionsConfig
-        ? TCommand['options']
-        : OptionsConfig
+      Required<TCommand>['options'] extends OptionsConfig
+      ? Required<TCommand>['options']
+      : OptionsConfig
     >;
     // TODO: strict type for paramValues
     paramValues?: Record<string, any>;
