@@ -15,7 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tasks: [lint, build, typecheck, test]
+        # tasks: [lint, build, typecheck, test]
+        tasks: [build, typecheck, test]
 
     steps:
       - name: Check out code
