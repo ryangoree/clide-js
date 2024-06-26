@@ -4,7 +4,8 @@
 
 ### Minor Changes
 
-- 2eb1489: - Polished up internal ✨**test utils**✨ and added them to the exports so you can easily test you're CLIs and plugins!
+- 2eb1489:
+  - Polished up internal ✨**test utils**✨ and added them to the exports so you can easily test you're CLIs and plugins!
   - Made the `logger` plugin more full featured with `prefix`, `logFile`, and `enabled` options, and util functions for enabling/disabling the logger during runtime.
   - Added `formatFileName` util function to exports.
   - Added getters to `State` for `client`, ... so they can be accessed without needing to go through through `Context`.
