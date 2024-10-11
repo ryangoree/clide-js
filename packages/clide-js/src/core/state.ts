@@ -263,8 +263,8 @@ export class State<
     initialData?: any;
     optionValues?: OptionValues<
       Required<TCommand>['options'] extends OptionsConfig
-      ? Required<TCommand>['options']
-      : OptionsConfig
+        ? Required<TCommand>['options']
+        : OptionsConfig
     >;
     // TODO: strict type for paramValues
     paramValues?: Record<string, any>;

@@ -8,7 +8,8 @@
     "lint": "biome lint ./packages/",
     "release": "turbo run build && changeset publish",
     "test": "turbo run test:ci",
-    "typecheck": "turbo run typecheck"
+    "typecheck": "turbo run typecheck",
+    "reset-node-modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && yarn cache clean && yarn"
   },
   "devDependencies": {
     "@biomejs/biome": "1.7.2",

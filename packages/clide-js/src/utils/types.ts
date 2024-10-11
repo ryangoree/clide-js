@@ -54,9 +54,8 @@ type UnionToIntersection<T> = (T extends any ? (x: T) => any : never) extends (
  * // }
  * ```
  */
-export type MergeKeys<T> =
-  UnionToIntersection<T> extends infer I
-    ? {
-        [K in keyof I]: K extends keyof T ? T[K] : I[K];
-      }
-    : never;
+export type MergeKeys<T> = UnionToIntersection<T> extends infer I
+  ? {
+      [K in keyof I]: K extends keyof T ? T[K] : I[K];
+    }
+  : never;

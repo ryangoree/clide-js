@@ -45,12 +45,6 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "keywords": [
-    "clide-js",
-    "prompt",
-    "interactive"
-  ]
+  "files": ["dist"],
+  "keywords": ["clide-js", "prompt", "interactive"]
 }

@@ -116,7 +116,7 @@ export function parseCommand(
     }
     return true;
   });
-  
+
   return {
     // Coerce all tokens to strings (yargs-parser returns numbers for numbers)
     tokens: tokens.map(String),

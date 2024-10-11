@@ -3,7 +3,7 @@
  *
  * @example
  * camelCase('foo-bar') // 'fooBar'
- * 
+ *
  * @group Utils
  */
 export function camelCase<S>(str: S): CamelCase<S> {

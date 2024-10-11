@@ -1,4 +1,3 @@
-
 /**
  * Options for {@link findSimilar}.
  * @group Utils
