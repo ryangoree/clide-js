@@ -1,8 +1,8 @@
 import type { CamelCase } from 'src/utils/camel-case';
 import type { MaybePromise, MergeKeys, Prettify } from 'src/utils/types';
 import parse from 'yargs-parser';
+import type { OptionPrimitiveType, OptionsConfig } from './options/option';
 import type { OptionAlias } from './options/options-getter';
-import type { OptionPrimitiveType, OptionsConfig } from './options/types';
 
 /**
  * Command tokens representing commands, subcommands, and/or params.

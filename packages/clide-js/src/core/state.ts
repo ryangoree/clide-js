@@ -1,11 +1,11 @@
 import type { CommandModule } from './command';
 import type { Context } from './context';
 import { ClideError } from './errors';
+import type { OptionsConfig } from './options/option';
 import {
   createOptionsGetter,
   type OptionsGetter,
 } from './options/options-getter';
-import type { OptionsConfig } from './options/types';
 import type { OptionValues } from './parse';
 import type { Params, ResolvedCommand } from './resolve';
 

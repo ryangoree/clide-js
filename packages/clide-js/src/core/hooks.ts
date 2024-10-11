@@ -1,6 +1,6 @@
 import type { MaybePromise } from 'src/utils/types';
 import type { Context } from './context';
-import type { OptionsConfig } from './options/types';
+import type { OptionsConfig } from './options/option';
 import type { OptionValues, ParseCommandFn } from './parse';
 import type { ResolveCommandFn, ResolvedCommand } from './resolve';
 import type { NextState, State } from './state';

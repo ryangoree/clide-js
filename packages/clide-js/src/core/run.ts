@@ -4,8 +4,8 @@ import { getCallerPath } from 'src/utils/caller-path';
 import { isDirectory } from 'src/utils/fs';
 import { Context } from './context';
 import { ClideError, ClientError } from './errors';
-import { type HookPayload, HooksEmitter } from './hooks';
-import type { OptionsConfig } from './options/types';
+import { HooksEmitter, type HookPayload } from './hooks';
+import type { OptionsConfig } from './options/option';
 import type { Plugin } from './plugin';
 
 /**

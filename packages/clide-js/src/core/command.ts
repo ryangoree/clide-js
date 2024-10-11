@@ -1,5 +1,5 @@
 import type { MaybePromise } from 'src/utils/types';
-import type { OptionsConfig, OptionType } from './options/types';
+import type { OptionType, OptionsConfig } from './options/option';
 import type { State } from './state';
 
 /**

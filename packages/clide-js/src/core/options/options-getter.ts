@@ -1,14 +1,14 @@
 import { Client } from 'src/core/client';
 import type { OptionValues } from 'src/core/parse';
-import { type CamelCase, camelCase } from 'src/utils/camel-case';
+import { camelCase, type CamelCase } from 'src/utils/camel-case';
 import type { MaybeReadonly } from 'src/utils/types';
-import { type OptionGetter, createOptionGetter } from './option-getter';
 import type {
   OptionConfig,
   OptionPrimitiveType,
   OptionType,
   OptionsConfig,
-} from './types';
+} from './option';
+import { createOptionGetter, type OptionGetter } from './option-getter';
 
 /**
  * Configuration options for the {@linkcode createOptionsGetter} function.
