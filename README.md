@@ -433,6 +433,7 @@ options.
 
 ## CLI Examples
 
+- [GH Scripts](https://github.com/ryangoree/gh-scripts) - A collection of misc GH scripts.
 - [@delvtech/council-cli](https://github.com/delvtech/council-kit/tree/main/packages/council-cli) - A CLI for building on the [Council](https://github.com/delvtech/council) governance protocol.
 
 *Visit the [examples](https://github.com/ryangoree/clide-js/tree/main/examples) directory for some basic setups.*
