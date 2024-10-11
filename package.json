@@ -4,8 +4,10 @@
   "scripts": {
     "build:clide": "turbo run build --filter=./packages/clide*",
     "build": "turbo run build",
-    "format": "biome format --write ./packages/",
-    "lint": "biome lint ./packages/",
+    "format": "biome format --write .",
+    "lint": "biome lint --diagnostic-level error .",
+    "lint:fix": "yarn lint --fix",
+    "lint:fix:unsafe": "yarn lint:fix --unsafe",
     "release": "turbo run build && changeset publish",
     "test": "turbo run test:ci",
     "typecheck": "turbo run typecheck",
