@@ -120,11 +120,12 @@ export function createOptionGetter<
       const promptOptions: PromptOptions = {
         type,
         validate: validateFn
-          ? (value) => {
+          ? (_value) => {
               // prompts won't always pass the initial value to the validate
               // function, so we need to check for an empty string and use the
               // default value if provided.
               // see: https://github.com/terkelg/prompts/issues/410
+              let value = _value;
               if (value === '' && config?.default !== undefined) {
                 value = config?.default;
               }
