@@ -29,7 +29,10 @@
       },
       "style": {
         "useNodejsImportProtocol": "warn",
-        "noNonNullAssertion": "info"
+        "noNonNullAssertion": {
+          "fix": "none",
+          "level": "info"
+        }
       },
       "suspicious": {
         "noExplicitAny": "warn",

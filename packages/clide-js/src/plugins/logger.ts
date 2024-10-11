@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import type { Client } from 'src/core/client';
 import type { HookPayload } from 'src/core/hooks';
 import type { Plugin } from 'src/core/plugin';

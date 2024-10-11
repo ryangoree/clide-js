@@ -22,7 +22,7 @@ async function execute({ steps, data }) {
     // throw an error.
     next: async (data) => {
       const nextHandler = steps[state.i + 1];
-      if (!nextHandler) state.error(new Error(`No next step`));
+      if (!nextHandler) state.error(new Error('No next step'));
       state.data = data;
       state.i++;
       return await nextHandler(Object.freeze({ ...state }));

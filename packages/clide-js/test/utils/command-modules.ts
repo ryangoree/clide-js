@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import type { CommandModule } from 'src/core/command';
 import { NotFoundError } from 'src/core/errors';
 import { parseCommand } from 'src/core/parse';

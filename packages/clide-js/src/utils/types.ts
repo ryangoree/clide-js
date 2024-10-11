@@ -7,7 +7,7 @@ export type MaybeReadonly<T> = T | Readonly<T>;
  * [`strictNullChecks`](https://www.typescriptlang.org/tsconfig/#strictNullChecks)
  * on.
  */
-export type Nothing = void | null;
+export type Nothing = undefined | null;
 
 /**
  * Convert an intersection of objects to a single object, making the type easier

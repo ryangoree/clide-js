@@ -54,7 +54,7 @@ describe('resolve', () => {
       subcommandsDir: 'commands/foo',
     } as ResolvedCommand);
 
-    resolved = await resolved.resolveNext!();
+    resolved = await resolved.resolveNext?.();
 
     expect(resolved).toMatchObject({
       command: commandModules['commands/foo/bar.js'],
@@ -66,7 +66,7 @@ describe('resolve', () => {
       subcommandsDir: 'commands/foo/bar',
     } as ResolvedCommand);
 
-    resolved = await resolved.resolveNext!();
+    resolved = await resolved.resolveNext?.();
 
     expect(resolved).toMatchObject({
       command: commandModules['commands/foo/bar/baz.js'],
@@ -109,7 +109,7 @@ describe('resolve', () => {
       subcommandsDir: 'commands/[qux]',
     } as ResolvedCommand);
 
-    resolved = await resolved.resolveNext!();
+    resolved = await resolved.resolveNext?.();
 
     expect(resolved).toEqual({
       command: commandModules['commands/[qux]/[...quux].js'],

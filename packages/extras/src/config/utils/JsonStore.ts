@@ -1,7 +1,7 @@
 import Ajv, { type ValidateFunction } from 'ajv';
 import type { JSONSchema } from 'json-schema-typed';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 // TODO: see if this is still needed
 // const Ajv = _Ajv.default

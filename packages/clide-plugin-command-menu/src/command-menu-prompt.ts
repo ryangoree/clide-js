@@ -9,8 +9,8 @@ import {
   resolveCommand,
 } from 'clide-js';
 import colors from 'colors';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import type { Choice } from 'prompts';
 import type { CommandMenuOptions } from './command-menu.js';
 

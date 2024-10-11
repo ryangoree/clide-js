@@ -1,5 +1,5 @@
 import initCliui from 'cliui';
-import fs from 'fs';
+import fs from 'node:fs';
 import { getBin } from 'src/utils/argv';
 import { type Converted, convert } from 'src/utils/convert';
 import { isDirectory } from 'src/utils/fs';
@@ -361,9 +361,8 @@ async function commandRows({
           const { paramName, spreadOperator } = parseFileName(commandName);
           if (paramName) {
             return `[${paramName}${spreadOperator ? ' ...' : ''}]`;
-          } else {
-            return removeFileExtension(commandName);
           }
+            return removeFileExtension(commandName);
         })
         // TODO: Is this still necessary?
         .filter((name) => name !== 'index')
@@ -371,11 +370,10 @@ async function commandRows({
         .sort((a, b) => {
           if (a.startsWith('[') && !b.startsWith('[')) {
             return 1;
-          } else if (!a.startsWith('[') && b.startsWith('[')) {
+          }if (!a.startsWith('[') && b.startsWith('[')) {
             return -1;
-          } else {
-            return a.localeCompare(b);
           }
+            return a.localeCompare(b);
         }),
     ),
   );

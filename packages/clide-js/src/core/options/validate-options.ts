@@ -96,7 +96,7 @@ export function validateOptionType(
       }
       break;
     case 'number':
-      if (typeof value !== 'number' || isNaN(value)) {
+      if (typeof value !== 'number' || Number.isNaN(value)) {
         throw new OptionsError(`Option "${name}" must be a number`);
       }
       break;

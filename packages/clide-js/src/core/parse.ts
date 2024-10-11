@@ -82,20 +82,19 @@ export function parseCommand(
 
     switch (option.type) {
       case 'array':
-        parseOptions.array!.push(key as any);
+        parseOptions.array?.push(key as any);
         if (option.string) {
-          parseOptions.string!.push(key as any);
+          parseOptions.string?.push(key as any);
         }
         break;
       case 'boolean':
-        parseOptions.boolean!.push(key as any);
+        parseOptions.boolean?.push(key as any);
         break;
       case 'number':
-        parseOptions.number!.push(key as any);
+        parseOptions.number?.push(key as any);
         break;
-      case 'string':
       default:
-        parseOptions.string!.push(key as any);
+        parseOptions.string?.push(key as any);
         break;
     }
   }

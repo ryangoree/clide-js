@@ -101,7 +101,6 @@ export function createOptionGetter<
       case 'secret':
         type = 'password';
         break;
-      case 'string':
       default:
         type = 'text';
         break;
@@ -130,7 +129,7 @@ export function createOptionGetter<
                 value = config?.default;
               }
               const preppedValue = prepValueForValidation(value, config?.type);
-              return validateFn!(preppedValue as TValue);
+              return validateFn?.(preppedValue as TValue);
             }
           : undefined,
         // options passed to the getter take precedence over the config
@@ -147,7 +146,7 @@ export function createOptionGetter<
           : config?.default;
 
         switch (promptOptions.type) {
-          case 'select':
+          case 'select': {
             // Ignore the default value if the choices aren't an array
             if (!Array.isArray(promptOptions.choices)) break;
 
@@ -159,6 +158,7 @@ export function createOptionGetter<
               promptOptions.initial = defaultChoice;
             }
             break;
+          }
 
           case 'date':
             promptOptions.initial = new Date(defaultValue.toString());
@@ -257,16 +257,13 @@ function defaultValidate(value: unknown, optionType?: OptionType) {
       return typeof value === 'boolean';
 
     // Ensure arrays are arrays and have at least one item
-    case 'array':
+    case 'array': {
       let _value = value;
       if (typeof _value === 'string') {
         _value = _value.split(',');
       }
       return Array.isArray(_value) && _value.length > 0;
-
-    // Ensure strings are strings and have at least one character
-    case 'string':
-    case 'secret':
+    }
     default:
       return typeof value === 'string' && value.length > 0;
   }

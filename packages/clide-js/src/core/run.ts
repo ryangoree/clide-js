@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { hideBin } from 'src/utils/argv';
 import { getCallerPath } from 'src/utils/caller-path';
 import { isDirectory } from 'src/utils/fs';
