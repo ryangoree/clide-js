@@ -112,5 +112,4 @@ export type OptionPrimitiveType<T extends OptionType = OptionType> =
  * The possible types for an option.
  * @group Options
  */
-// TODO: secret (should be hidden from output)
 export type OptionType = 'string' | 'number' | 'boolean' | 'array' | 'secret';
