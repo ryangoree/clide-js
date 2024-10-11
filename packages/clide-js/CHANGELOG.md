@@ -1,5 +1,11 @@
 # clide-js
 
+## 0.2.1
+
+### Patch Changes
+
+- a6f728a: Added `option` factory function for creating strongly typed options. This is especially useful when defining shared options outside of the `command` factory function.
+
 ## 0.2.0
 
 ### Minor Changes
