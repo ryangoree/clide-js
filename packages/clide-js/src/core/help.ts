@@ -362,7 +362,7 @@ async function commandRows({
           if (paramName) {
             return `[${paramName}${spreadOperator ? ' ...' : ''}]`;
           }
-            return removeFileExtension(commandName);
+          return removeFileExtension(commandName);
         })
         // TODO: Is this still necessary?
         .filter((name) => name !== 'index')
@@ -370,10 +370,11 @@ async function commandRows({
         .sort((a, b) => {
           if (a.startsWith('[') && !b.startsWith('[')) {
             return 1;
-          }if (!a.startsWith('[') && b.startsWith('[')) {
+          }
+          if (!a.startsWith('[') && b.startsWith('[')) {
             return -1;
           }
-            return a.localeCompare(b);
+          return a.localeCompare(b);
         }),
     ),
   );
