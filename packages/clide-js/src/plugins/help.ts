@@ -1,7 +1,7 @@
 import { UsageError } from 'src/core/errors';
 import { getHelp } from 'src/core/help';
 import { removeOptionTokens } from 'src/core/options/remove-option-tokens';
-import { Plugin } from 'src/core/plugin';
+import type { Plugin } from 'src/core/plugin';
 
 /**
  * Options for the help plugin.

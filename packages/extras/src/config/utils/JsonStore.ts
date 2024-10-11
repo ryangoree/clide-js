@@ -1,4 +1,4 @@
-import Ajv, { ValidateFunction } from 'ajv';
+import Ajv, { type ValidateFunction } from 'ajv';
 import type { JSONSchema } from 'json-schema-typed';
 import fs from 'fs';
 import path from 'path';

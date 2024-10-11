@@ -1,9 +1,9 @@
 import cfonts from 'cfonts';
 import {
   Client,
-  CommandModule,
-  ResolveCommandFn,
-  ResolvedCommand,
+  type CommandModule,
+  type ResolveCommandFn,
+  type ResolvedCommand,
   parseFileName,
   removeFileExtension,
   resolveCommand,
@@ -11,8 +11,8 @@ import {
 import colors from 'colors';
 import fs from 'fs';
 import path from 'path';
-import { Choice } from 'prompts';
-import { CommandMenuOptions } from './command-menu.js';
+import type { Choice } from 'prompts';
+import type { CommandMenuOptions } from './command-menu.js';
 
 export interface CommandMenuPromptOptions extends CommandMenuOptions {
   /**
@@ -52,7 +52,7 @@ export async function commandMenuPrompt(
     titleColors = ['#2EFFAF', '#0FC2C2'],
     message = 'Choose a command',
     showDescriptions = true,
-    maxDescriptionLength = Infinity,
+    maxDescriptionLength = Number.POSITIVE_INFINITY,
     commandsDir,
     resolveFn = resolveCommand,
     selectionHistory = [],

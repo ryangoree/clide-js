@@ -1,5 +1,5 @@
 import { OptionsConfigError } from 'src/core/errors';
-import { OptionsConfig } from './types';
+import type { OptionsConfig } from './types';
 
 /**
  * @throws {OptionsConfigError} Throws an error if the options config is invalid.

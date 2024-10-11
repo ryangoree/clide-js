@@ -1,4 +1,4 @@
-import { JsonStore, JsonStoreOptions } from './JsonStore.js';
+import { JsonStore, type JsonStoreOptions } from './JsonStore.js';
 import { getAppConfigPath } from './getAppConfigPath.js';
 
 export type AppConfigStoreOptions<T extends object = Record<string, unknown>> =

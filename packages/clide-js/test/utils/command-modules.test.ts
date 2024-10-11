@@ -1,5 +1,5 @@
 // Must be imported first
-import { CommandModule } from 'src/core/command';
+import type { CommandModule } from 'src/core/command';
 import { describe, expect, it, test } from 'vitest';
 import {
   mockCommandModule,

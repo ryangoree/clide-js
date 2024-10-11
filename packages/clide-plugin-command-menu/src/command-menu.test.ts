@@ -1,11 +1,11 @@
 // Must be imported first
 import { mockCommandModule } from 'clide-js/test-utils';
 
-import { ResolvedCommand, passThroughCommand, run } from 'clide-js';
-import { Mock, beforeEach, expect, test, vi } from 'vitest';
+import { type ResolvedCommand, passThroughCommand, run } from 'clide-js';
+import { type Mock, beforeEach, expect, test, vi } from 'vitest';
 import { commandMenu } from './command-menu';
 import {
-  CommandMenuPromptOptions,
+  type CommandMenuPromptOptions,
   commandMenuPrompt,
 } from './command-menu-prompt';
 

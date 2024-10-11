@@ -1,4 +1,4 @@
-import { OptionValues, Plugin } from 'clide-js';
+import type { OptionValues, Plugin } from 'clide-js';
 import { commandMenuPrompt } from './command-menu-prompt.js';
 
 export interface CommandMenuOptions {

@@ -1,18 +1,18 @@
 import fs from 'fs';
 import path from 'path';
-import { CommandModule, passThroughCommand } from 'src/core/command';
+import { type CommandModule, passThroughCommand } from 'src/core/command';
 import {
   MissingDefaultExportError,
   NotFoundError,
   OptionsError,
   UsageError,
 } from 'src/core/errors';
-import { ParseCommandFn, parseCommand } from 'src/core/parse';
+import { type ParseCommandFn, parseCommand } from 'src/core/parse';
 import { formatFileName } from 'src/utils/format-file-name';
 import { isDirectory, isFile } from 'src/utils/fs';
 import { parseFileName } from 'src/utils/parse-file-name';
 import { removeFileExtension } from 'src/utils/remove-file-extension';
-import { MaybePromise } from 'src/utils/types';
+import type { MaybePromise } from 'src/utils/types';
 
 /**
  * Options for the {@linkcode resolveCommand} function.
@@ -282,7 +282,7 @@ export async function prepareResolvedCommand(
   }
 
   // Add a resolveNext function if the command isn't the last one.
-  let isLast = !resolved.remainingCommandString.length;
+  const isLast = !resolved.remainingCommandString.length;
   if (!isLast) {
     resolved.resolveNext = () =>
       resolveCommand({

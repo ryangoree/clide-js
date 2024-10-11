@@ -1,10 +1,10 @@
 import path from 'path';
-import { CommandModule } from 'src/core/command';
+import type { CommandModule } from 'src/core/command';
 import { NotFoundError } from 'src/core/errors';
 import { parseCommand } from 'src/core/parse';
-import { State } from 'src/core/state';
+import type { State } from 'src/core/state';
 import { formatFileName } from 'src/utils/format-file-name';
-import { Mock, vi } from 'vitest';
+import { type Mock, vi } from 'vitest';
 
 const mockCommandDirs = new Map<string, Set<string>>();
 

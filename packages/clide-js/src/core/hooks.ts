@@ -1,9 +1,9 @@
-import { MaybePromise } from 'src/utils/types';
-import { Context } from './context';
-import { OptionsConfig } from './options/types';
-import { OptionValues, ParseCommandFn } from './parse';
-import { ResolveCommandFn, ResolvedCommand } from './resolve';
-import { NextState, State } from './state';
+import type { MaybePromise } from 'src/utils/types';
+import type { Context } from './context';
+import type { OptionsConfig } from './options/types';
+import type { OptionValues, ParseCommandFn } from './parse';
+import type { ResolveCommandFn, ResolvedCommand } from './resolve';
+import type { NextState, State } from './state';
 
 /**
  * The hooks that can be registered and called to modify the behavior of the

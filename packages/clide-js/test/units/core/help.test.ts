@@ -5,7 +5,7 @@ import {
 } from 'test/utils/command-modules';
 
 import { Context } from 'src/core/context';
-import { Help, getHelp } from 'src/core/help';
+import { type Help, getHelp } from 'src/core/help';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('help', () => {

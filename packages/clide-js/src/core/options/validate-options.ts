@@ -1,6 +1,6 @@
 import { OptionsError } from 'src/core/errors';
-import { OptionValues } from 'src/core/parse';
-import { OptionType, OptionsConfig } from './types';
+import type { OptionValues } from 'src/core/parse';
+import type { OptionType, OptionsConfig } from './types';
 
 /**
  * Validates the options for a command by checking for required options,

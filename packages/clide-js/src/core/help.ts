@@ -1,13 +1,13 @@
 import initCliui from 'cliui';
 import fs from 'fs';
 import { getBin } from 'src/utils/argv';
-import { Converted, convert } from 'src/utils/convert';
+import { type Converted, convert } from 'src/utils/convert';
 import { isDirectory } from 'src/utils/fs';
 import { parseFileName } from 'src/utils/parse-file-name';
 import { removeFileExtension } from 'src/utils/remove-file-extension';
-import { Context } from './context';
-import { OptionsConfig } from './options/types';
-import { ResolvedCommand } from './resolve';
+import type { Context } from './context';
+import type { OptionsConfig } from './options/types';
+import type { ResolvedCommand } from './resolve';
 
 // The base indent for all rows
 const BASE_INDENT = 2;
@@ -112,7 +112,7 @@ export async function getHelp({
     },
   };
 
-  let allOptions: OptionsConfig = { ...context.options };
+  const allOptions: OptionsConfig = { ...context.options };
 
   // Get the last resolved command
   const finalResolved = context.resolvedCommands[
@@ -154,7 +154,7 @@ export async function getHelp({
   }
 
   // Add subcommand rows
-  let subcommandsDir = finalResolved?.subcommandsDir || context.commandsDir;
+  const subcommandsDir = finalResolved?.subcommandsDir || context.commandsDir;
   const hasSubcommands = isDirectory(subcommandsDir);
   if (hasSubcommands) {
     Object.assign(

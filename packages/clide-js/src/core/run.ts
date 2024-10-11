@@ -4,9 +4,9 @@ import { getCallerPath } from 'src/utils/caller-path';
 import { isDirectory } from 'src/utils/fs';
 import { Context } from './context';
 import { ClideError, ClientError } from './errors';
-import { HookPayload, HooksEmitter } from './hooks';
-import { OptionsConfig } from './options/types';
-import { Plugin } from './plugin';
+import { type HookPayload, HooksEmitter } from './hooks';
+import type { OptionsConfig } from './options/types';
+import type { Plugin } from './plugin';
 
 /**
  * Options for the {@linkcode run} function.

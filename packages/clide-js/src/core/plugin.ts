@@ -1,5 +1,5 @@
-import { MaybePromise, Nothing, Prettify } from 'src/utils/types';
-import { Context } from './context';
+import type { MaybePromise, Nothing, Prettify } from 'src/utils/types';
+import type { Context } from './context';
 
 /**
  * A Clide-JS plugin

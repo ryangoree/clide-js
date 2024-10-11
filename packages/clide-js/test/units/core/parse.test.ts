@@ -1,4 +1,4 @@
-import { ParsedCommand, parseCommand } from 'src/core/parse';
+import { type ParsedCommand, parseCommand } from 'src/core/parse';
 import { unmockAllCommandModules } from 'test/utils/command-modules';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 

@@ -1,5 +1,5 @@
-import { Context } from 'src/core/context';
-import { Plugin, PluginInfo } from 'src/core/plugin';
+import type { Context } from 'src/core/context';
+import type { Plugin, PluginInfo } from 'src/core/plugin';
 import { vi } from 'vitest';
 
 export const mockPluginInfo: PluginInfo = {

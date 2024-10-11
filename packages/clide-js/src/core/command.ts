@@ -1,6 +1,6 @@
-import { MaybePromise } from 'src/utils/types';
-import { OptionsConfig, OptionType } from './options/types';
-import { State } from './state';
+import type { MaybePromise } from 'src/utils/types';
+import type { OptionsConfig, OptionType } from './options/types';
+import type { State } from './state';
 
 /**
  * A command module that can be executed by the CLI engine.
@@ -73,7 +73,7 @@ export function command<
   handler,
   description = '',
 }: CommandModule<TData, TOptions>) {
-  let mod = {
+  const mod = {
     requiresSubcommand,
     isMiddleware,
     options,

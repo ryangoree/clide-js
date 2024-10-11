@@ -1,10 +1,10 @@
-import { CommandModule } from './command';
-import { Context } from './context';
+import type { CommandModule } from './command';
+import type { Context } from './context';
 import { ClideError } from './errors';
-import { OptionsGetter, createOptionsGetter } from './options/options-getter';
-import { OptionsConfig } from './options/types';
-import { OptionValues } from './parse';
-import { Params, ResolvedCommand } from './resolve';
+import { type OptionsGetter, createOptionsGetter } from './options/options-getter';
+import type { OptionsConfig } from './options/types';
+import type { OptionValues } from './parse';
+import type { Params, ResolvedCommand } from './resolve';
 
 interface StateOptions<TData = unknown> {
   /** The context for the command. */
@@ -154,7 +154,7 @@ export class State<
   readonly next = async (data?: unknown): Promise<void> => {
     this.actionCallCount++;
     let _data = data;
-    let nextIndex = this.i + 1;
+    const nextIndex = this.i + 1;
     let nextCommand = this.commands[nextIndex] as ResolvedCommand | undefined;
 
     await this.context.hooks.call('beforeNext', {

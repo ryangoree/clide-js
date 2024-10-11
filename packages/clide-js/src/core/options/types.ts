@@ -1,4 +1,4 @@
-import { MaybeReadonly } from 'src/utils/types';
+import type { MaybeReadonly } from 'src/utils/types';
 
 /**
  * The possible types for an option.

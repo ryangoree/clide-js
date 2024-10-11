@@ -1,7 +1,7 @@
-import { Client, PromptOptions } from 'src/core/client';
+import type { Client, PromptOptions } from 'src/core/client';
 import { OptionsError, UsageError } from 'src/core/errors';
-import { MaybePromise, MaybeReadonly } from 'src/utils/types';
-import { OptionConfig, OptionPrimitiveType, OptionType } from './types';
+import type { MaybePromise, MaybeReadonly } from 'src/utils/types';
+import type { OptionConfig, OptionPrimitiveType, OptionType } from './types';
 import { validateOptionType } from './validate-options';
 
 /**

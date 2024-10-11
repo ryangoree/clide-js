@@ -1,4 +1,4 @@
-import { OptionValues } from 'src/core/parse';
+import type { OptionValues } from 'src/core/parse';
 
 /**
  * Removes option tokens from a command string.

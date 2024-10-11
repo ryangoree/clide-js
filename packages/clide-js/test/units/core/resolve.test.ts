@@ -4,7 +4,7 @@ import {
   unmockAllCommandModules,
 } from 'test/utils/command-modules';
 
-import { ResolvedCommand, resolveCommand } from 'src/core/resolve';
+import { type ResolvedCommand, resolveCommand } from 'src/core/resolve';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // const mockResolvedCommand: ResolvedCommand = {
