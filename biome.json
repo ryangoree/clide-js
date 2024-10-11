@@ -21,6 +21,9 @@
     "enabled": true,
     "rules": {
       "recommended": true,
+      "complexity": {
+        "noBannedTypes": "off"
+      },
       "correctness": {
         "noUnusedImports": "error"
       },
