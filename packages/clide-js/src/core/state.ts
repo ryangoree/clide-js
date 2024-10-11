@@ -1,7 +1,10 @@
 import type { CommandModule } from './command';
 import type { Context } from './context';
 import { ClideError } from './errors';
-import { type OptionsGetter, createOptionsGetter } from './options/options-getter';
+import {
+  createOptionsGetter,
+  type OptionsGetter,
+} from './options/options-getter';
 import type { OptionsConfig } from './options/types';
 import type { OptionValues } from './parse';
 import type { Params, ResolvedCommand } from './resolve';
@@ -63,7 +66,7 @@ export class State<
    */
   private executionPromise: Promise<void> | undefined;
   /** A function that resolves the promise when called. */
-  private resolvePromise: ((value: void) => void) | undefined;
+  private resolvePromise: (() => void) | undefined;
 
   constructor({
     context,

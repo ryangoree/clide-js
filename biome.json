@@ -25,7 +25,8 @@
         "noUnusedImports": "error"
       },
       "style": {
-        "useNodejsImportProtocol": "warn"
+        "useNodejsImportProtocol": "warn",
+        "noNonNullAssertion": "info"
       },
       "suspicious": {
         "noExplicitAny": "warn",
