@@ -11,6 +11,7 @@
   },
   "scripts": {
     "build": "tsup",
+    "watch": "tsup --watch",
     "build:docs": "typedoc",
     "dev": "NODE_ENV=development tsx src/cli/index.ts",
     "prod": "tsx src/cli/index.ts",
@@ -59,7 +60,5 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ]
+  "files": ["dist"]
 }
