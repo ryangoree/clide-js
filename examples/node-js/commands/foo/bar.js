@@ -11,8 +11,9 @@ module.exports = command({
     },
   },
   async handler({ context, options, next }) {
-    const name = options.values.name;
-    context.client.log(`Hello ${name}!`);
-    next();
+    throw new Error('This is an error');
+    // const name = options.values.name;
+    // context.client.log(`Hello ${name}!`);
+    // next();
   },
 });
