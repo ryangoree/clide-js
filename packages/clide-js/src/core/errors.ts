@@ -9,26 +9,56 @@ export const ERROR_PREFIX = '✖ ';
  * @group Errors
  */
 export class ClideError extends Error {
-  private _name: string;
-
   constructor(error: any) {
-    // Ensure the error can be converted into a primitive type which is required
-    // for the `Error` constructor.
+    // Coerce the error to a string, or throw the original error if unable.
+    let message: string;
     try {
-      String(error);
+      message = error?.message ?? String(error);
     } catch {
       throw error;
     }
-    super(error?.message || error);
-    this._name = `${ERROR_PREFIX}CLI Error`;
-  }
+    super(message);
 
-  // Override the default getter/setter to ensure the prefix is always present
-  get name() {
-    return this._name;
-  }
-  set name(name: string) {
-    this._name = ensurePrefix(name);
+    this.name = 'CLI Error';
+
+    const isError = error instanceof Error;
+    let originalName: string | undefined;
+    let originalError: Error = error;
+
+    // Get the original custom error name, if available.
+    if (error?.name && error.name !== 'Error') {
+      originalName = error.name;
+    } else if (isError && error.constructor.name !== 'Error') {
+      originalName = error.constructor.name;
+    }
+
+    // If it's not an error instance, create one to capture the stack.
+    if (!isError) {
+      originalError = new Error();
+      Error.captureStackTrace(originalError, new.target);
+    }
+
+    // Copy the stack from the original error, but modify the first line which
+    // contains the error name and message.
+    Object.defineProperty(this, 'stack', {
+      get(): string {
+        let stack = `${ERROR_PREFIX}${this.name}`;
+
+        if (originalName) {
+          stack += ` [${originalName}]`;
+        }
+
+        if (this.message) {
+          stack += `: ${this.message}`;
+        }
+
+        if (originalError.stack) {
+          stack += `\n${originalError.stack.replace(/^.*\n/, '')}`;
+        }
+
+        return stack.trim();
+      },
+    });
   }
 }
 
@@ -115,13 +145,4 @@ export class RequiredSubcommandError extends UsageError {
     super(`Subcommand required for command "${commandString}".`);
     this.name = 'RequiredSubcommandError';
   }
-}
-
-const PREFIX_REGEX = new RegExp(`^${ERROR_PREFIX}`);
-
-/**
- * Adds the prefix to the string if it doesn't already have it.
- */
-function ensurePrefix(str: string) {
-  return `${ERROR_PREFIX}${str.replace(PREFIX_REGEX, '')}`;
 }
