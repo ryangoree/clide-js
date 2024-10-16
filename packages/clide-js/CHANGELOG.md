@@ -1,5 +1,11 @@
 # clide-js
 
+## 0.2.2
+
+### Patch Changes
+
+- d675d46: Fixed error output which previously buried the stack trace in minified code.
+
 ## 0.2.1
 
 ### Patch Changes
