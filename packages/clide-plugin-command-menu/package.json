@@ -1,6 +1,6 @@
 {
   "name": "clide-plugin-command-menu",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A plugin for Clide-JS CLIs to auto-prompt the user for missing required subcommands.",
   "license": "MIT",
   "type": "module",
@@ -17,7 +17,7 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "clide-js": "^0.2.2"
+    "clide-js": "^0.2.3"
   },
   "dependencies": {
     "cfonts": "^3.3.0",
@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.12.7",
-    "clide-js": "^0.2.2",
+    "clide-js": "^0.2.3",
     "tsconfig": "*",
     "tsup": "^8.3.0",
     "tsx": "^4.19.1",
@@ -44,6 +44,12 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
-  "keywords": ["clide-js", "prompt", "interactive"]
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "clide-js",
+    "prompt",
+    "interactive"
+  ]
 }

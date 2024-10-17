@@ -1,5 +1,14 @@
 # clide-plugin-command-menu
 
+## 0.1.1
+
+### Patch Changes
+
+- 5b3a7ef: Bumped deps
+- Updated dependencies [5b3a7ef]
+- Updated dependencies [8fa42e2]
+  - clide-js@0.2.3
+
 ## 0.1.0
 
 ### Minor Changes
