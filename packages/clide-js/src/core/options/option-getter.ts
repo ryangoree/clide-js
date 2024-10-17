@@ -149,7 +149,6 @@ export function createOptionGetter<
         case 'autocomplete':
         case 'autocompleteMultiselect': {
           // These options are not part of the types package, but do exist.
-          (promptOptions as any).fallback ??= 'other';
           (promptOptions as any).clearFirst ??= true;
 
           // If no choices are matched, accept the input as-is
