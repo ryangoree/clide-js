@@ -116,6 +116,7 @@ export function createOptionGetter<
 
     // Prompt for the option value if not provided and a prompt is provided
     if (value === undefined && prompt) {
+      let didCancel = false;
       const promptOptions: PromptOptions = {
         type,
         validate: validateFn
@@ -134,7 +135,48 @@ export function createOptionGetter<
           : undefined,
         // options passed to the getter take precedence over the config
         ...(typeof prompt === 'string' ? { message: prompt } : prompt),
+
+        onState: (state) => {
+          if (state.aborted || state.exited) {
+            didCancel = true;
+          }
+          return state;
+        },
       };
+
+      // Add additional options for specific prompt types
+      switch (promptOptions.type) {
+        case 'autocomplete':
+        case 'autocompleteMultiselect': {
+          // These options are not part of the types package, but do exist.
+          (promptOptions as any).fallback ??= 'other';
+          (promptOptions as any).clearFirst ??= true;
+
+          // If no choices are matched, accept the input as-is
+          promptOptions.suggest ??= async (input, choices) => {
+            if (!input) return choices;
+            const lowerInput = input.toLowerCase();
+            const filtered = choices.filter((choice) => {
+              const lowerTitle = choice.title.toLowerCase();
+              if (
+                lowerTitle.slice(0, lowerInput.length) === lowerInput ||
+                lowerInput.slice(0, lowerTitle.length) === lowerTitle
+              ) {
+                return true;
+              }
+              const lowerValue = choice.value?.toLowerCase();
+              return (
+                lowerValue &&
+                (lowerValue.slice(0, lowerInput.length) === lowerInput ||
+                  lowerInput.slice(0, lowerValue.length) === lowerValue)
+              );
+            });
+            return [{ title: input }, ...filtered];
+          };
+
+          break;
+        }
+      }
 
       // If an initial value is not provided, use the default value
       if (
@@ -170,7 +212,7 @@ export function createOptionGetter<
       }
 
       value = await client.prompt(promptOptions);
-      if (value === undefined) {
+      if (didCancel) {
         onPromptCancel?.();
       }
     }
