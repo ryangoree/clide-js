@@ -1,5 +1,12 @@
 # clide-js
 
+## 0.2.3
+
+### Patch Changes
+
+- 5b3a7ef: Bumped deps
+- 8fa42e2: Changed the default bahavior of `autocomplete` and `autocompleteMultiselect` prompt options to include the current input as one of the choices.
+
 ## 0.2.2
 
 ### Patch Changes
