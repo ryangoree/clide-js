@@ -46,9 +46,8 @@ export interface OptionConfig<
    */
   default?: MaybeReadonly<OptionPrimitiveType<T>>;
   /**
-   * Prompts the user for the option if it's not present and requires the
-   * user enters a valid value. If no `prompt` field is provided, a default
-   * will be used based on `name`.
+   * Whether the option is required. If `true`, the getter will throw an error
+   * if no value is provided (optional).
    */
   required?: boolean;
   /** Other options that are required for this option to be used (optional). */
