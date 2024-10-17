@@ -1159,15 +1159,6 @@ ci-info@^3.7.0:
   resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-3.9.0.tgz#4279a62028a7b1f262f3473fc9605f5e218c59b4"
   integrity sha512-NIxF55hv4nSqQswkAeiOi1r83xy8JldOFDTWiug55KBu9Jnblncd2U6ViHmYgHf01TPZS77NJBhBMKdWj9HQMQ==
 
-clide-js@^0.2.2:
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/clide-js/-/clide-js-0.2.2.tgz#6f87cff52f7f24efaaa1fa6c3a5d24f840d2e833"
-  integrity sha512-doO/LiXmkcwogkoJddNZQct1vH5i8MGH44LNVWcFnUBeA5xHl45h5kSjZkosT++Z867ryeNRB9xA+lnKgbzQpQ==
-  dependencies:
-    cliui "^8.0.1"
-    prompts "^2.4.2"
-    yargs-parser "^21.1.1"
-
 cliui@^8.0.1:
   version "8.0.1"
   resolved "https://registry.yarnpkg.com/cliui/-/cliui-8.0.1.tgz#0c04b075db02cbfe60dc8e6cf2f5486b1a3608aa"

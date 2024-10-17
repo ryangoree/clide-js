@@ -186,7 +186,7 @@ export function mockCommandStringModules<TCommandString extends string>(
 }
 
 type MockCommandModule = {
-  handler: Mock<[state: Readonly<State>]>;
+  handler: Mock<(state: Readonly<State>) => any>;
 };
 
 /**

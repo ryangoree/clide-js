@@ -13,21 +13,21 @@ vi.mock('./command-menu-prompt', async (importOriginal) => {
   const original: any = await importOriginal();
   return {
     ...original,
-    commandMenuPrompt: vi.fn<[CommandMenuPromptOptions], ResolvedCommand[]>(
-      ({ commandsDir }): ResolvedCommand[] => [
-        {
-          command: {
-            handler: vi.fn(({ next, data }) => next(data)),
-          },
-          commandName: 'mock-command',
-          remainingCommandString: '',
-          commandPath: `${commandsDir}/mock-command`,
-          commandTokens: ['mock-command'],
-          subcommandsDir: `${commandsDir}/mock-command`,
-          params: {},
+    commandMenuPrompt: vi.fn<
+      (options: CommandMenuPromptOptions) => ResolvedCommand[]
+    >(({ commandsDir }): ResolvedCommand[] => [
+      {
+        command: {
+          handler: vi.fn(({ next, data }) => next(data)),
         },
-      ],
-    ),
+        commandName: 'mock-command',
+        remainingCommandString: '',
+        commandPath: `${commandsDir}/mock-command`,
+        commandTokens: ['mock-command'],
+        subcommandsDir: `${commandsDir}/mock-command`,
+        params: {},
+      },
+    ]),
   };
 });
 
