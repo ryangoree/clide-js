@@ -36,7 +36,7 @@ type UnionToIntersection<T> = (T extends any ? (x: T) => any : never) extends (
   x: infer R,
 ) => any
   ? R
-  : 'end never';
+  : never;
 
 /**
  * Merge the keys of a union or intersection of objects into a single type.
