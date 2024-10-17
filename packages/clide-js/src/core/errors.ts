@@ -1,15 +1,15 @@
-/**
- * Added to every error name.
- * @internal
- */
-export const ERROR_PREFIX = '✖ ';
+interface ClideErrorOptions {
+  cause?: unknown;
+}
 
 /**
  * An error thrown by the CLI engine.
  * @group Errors
  */
 export class ClideError extends Error {
-  constructor(error: any) {
+  static prefix = '✖ ';
+
+  constructor(error: any, options?: ClideErrorOptions) {
     // Coerce the error to a string, or throw the original error if unable.
     let message: string;
     try {
@@ -17,43 +17,54 @@ export class ClideError extends Error {
     } catch {
       throw error;
     }
-    super(message);
 
+    super(message);
     this.name = 'CLI Error';
 
+    // Minification can mangle the stack traces of custom errors by obfuscating
+    // the class name and including large chunks of minified code in the output.
+    // To remedy this, the original stack trace is copied from either the given
+    // error or a new error instance; and the stack getter is overridden to
+    // ensure it's nicely formatted.
+
     const isError = error instanceof Error;
-    let originalName: string | undefined;
-    let originalError: Error = error;
+    const cause = options?.cause ?? error?.cause;
 
-    // Get the original custom error name, if available.
-    if (error?.name && error.name !== 'Error') {
-      originalName = error.name;
-    } else if (isError && error.constructor.name !== 'Error') {
-      originalName = error.constructor.name;
-    }
-
-    // If it's not an error instance, create one to capture the stack.
+    let stackTarget: Error = error;
     if (!isError) {
-      originalError = new Error();
-      Error.captureStackTrace(originalError, new.target);
+      stackTarget = new Error();
+      Error.captureStackTrace?.(stackTarget, new.target);
     }
 
-    // Copy the stack from the original error, but modify the first line which
-    // contains the error name and message.
+    let customName: string | undefined;
+    if (error?.name && error.name !== 'Error') {
+      customName = error.name;
+    } else if (isError && error.constructor.name !== 'Error') {
+      customName = error.constructor.name;
+    }
+
+    // Doing this in constructor prevents the need to add custom properties to
+    // the prototype, which would be displayed in the stack trace. The getter
+    // ensures the message and name are up-to-date when accessed (e.g., after
+    // subclassing and changing the name).
     Object.defineProperty(this, 'stack', {
       get(): string {
-        let stack = `${ERROR_PREFIX}${this.name}`;
+        let stack = `${ClideError.prefix}${this.name}`;
 
-        if (originalName) {
-          stack += ` [${originalName}]`;
+        if (customName) {
+          stack += ` [${customName}]`;
         }
 
         if (this.message) {
           stack += `: ${this.message}`;
         }
 
-        if (originalError.stack) {
-          stack += `\n${originalError.stack.replace(/^.*\n/, '')}`;
+        if (stackTarget.stack) {
+          stack += `\n${stackTarget.stack.replace(/^.*\n/, '')}`;
+        }
+
+        if (cause) {
+          stack += `\n  Caused by: ${cause.stack || cause}`;
         }
 
         return stack.trim();
@@ -67,8 +78,8 @@ export class ClideError extends Error {
  * @group Errors
  */
 export class ClientError extends ClideError {
-  constructor(message: string) {
-    super(message);
+  constructor(message: string, options?: ClideErrorOptions) {
+    super(message, options);
     this.name = 'Error';
   }
 }
@@ -78,8 +89,8 @@ export class ClientError extends ClideError {
  * @group Errors
  */
 export class UsageError extends ClideError {
-  constructor(error: any) {
-    super(error);
+  constructor(error: any, options?: ClideErrorOptions) {
+    super(error, options);
     this.name = 'UsageError';
   }
 }
@@ -89,8 +100,8 @@ export class UsageError extends ClideError {
  * @group Errors
  */
 export class OptionsError extends UsageError {
-  constructor(message: string) {
-    super(message);
+  constructor(message: string, options?: ClideErrorOptions) {
+    super(message, options);
     this.name = 'OptionsError';
   }
 }
@@ -100,8 +111,8 @@ export class OptionsError extends UsageError {
  * @group Errors
  */
 export class OptionsConfigError extends ClideError {
-  constructor(message: string) {
-    super(message);
+  constructor(message: string, options?: ClideErrorOptions) {
+    super(message, options);
     this.name = 'OptionsConfigError';
   }
 }

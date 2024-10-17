@@ -1,5 +1,5 @@
 import prompts from 'prompts';
-import { ClientError, ERROR_PREFIX } from './errors';
+import { ClideError, ClientError } from './errors';
 
 /**
  * Variation of `prompts.PromptObject` with a few changes:
@@ -50,7 +50,7 @@ export class Client {
       `\n${
         process.env.NODE_ENV === 'development'
           ? clientError.stack
-          : `${ERROR_PREFIX}Error: ${clientError.message}`
+          : `${ClideError.prefix}Error: ${clientError.message}`
       }`,
     );
     return clientError;
