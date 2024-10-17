@@ -102,14 +102,14 @@ export interface OptionPrimitiveTypeMap {
 }
 
 /**
+ * The possible types for an option.
+ * @group Options
+ */
+export type OptionType = keyof OptionPrimitiveTypeMap;
+
+/**
  * Get the primitive type for an option type.
  * @group Options
  */
 export type OptionPrimitiveType<T extends OptionType = OptionType> =
   OptionPrimitiveTypeMap[T];
-
-/**
- * The possible types for an option.
- * @group Options
- */
-export type OptionType = 'string' | 'number' | 'boolean' | 'array' | 'secret';
