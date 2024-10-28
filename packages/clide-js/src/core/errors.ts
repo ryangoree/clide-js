@@ -45,7 +45,7 @@ export class ClideError extends Error {
 
     // Doing this in constructor prevents the need to add custom properties to
     // the prototype, which would be displayed in the stack trace. The getter
-    // ensures the message and name are up-to-date when accessed (e.g., after
+    // ensures the name and message are up-to-date when accessed (e.g., after
     // subclassing and changing the name).
     Object.defineProperty(this, 'stack', {
       get(): string {
