@@ -418,7 +418,7 @@ describe('run', () => {
 
       // Expect the hook to have been called with the correct payload
       expect(mockHook).toHaveBeenCalledWith({
-        changed: expect.any(Object),
+        changes: expect.any(Object),
         state: expect.any(State),
       } as HookPayload<'afterStateChange'>);
     });

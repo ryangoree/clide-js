@@ -7,9 +7,9 @@ describe('hooks emitter', () => {
     const hook = vi.fn();
 
     hooks.on('test', hook);
-    hooks.call('test', 'foo', 'bar');
+    hooks.call('test', 'foo');
 
-    expect(hook).toHaveBeenCalledWith('foo', 'bar');
+    expect(hook).toHaveBeenCalledWith('foo');
   });
 
   it('calls registered hooks in order', async () => {

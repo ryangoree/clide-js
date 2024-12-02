@@ -3,8 +3,8 @@ import type { Context } from './context';
 import { ClideError } from './errors';
 import type { OptionsConfig } from './options/option';
 import {
-  createOptionsGetter,
   type OptionsGetter,
+  createOptionsGetter,
 } from './options/options-getter';
 import type { OptionValues } from './parse';
 import type { Params, ResolvedCommand } from './resolve';
@@ -361,7 +361,7 @@ export class State<
     // post hook
     await this.context.hooks.call('afterStateChange', {
       state: this as any,
-      changed: _changes,
+      changes: _changes,
     });
   }
 }

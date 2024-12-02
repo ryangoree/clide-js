@@ -59,3 +59,14 @@ export type MergeKeys<T> = UnionToIntersection<T> extends infer I
       [K in keyof I]: K extends keyof T ? T[K] : I[K];
     }
   : never;
+
+export type AnyObject = Record<PropertyKey, any>;
+
+export type AnyFunction = (...args: any) => any;
+
+/**
+ * Get a union of all property keys on `T` that are functions
+ */
+export type FunctionKey<T> = keyof {
+  [K in keyof T as T[K] extends AnyFunction ? K : never]: K;
+};

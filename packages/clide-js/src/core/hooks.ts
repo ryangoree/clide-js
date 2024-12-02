@@ -1,4 +1,9 @@
-import type { MaybePromise } from 'src/utils/types';
+import type {
+  AnyFunction,
+  AnyObject,
+  FunctionKey,
+  MaybePromise,
+} from 'src/utils/types';
 import type { Context } from './context';
 import type { OptionsConfig } from './options/option';
 import type { OptionValues, ParseCommandFn } from './parse';
@@ -6,414 +11,394 @@ import type { ResolveCommandFn, ResolvedCommand } from './resolve';
 import type { NextState, State } from './state';
 
 /**
- * The hooks that can be registered and called to modify the behavior of the
- * CLI, keyed by event name, listed in the order they are called.
+ * The core hooks interface that defines lifecycle events for the CLI execution process.
+ * Hooks are called in sequential order as listed below.
  * @group Hooks
  */
-export interface Hooks {
+export interface ClideHooks {
   /**
-   * 1. Called once during preparation.
+   * 1. Initial preparation hook called before command resolution begins.
    */
   beforeResolve: (payload: {
-    /** The command string that was passed to the CLI. */
+    /** The raw command string input to the CLI */
     commandString: string;
-    /** The path to the directory where the commands live. */
+    /** The root directory containing command implementations */
     commandsDir: string;
     /**
-     * Override the context's configured resolve function.
-     * @param resolveFn - The new resolve function.
+     * Replace the configured command resolution function
+     * @param resolveFn - Custom resolution function implementation
      */
     setResolveFn: (resolveFn: ResolveCommandFn) => void;
     /**
-     * Override the context's configured parse function.
-     * @param parseFn - The new parse function.
+     * Replace the configured command parsing function
+     * @param parseFn - Custom parsing function implementation
      */
     setParseFn: (parseFn: ParseCommandFn) => void;
     /**
-     * Add additional resolved commands to the context.
-     * @param resolvedCommands - The resolved commands to add.
-     */
-    addResolvedCommands: (result: ResolvedCommand[]) => void;
-    /** Skip resolving the command. */
-    skip: () => void;
-    /** The command's context object. */
-    context: Context;
-  }) => MaybePromise<void>;
-
-  /**
-   * 2. Called once for each subcommand during preparation.
-   */
-  beforeResolveNext: (payload: {
-    /** The remaining command string that needs to be resolved. */
-    commandString: string;
-    /**
-     * The path to the directory where commands for the remaining command string
-     * live. Usually a subdirectory of the commands directory.
-     */
-    commandsDir: string;
-    /** The previously resolved command. */
-    lastResolved: ResolvedCommand;
-    /**
-     * Override the context's configured resolve function.
-     * @param resolveFn - The new resolve function.
-     */
-    setResolveFn: (resolveFn: ResolveCommandFn) => void;
-    /**
-     * Override the context's configured parse function.
-     * @param parseFn - The new parse function.
-     */
-    setParseFn: (parseFn: ParseCommandFn) => void;
-    /**
-     * Add additional resolved commands to the context.
-     * @param resolvedCommands - The resolved commands to add.
+     * Register additional resolved commands
+     * @param resolvedCommands - Array of resolved command objects to add
      */
     addResolvedCommands: (resolvedCommands: ResolvedCommand[]) => void;
-    /** Skip resolving the command. */
+    /** Skip the command resolution phase */
     skip: () => void;
-    /** The command's context object. */
+    /** The CLI context object */
     context: Context;
   }) => MaybePromise<void>;
 
   /**
-   * 3. Called once during preparation.
+   * 2. Called before resolving each subcommand in the command chain
    */
-  afterResolve: (payload: {
-    /** The resolved commands. */
-    resolvedCommands: ResolvedCommand[];
+  beforeResolveNext: (payload: {
+    /** The remaining unresolved portion of the command string */
+    commandString: string;
+    /** The directory containing subcommand implementations */
+    commandsDir: string;
+    /** The previously resolved command in the chain */
+    lastResolved: ResolvedCommand;
     /**
-     * Add additional resolved commands to the context.
-     * @param resolvedCommands - The resolved commands to add.
-     *
-     * @remarks
-     * After each command is resolved, it's options config is merged with the
-     * context's existing options config so that context is always up to date in
-     * the {@linkcode beforeResolveNext} hook. Because of this, resolved commands
-     * can't be replaced once resolved, only added to. If you need to manually
-     * set the resolved commands, you can use the {@linkcode beforeResolve} hook to
-     * do so.
+     * Replace the configured command resolution function
+     * @param resolveFn - Custom resolution function implementation
      */
-    addResolvedCommands: (result: ResolvedCommand[]) => void;
-    /** The command's context object. */
-    context: Context;
-  }) => MaybePromise<void>;
-
-  /**
-   * 4. Called once during preparation.
-   */
-  beforeParse: (payload: {
-    /** The command string that was passed to the CLI. */
-    commandString: string | string[];
+    setResolveFn: (resolveFn: ResolveCommandFn) => void;
     /**
-     * The context's final options config from all plugins and resolved
-     * commands.
-     */
-    optionsConfig: OptionsConfig;
-    /**
-     * Override the context's configured parse function.
-     * @param parseFn - The new parse function.
+     * Replace the configured command parsing function
+     * @param parseFn - Custom parsing function implementation
      */
     setParseFn: (parseFn: ParseCommandFn) => void;
     /**
-     * Manually set the parsed options and skip parsing.
-     * @param optionValues - The parsed option values.
+     * Register additional resolved commands
+     * @param resolvedCommands - Array of resolved command objects to add
+     */
+    addResolvedCommands: (resolvedCommands: ResolvedCommand[]) => void;
+    /** Skip resolving this subcommand */
+    skip: () => void;
+    /** The CLI context object */
+    context: Context;
+  }) => MaybePromise<void>;
+
+  /**
+   * 3. Called after all commands in the chain have been resolved
+   */
+  afterResolve: (payload: {
+    /** The complete array of resolved command objects */
+    resolvedCommands: ResolvedCommand[];
+    /**
+     * Register additional resolved commands
+     * @param resolvedCommands - Array of resolved command objects to add
+     *
+     * @remarks
+     * Options configurations are merged into the context immediately after each command
+     * is resolved to maintain context consistency in the {@linkcode beforeResolveNext} hook.
+     * Due to this, resolved commands can only be added, not replaced. To replace resolved
+     * commands entirely, use the {@linkcode beforeResolve} hook instead.
+     */
+    addResolvedCommands: (resolvedCommands: ResolvedCommand[]) => void;
+    /** The CLI context object */
+    context: Context;
+  }) => MaybePromise<void>;
+
+  /**
+   * 4. Called before parsing command arguments and options
+   */
+  beforeParse: (payload: {
+    /** The raw command input (string or array format) */
+    commandString: string | string[];
+    /** The consolidated options configuration from all plugins and resolved commands */
+    optionsConfig: OptionsConfig;
+    /**
+     * Replace the configured parsing function
+     * @param parseFn - Custom parsing function implementation
+     */
+    setParseFn: (parseFn: ParseCommandFn) => void;
+    /**
+     * Set parsed options directly and skip the parsing phase
+     * @param optionValues - Pre-parsed option values
      */
     setParsedOptionsAndSkip: (optionValues: OptionValues) => void;
-    /** Skip parsing the command. */
+    /** Skip the parsing phase */
     skip: () => void;
-    /** The command's context object. */
+    /** The CLI context object */
     context: Context;
   }) => MaybePromise<void>;
 
   /**
-   * 5. Called once during preparation.
+   * 5. Called after command arguments and options have been parsed
    */
   afterParse: (payload: {
-    /** The resulting parsed options. */
+    /** The parsed command options and arguments */
     parsedOptions: OptionValues;
     /**
-     * Override the parsed options.
-     * @param optionValues - The parsed option values.
+     * Override the parsed results
+     * @param optionValues - New option values to use
      */
     setParsedOptions: (optionValues: OptionValues) => void;
-    /** The command's context object. */
+    /** The CLI context object */
     context: Context;
   }) => MaybePromise<void>;
 
   /**
-   * 6. Called once for every execution.
+   * 6. Called before command execution begins
    */
   beforeExecute: (payload: {
-    /** The initial data that was passed to the state. */
+    /** The initial state data */
     initialData: unknown;
-    /** The state object. */
+    /** The command execution state object */
     state: State;
-    /** Set the final result and skip execution. */
+    /** Set final result and skip execution */
     setResultAndSkip: (result: unknown) => void;
     /**
-     * Override the state's initial data.
-     * @param data - The new initial data.
+     * Override the initial state data
+     * @param data - New initial data
      */
     setInitialData: (data: unknown) => void;
-    /** Skip execution. */
+    /** Skip the execution phase */
     skip: () => void;
   }) => MaybePromise<void>;
 
   /**
-   * 7. Called for every call of `state.next()`.
+   * 7. Called before each state transition during command execution
    *
-   * @remarks `state.start()` calls `state.next()` internally, so this hook is
-   * called before the first command is executed.
+   * @remarks This hook is triggered by both explicit `state.next()` calls and the
+   * initial `state.start()` call, which internally uses `state.next()`.
    */
   beforeNext: (payload: {
-    /** The state object. */
+    /** The command execution state object */
     state: State;
-    /** The data that will be passed to the next command. */
+    /** The data that will be passed to the next command */
     data: unknown;
     /**
-     * Override the data that will be passed to the next command.
-     * @param data - The new data.
+     * Override the data for the next command
+     * @param data - New data to pass
      */
     setData: (data: unknown) => void;
-    /** The next command that will be executed. */
+    /** The next command to be executed */
     nextCommand: ResolvedCommand | undefined;
     /**
-     * Override the next command that will be executed.
-     * @param command - The new next command.
+     * Override the next command
+     * @param command - New command to execute next
      */
     setNextCommand: (command: ResolvedCommand) => void;
   }) => MaybePromise<void>;
 
   /**
-   * 8. Called every time the state changes during execution.
+   * 8. Called before each state update during command execution
    */
   beforeStateChange: (payload: {
-    /** The state object. */
+    /** The command execution state object */
     state: State;
-    /** The changes that will be applied to the state. */
+    /** The pending state changes */
     changes: Partial<NextState>;
     /**
-     * Override the changes that will be applied to the state.
-     * @param changes - The new changes.
+     * Override the pending state changes
+     * @param changes - New state changes to apply
      */
-    setChanges: (state: Partial<NextState>) => void;
-    /** Skip the state change. */
+    setChanges: (changes: Partial<NextState>) => void;
+    /** Skip the state update */
     skip: () => void;
   }) => MaybePromise<void>;
 
   /**
-   * 9. Called every time the state changes during execution.
+   * 9. Called after each state update during command execution
    */
   afterStateChange: (payload: {
-    /** The state object. */
+    /** The command execution state object */
     state: State;
-    /** The changes that were applied to the state. */
-    changed: Partial<NextState>;
+    /** The applied state changes */
+    changes: Partial<NextState>;
   }) => MaybePromise<void>;
 
   /**
-   * 10. Called once per execution, *before* the final state change, if
-   *     `state.end()` is called.
+   * 10. Called once per execution, before the final state update, if `state.end()` is called.
    */
   beforeEnd: (payload: {
-    /** The state object. */
+    /** The command execution state object */
     state: State;
-    /** The data that will be returned. */
+    /** The data that will be returned */
     data: unknown;
     /**
-     * Override the data that will be returned.
-     * @param data - The new data.
+     * Override the return data
+     * @param data - New data to return
      */
     setData: (data: unknown) => void;
   }) => MaybePromise<void>;
 
   /**
-   * 11. Called once for every execution.
+   * 11. Called once per execution, after the final state update.
    */
   afterExecute: (payload: {
-    /** The state object. */
+    /** The command execution state object */
     state: State;
-    /** The final result. */
+    /** The final result */
     result: unknown;
-    /** Override the final result. */
+    /**
+     * Override the final result
+     * @param result - New result to use
+     */
     setResult: (result: unknown) => void;
   }) => MaybePromise<void>;
-
-  // The following hooks are not part of the core lifecycle, but are included
-  // for convenience.
 
   /**
    * Called whenever an error is thrown.
    */
   error: (payload: {
-    /** The command's context object. */
+    /** The CLI context object */
     context: Context;
-    /** The error that was thrown. */
+    /** The error that was thrown */
     error: unknown;
     /**
-     * Override the error that will be thrown.
-     * @param error - The new error.
+     * Override the error that will be thrown
+     * @param error - New error to throw
      */
     setError: (error: unknown) => void;
-    /** Prevent the error from being thrown. */
+    /** Prevent the error from being thrown */
     ignore: () => void;
   }) => MaybePromise<void>;
 
   /**
-   * Called whenever a plugin or command intend to exit the process.
+   * Called whenever a plugin or command intends to exit the process.
    */
   exit: (payload: {
-    /** The command's context object. */
+    /** The CLI context object */
     context: Context;
-    /** The exit code. */
+    /** The exit code */
     code: number;
-    /** An optional message to log. */
+    /** An optional message to log */
     message?: any;
     /**
-     * Override the exit code.
-     * @param code - The new exit code.
+     * Override the exit code
+     * @param code - New exit code to use
      */
     setCode: (code: number) => void;
     /**
-     * Override the message to log.
-     * @param message - The new message.
+     * Override the message to log
+     * @param message - New message to log
      */
     setMessage: (message: any) => void;
-    /** Prevent the process from exiting. */
+    /** Prevent the process from exiting */
     cancel: () => void;
   }) => MaybePromise<void>;
 }
 
 /**
- * A class for registering, un-registering, and calling hooks. The events that
- * can be hooked into are defined in the {@linkcode Hooks} type, but any string
- * can be used as an event name, allowing plugins to define their own hooks.
+ * A registry for managing and executing lifecycle hooks.
+ * Handlers are executed sequentially in registration order.
  *
- * @remarks
- * Each registered hook is awaited in series to ensure that hooks are
- * called in the order they were registered.
- * @group Hooks
+ * While built-in hooks are defined in {@linkcode ClideHooks},
+ * custom hooks can be registered using any string as the hook name.
+ *
+ * @template T - The hooks configuration object
  */
-// similar to EventEmitter, but blocking
-export class HooksEmitter<THooks extends HooksObject = Hooks> {
-  private hooks: {
-    [event: string]: ((...args: any) => void)[];
+export class HooksEmitter<T extends AnyObject = ClideHooks> {
+  private handlers: {
+    [K in HookName<T>]?: HookHandler<K, T>[];
   } = {};
 
   /**
-   * Register a new hook for a given lifecycle event.
-   * @param event - The event to register the hook for.
-   * @param hook - The function to call when the event is triggered.
+   * Register a handler for a hook.
+   * @param hook - The hook to handle
+   * @param handler - Function to execute when the hook is called
    */
-  on<TEvent extends keyof THooks>(event: TEvent, hook: THooks[TEvent]): void;
-  on<TEvent extends keyof THooks | string>(
-    event: string,
-    hook: TEvent extends keyof THooks
-      ? THooks[TEvent]
-      : (...args: any[]) => void,
-  ): void;
-  on(event: string, hook: (...args: any) => any): void {
-    const existing = this.hooks[event];
-    if (existing) {
-      existing.push(hook);
-    } else {
-      this.hooks[event] = [hook];
-    }
+  on<THook extends HookName<T>>(
+    hook: THook,
+    handler: HookHandler<THook, T>,
+  ): void {
+    this.handlers[hook] ??= [];
+    this.handlers[hook].push(handler);
   }
 
   /**
-   * Un-register a hook for a given lifecycle event.
-   * @param event - The event to un-register the hook for.
-   * @param hook - The function to un-register.
-   * @returns Whether a hook was un-registered.
+   * Remove a previously registered handler.
+   * @param hook - The hook to remove the handler from
+   * @param handler - The handler to remove
+   * @returns true if the handler was found and removed
    */
-  off<TEventName extends keyof THooks>(
-    event: TEventName,
-    hook: THooks[TEventName],
-  ): boolean;
-  off<TEventName extends keyof THooks | string>(
-    event: string,
-    hook: TEventName extends keyof THooks
-      ? THooks[TEventName]
-      : (...args: any) => any,
-  ): boolean;
-  off(event: string, hook: (...args: any) => any) {
+  off<THook extends HookName<T>>(
+    hook: THook,
+    handler: HookHandler<THook, T>,
+  ): boolean {
+    const handlers = this.handlers[hook];
+    if (!handlers) return false;
+
     let didRemove = false;
-    const existing = this.hooks[event];
-    if (existing) {
-      this.hooks[event] = existing.filter((handler) => {
-        if (handler === hook) {
+    if (handlers) {
+      this.handlers[hook] = handlers.filter((existing) => {
+        if (existing === handler) {
           didRemove = true;
           return false;
         }
         return true;
       });
     }
+
     return didRemove;
   }
 
   /**
-   * Register a new hook for a given lifecycle event that will only be called
-   * once, then un-registered.
-   * @param event - The event to register the hook for.
-   * @param hook - The function to call when the event is triggered.
+   * Register a one-time handler that removes itself after execution.
+   * @param hook - The hook to handle once
+   * @param handler - Function to execute once when the hook is called
    */
-  once<TEventName extends keyof THooks>(
-    event: TEventName,
-    hook: THooks[TEventName],
-  ): void;
-  once<TEventName extends keyof THooks | string>(
-    event: string,
-    hook: TEventName extends keyof THooks
-      ? THooks[TEventName]
-      : (...args: any) => any,
-  ): void;
-  once(event: string, hook: (...args: any) => any) {
-    const wrapped = (...args: any) => {
-      this.off(event, wrapped as any);
-      hook(...args);
+  once<THook extends HookName<T>>(
+    hook: THook,
+    handler: HookHandler<THook, T>,
+  ): void {
+    const wrapped = (...args: unknown[]) => {
+      this.off(hook, wrapped as HookHandler<THook, T>);
+      handler(...args);
     };
-    this.on(event, wrapped as any);
+    this.on(hook, wrapped as HookHandler<THook, T>);
   }
 
   /**
-   * Call all hooks for a given event.
-   * @param event - The event to call the hooks for.
-   * @param args - The arguments to pass to the hooks.
+   * Call all handlers registered for a hook.
+   * Handlers are called sequentially in registration order.
+   * @param hook - The hook to call
+   * @param args - Arguments to pass to each handler
    */
-  call<TEventName extends keyof THooks>(
-    event: TEventName,
-    ...args: THooks[TEventName] extends (...args: any) => any
-      ? Parameters<THooks[TEventName]>
-      : any[]
-  ): Promise<void>;
-  call<TEventName extends keyof THooks | string = keyof THooks>(
-    event: TEventName,
-    ...args: typeof event extends keyof THooks
-      ? THooks[TEventName] extends (...args: any) => any
-        ? Parameters<THooks[TEventName]>
-        : any[]
-      : any[]
-  ): Promise<void>;
-  async call(event: string, ...args: any) {
-    for (const hook of this.hooks[event] || []) {
-      await (hook as any)(...args);
+  async call<THook extends HookName<T>>(
+    hook: THook,
+    ...args: Parameters<HookHandler<THook, T>>
+  ): Promise<void> {
+    const handlers = this.handlers[hook];
+    if (!handlers) return;
+    for (const handler of handlers) {
+      await handler(...args);
     }
   }
 }
 
 /**
- * A generic type for the payload of a hook.
+ * Represents a possible hook name given a hooks configuration object.
+ * @group Hooks
+ */
+export type HookName<THooks extends AnyObject = ClideHooks> =
+  | FunctionKey<THooks>
+  | (string & {});
+
+/**
+ * A handler function for a specific hook.
+ * @template THook - The name of the hook being handled
+ * @template T - The hooks configuration object containing the hook
+ * @group Hooks
+ */
+type HookHandler<
+  THook extends HookName<T> = keyof ClideHooks,
+  T extends AnyObject = ClideHooks,
+> = T[THook] extends AnyFunction
+  ? T[THook]
+  : (payload?: unknown) => MaybePromise<void>;
+
+/**
+ * The payload object passed to a hook handler.
+ *
+ * By convention, the payload will be the first argument of the hook, but this
+ * may not always be the case for custom hooks at runtime
+ *
+ * @template THook - The name of the hook being handled
+ * @template T - The hooks configuration object containing the hook
  * @group Hooks
  */
 export type HookPayload<
-  TEventName extends keyof THooks,
-  THooks extends HooksObject = Hooks,
-> = THooks[TEventName] extends (...args: any) => any
-  ? Parameters<THooks[TEventName]>[0]
-  : unknown;
-
-export type HooksObject =
-  | {
-      [event: string]: (payload: any) => void;
-    }
-  | Hooks;
+  THook extends HookName<T> = keyof ClideHooks,
+  T extends AnyObject = ClideHooks,
+> = Parameters<HookHandler<THook, T>>[0];

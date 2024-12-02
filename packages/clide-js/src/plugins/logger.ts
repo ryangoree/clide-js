@@ -156,7 +156,7 @@ export function logger({
   function beforeNext(payload: HookPayload<'beforeNext'>) {
     logTransition('next', payload);
   }
-  function beforeEnd(payload: HookPayload<'beforeNext'>) {
+  function beforeEnd(payload: HookPayload<'beforeEnd'>) {
     logTransition('end', payload);
   }
 
