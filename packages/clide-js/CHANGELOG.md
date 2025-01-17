@@ -1,5 +1,12 @@
 # clide-js
 
+## 0.2.4
+
+### Patch Changes
+
+- 5c81fa1: Polished up the `HooksEmitter` types and doc comments
+- e13a262: Simplify `command` type params
+
 ## 0.2.3
 
 ### Patch Changes
