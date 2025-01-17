@@ -1,5 +1,5 @@
 import type { MaybePromise } from 'src/utils/types';
-import type { OptionType, OptionsConfig } from './options/option';
+import type { OptionsConfig } from './options/option';
 import type { State } from './state';
 
 /**
@@ -42,14 +42,7 @@ export type CommandModule<
  * used to define a command with its associated metadata, options, and handler
  * logic.
  *
- * The function is generic and can be used to define a command with custom
- * types, but it's recommended to allow TypeScript to infer the types based on
- * the options passed to the function.
- *
  * @typeParam TData - Optional type for data specific to this command.
- * @typeParam TParams - The type for any parameters passed to the command.
- * @typeParam TOptionsKey - The string keys representing option names.
- * @typeParam TOptionsType - The possible option types (e.g., 'string', 'number').
  * @typeParam TOptions - The `OptionsConfig` type that represents all options for the command.
  *
  * @param options - The config for constructing the Command.
@@ -59,12 +52,7 @@ export type CommandModule<
  */
 export function command<
   TData = unknown,
-  TOptionsKey extends string = string,
-  TOptionsType extends OptionType = OptionType,
-  TOptions extends OptionsConfig<TOptionsKey, TOptionsType> = OptionsConfig<
-    TOptionsKey,
-    TOptionsType
-  >,
+  const TOptions extends OptionsConfig = OptionsConfig,
 >({
   // Apply defaults
   requiresSubcommand = false,
