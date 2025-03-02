@@ -4,7 +4,7 @@ import { getCallerPath } from 'src/utils/caller-path';
 import { isDirectory } from 'src/utils/fs';
 import { Context } from './context';
 import { ClideError, ClientError } from './errors';
-import { HooksEmitter, type HookPayload } from './hooks';
+import { type HookPayload, HooksEmitter } from './hooks';
 import type { OptionsConfig } from './options/option';
 import type { Plugin } from './plugin';
 
@@ -26,7 +26,7 @@ export interface RunOptions {
   /**
    * Initial context or data to pass to commands during execution.
    */
-  initialData?: any;
+  initialData?: unknown;
   /**
    * Options to include in the context.
    */

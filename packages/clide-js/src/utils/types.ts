@@ -1,3 +1,7 @@
+export type AnyObject = Record<PropertyKey, any>;
+
+export type AnyFunction = (...args: any) => any;
+
 export type MaybePromise<T> = T | Promise<T>;
 
 export type MaybeReadonly<T> = T | Readonly<T>;
@@ -20,26 +24,97 @@ export type Nothing = undefined | null;
  * // { a: number; b: string }
  * ```
  */
-export type Prettify<T> = { [K in keyof T]: T[K] } & unknown;
+export type Eval<T> = { [K in keyof T]: T[K] } & unknown;
 
 /**
- * Convert members of a union to an intersection.
+ * Get a union of all property keys on `T` that are functions
+ */
+export type FunctionKey<T> = keyof {
+  [K in keyof T as T[K] extends AnyFunction ? K : never]: K;
+};
+
+/**
+ * Get a union of all keys from all members of `T`.
  *
  * @example
  * ```ts
- * type Union = { a: number } | { b: string };
- * type Intersection = UnionToIntersection<Union>;
- * // { a: number } & { b: string }
+ * type Foo = { a: string; b: number };
+ * type Bar = { a: boolean; b: bigint; c: string };
+ *
+ * type FoobarKey = keyof (Foo | Bar);
+ * // => "a" | "b" ❌ missing "c"
+ *
+ * type FoobarKey = keyof (Foo & Bar);
+ * // => string | number | symbol ❌ intersecting incompatible types returns never
+ *
+ * type FoobarKey = UnionKey<Foo | Bar>;
+ * // => "a" | "b" | "c" ✅
  * ```
  */
-type UnionToIntersection<T> = (T extends any ? (x: T) => any : never) extends (
-  x: infer R,
-) => any
-  ? R
+export type UnionKey<T> = T extends T ? keyof T : never;
+
+/**
+ * Get a union of all keys that are optional or missing in at least one member
+ * of `T`.
+ *
+ * @example
+ * ```ts
+ * type Foo = { a: string; b?: number };
+ * type Bar = { a: boolean; b: bigint; c: string };
+ *
+ * type OptionalFoobarKey = OptionalUnionKey<Foo | Bar>;
+ * // => "b" | "c"
+ * // "c" is included because it doesn't exist in Foo
+ * ```
+ */
+export type OptionalUnionKey<T> = keyof {
+  [K in UnionKey<T> as T extends {
+    [_ in K]: any;
+  }
+    ? never
+    : K]: never;
+};
+
+/**
+ * Get a union of all keys that are required in all members of `T`.
+ *
+ * @example
+ * ```ts
+ * type Foo = { a: string; b?: number };
+ * type Bar = { a: boolean; b: bigint; c: string };
+ *
+ * type RequiredFoobarKey = RequiredUnionKey<Foo | Bar>;
+ * // => "a"
+ * ```
+ */
+export type RequiredUnionKey<T> = Exclude<UnionKey<T>, OptionalUnionKey<T>>;
+
+/**
+ * Get a union of all values for `K` from all members of `T`.
+ *
+ * @example
+ * ```ts
+ * type Foo = { a: string; b?: number };
+ * type Bar = { a: boolean; b: bigint; c: string };
+ *
+ * type FooBar_A = UnionValue<Foo | Bar, "a">;
+ * // => string | boolean
+ *
+ * type FooBar_B = UnionValue<Foo | Bar, "b">;
+ * // => number | bigint | undefined
+ *
+ * type FooBar_C = UnionValue<Foo | Bar, "c">;
+ * // => string | undefined
+ * ```
+ */
+export type UnionValue<T, K extends UnionKey<T>> = T extends T
+  ? K extends keyof T
+    ? T[K]
+    : undefined
   : never;
 
 /**
- * Merge the keys of a union or intersection of objects into a single type.
+ * Merge a union or intersection of objects into a single type.
  *
  * @example
  * ```ts
@@ -54,19 +129,10 @@ type UnionToIntersection<T> = (T extends any ? (x: T) => any : never) extends (
  * // }
  * ```
  */
-export type MergeKeys<T> = UnionToIntersection<T> extends infer I
-  ? {
-      [K in keyof I]: K extends keyof T ? T[K] : I[K];
-    }
-  : never;
-
-export type AnyObject = Record<PropertyKey, any>;
-
-export type AnyFunction = (...args: any) => any;
-
-/**
- * Get a union of all property keys on `T` that are functions
- */
-export type FunctionKey<T> = keyof {
-  [K in keyof T as T[K] extends AnyFunction ? K : never]: K;
-};
+export type Merge<T> = Eval<
+  {
+    [K in RequiredUnionKey<T>]: UnionValue<T, K>;
+  } & {
+    [K in OptionalUnionKey<T>]?: UnionValue<T, K>;
+  }
+>;

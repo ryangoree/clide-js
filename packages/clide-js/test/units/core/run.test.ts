@@ -526,22 +526,19 @@ describe('run', () => {
           },
         };
 
-        // Expect the command to throw the original error without the plugin
-        expect(
-          run({
-            command: 'foo',
-            commandsDir: 'commands',
-          }),
-        ).rejects.toThrowError(originalError);
+        const withoutPlugin = (await run({
+          command: 'foo',
+          commandsDir: 'commands',
+        }).catch((e) => e)) as ClideError;
 
-        // Expect the command to throw the plugin error with the plugin
-        expect(
-          run({
-            command: 'foo',
-            commandsDir: 'commands',
-            plugins: [plugin],
-          }),
-        ).rejects.toThrowError(pluginError);
+        const withPlugin = (await run({
+          command: 'foo',
+          commandsDir: 'commands',
+          plugins: [plugin],
+        }).catch((e) => e)) as ClideError;
+
+        expect(withoutPlugin.message).toBe(originalError.message);
+        expect(withPlugin.message).toBe(pluginError.message);
       });
 
       it('can ignore the error', async () => {

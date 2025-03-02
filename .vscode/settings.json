@@ -1,5 +1,13 @@
 {
-  "cSpell.words": ["cfonts", "cliui", "divs", "signale", "unmock"],
+  "cSpell.words": [
+    "cfonts",
+    "cliui",
+    "divs",
+    "narg",
+    "nargs",
+    "signale",
+    "unmock"
+  ],
   "editor.defaultFormatter": "biomejs.biome",
   "[json]": {
     "editor.defaultFormatter": "biomejs.biome"

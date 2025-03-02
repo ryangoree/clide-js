@@ -161,7 +161,7 @@ export class State<
     let nextCommand = this.commands[nextIndex] as ResolvedCommand | undefined;
 
     await this.context.hooks.call('beforeNext', {
-      state: this as any,
+      state: this,
       data,
       setData: (data) => {
         _data = data;
@@ -176,7 +176,7 @@ export class State<
       // If there is a next command, increment the step index and call the
       // command handler.
       await this.applyState({
-        data: _data as any,
+        data: _data,
         i: nextIndex,
         // Merge params from previous steps with params from the next command.
         params: {
@@ -196,7 +196,7 @@ export class State<
     } else {
       // If there is no next command, end the steps.
       await this.applyState({
-        data: _data as any,
+        data: _data,
       });
 
       // Resolve the promise to return the data to callers of `start()`.
@@ -213,10 +213,10 @@ export class State<
     // endOptions: EndOptions = {},
   ): Promise<void> => {
     this.actionCallCount++;
-    let _data = data as any;
+    let _data = data;
 
     await this.context.hooks.call('beforeEnd', {
-      state: this as any,
+      state: this,
       data,
       setData: (data) => {
         _data = data;
@@ -256,21 +256,21 @@ export class State<
    * Fork the state and execute a new set of commands with the same context.
    * @returns The data from the last command.
    */
-  readonly fork = async <TCommand extends CommandModule<any, any>>({
+  readonly fork = async <TCommand extends CommandModule>({
     commands,
     initialData = this.data,
     optionValues,
     paramValues,
   }: {
     commands: (TCommand | ResolvedCommand)[];
-    initialData?: any;
+    initialData?: unknown;
     optionValues?: OptionValues<
       Required<TCommand>['options'] extends OptionsConfig
         ? Required<TCommand>['options']
         : OptionsConfig
     >;
     // TODO: strict type for paramValues
-    paramValues?: Record<string, any>;
+    paramValues?: Params;
   }) => {
     const resolvedCommands: ResolvedCommand[] = [];
     const resolvedCommandsOptions: OptionsConfig = {};
@@ -325,7 +325,7 @@ export class State<
 
     // pre hook
     await this.context.hooks.call('beforeStateChange', {
-      state: this as any,
+      state: this,
       changes: _changes,
       setChanges: (changes: Partial<NextState>) => {
         _changes = changes;
@@ -347,7 +347,7 @@ export class State<
       this._i = _changes.i;
     }
     if (_changes.params !== undefined) {
-      this._params = _changes.params as any;
+      this._params = _changes.params;
     }
     if (_changes.options !== undefined) {
       Object.assign(this._options.values, _changes.options);
@@ -355,12 +355,12 @@ export class State<
 
     // Data can be undefined, so we simply check if the key exists.
     if ('data' in _changes) {
-      this._data = _changes.data as any;
+      this._data = _changes.data as TData;
     }
 
     // post hook
     await this.context.hooks.call('afterStateChange', {
-      state: this as any,
+      state: this,
       changes: _changes,
     });
   }

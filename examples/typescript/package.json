@@ -6,9 +6,7 @@
   "license": "MIT",
   "bin": "dist/cli.js",
   "type": "module",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "dev": "NODE_ENV=development tsx src/cli.ts",
     "prod": "node dist/cli.js",
@@ -19,9 +17,9 @@
     "clide-plugin-command-menu": "*"
   },
   "devDependencies": {
-    "@tsconfig/node-lts": "^18.12.5",
-    "rimraf": "^5.0.5",
-    "tsx": "^4.19.1",
-    "typescript": "^5.2.2"
+    "@tsconfig/node-lts": "^22.0.1",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
   }
 }

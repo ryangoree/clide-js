@@ -1,5 +1,5 @@
 import type { CamelCase } from 'src/utils/camel-case';
-import type { MaybePromise, MergeKeys, Prettify } from 'src/utils/types';
+import type { Eval, MaybePromise, Merge } from 'src/utils/types';
 import parse from 'yargs-parser';
 import type { OptionPrimitiveType, OptionsConfig } from './options/option';
 import type { OptionAlias } from './options/options-getter';
@@ -15,17 +15,15 @@ export type Tokens = string[];
  * @group Parse
  */
 export type OptionValues<TOptions extends OptionsConfig = OptionsConfig> =
-  MergeKeys<TOptions> extends infer TMerged extends OptionsConfig
-    ? Prettify<
-        {
-          [K in keyof TMerged as
-            | K
-            | OptionAlias<TMerged[K]>
-            | CamelCase<K | OptionAlias<TMerged[K]>>]?: OptionPrimitiveType<
-            TMerged[K]['type']
-          >;
-        } & Record<string, OptionPrimitiveType | undefined>
-      >
+  Merge<TOptions> extends infer TMerged extends OptionsConfig
+    ? Eval<{
+        [K in keyof TMerged as
+          | K
+          | OptionAlias<TMerged[K]>
+          | CamelCase<K | OptionAlias<TMerged[K]>>]?: OptionPrimitiveType<
+          TMerged[K]['type']
+        >;
+      }>
     : Record<string, OptionPrimitiveType | undefined>;
 
 /**
@@ -62,7 +60,14 @@ export function parseCommand(
   optionsConfig: OptionsConfig,
 ): ParsedCommand {
   // Prepare the options config for yargs-parser
-  const parseOptions: parse.Options = {
+  const parseOptions: {
+    alias: Record<string, string[]>;
+    array: string[];
+    boolean: string[];
+    number: string[];
+    string: string[];
+    narg: Record<string, number>;
+  } = {
     alias: {},
     array: [],
     boolean: [],
@@ -73,28 +78,28 @@ export function parseCommand(
 
   for (const [key, option] of Object.entries(optionsConfig)) {
     if (option.alias) {
-      parseOptions.alias![key] = option.alias as string[];
+      parseOptions.alias[key] = option.alias as string[];
     }
 
     if (option.nargs) {
-      parseOptions.narg![key] = option.nargs;
+      parseOptions.narg[key] = option.nargs;
     }
 
     switch (option.type) {
       case 'array':
-        parseOptions.array?.push(key as any);
+        parseOptions.array.push(key);
         if (option.string) {
-          parseOptions.string?.push(key as any);
+          parseOptions.string.push(key);
         }
         break;
       case 'boolean':
-        parseOptions.boolean?.push(key as any);
+        parseOptions.boolean.push(key);
         break;
       case 'number':
-        parseOptions.number?.push(key as any);
+        parseOptions.number.push(key);
         break;
       default:
-        parseOptions.string?.push(key as any);
+        parseOptions.string.push(key);
         break;
     }
   }
