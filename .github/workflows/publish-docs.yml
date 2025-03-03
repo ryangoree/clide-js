@@ -32,7 +32,7 @@ jobs:
       - name: setup node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           cache: 'yarn'
 
       - name: install Yarn
