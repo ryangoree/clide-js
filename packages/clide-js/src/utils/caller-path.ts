@@ -57,8 +57,8 @@ export function getCallerPath(): string | undefined {
   // If the stack is a string, we're in a non-v8 environment and need to parse
   // the stack string to get the file path.
   // https://regex101.com/r/yyMI5W/1
-  const callerLine = target.stack.split('\n')[callerIndex].trim();
-  const callerFile = callerLine.match(/(file|\/)[^\s]+?(?=(:\d|\)))/)?.[0];
+  const callerLine = target.stack.split('\n')[callerIndex]?.trim();
+  const callerFile = callerLine?.match(/(file|\/)[^\s]+?(?=(:\d|\)))/)?.[0];
 
   if (!callerFile) return undefined;
 

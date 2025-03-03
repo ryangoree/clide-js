@@ -65,7 +65,10 @@ export async function resolveCommand({
 }: ResolveCommandOptions): Promise<ResolvedCommand> {
   if (!commandString.length) throw new UsageError('Command required.');
 
-  const [commandName, ...remainingTokens] = commandString.split(' ');
+  const [commandName, ...remainingTokens] = commandString.split(' ') as [
+    string,
+    ...string[],
+  ];
 
   // Check if the first token is an option.
   if (commandName.startsWith('-')) {
@@ -153,8 +156,10 @@ async function resolveParamCommand({
   commandsDir,
   parseFn = parseCommand,
 }: ResolveCommandOptions): Promise<ResolvedCommand | undefined> {
+  if (!commandString.length) throw new UsageError('Command required.');
+
   const fileNames = await fs.promises.readdir(commandsDir);
-  let tokens = commandString.split(' ');
+  let tokens = commandString.split(' ') as [string, ...string[]];
   let resolved: ResolvedCommand | undefined;
 
   // optimization opportunities:
@@ -189,7 +194,7 @@ async function resolveParamCommand({
       // Parse the command string to separate the tokens from the options.
       if (command.options) {
         const parsedString = await parseFn(commandString, command.options);
-        tokens = parsedString.tokens;
+        tokens = parsedString.tokens as [string, ...string[]];
       }
 
       // If the param has a spread operator (e.g., [...param].ts), then pass
@@ -274,7 +279,7 @@ export async function prepareResolvedCommand(
     } else {
       // Otherwise, remove the leading options.
       const indexOfNextCommand = resolved.remainingCommandString.indexOf(
-        tokens[0],
+        tokens[0]!,
       );
       resolved.remainingCommandString =
         resolved.remainingCommandString.slice(indexOfNextCommand);

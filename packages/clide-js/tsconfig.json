@@ -13,6 +13,7 @@
     "skipLibCheck": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "noUncheckedIndexedAccess": true,
     "baseUrl": ".",
     "rootDir": ".",
     "outDir": "dist",

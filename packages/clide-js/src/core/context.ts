@@ -1,7 +1,7 @@
 import {
-  parseCommand,
   type OptionValues,
   type ParseCommandFn,
+  parseCommand,
 } from 'src/core/parse';
 import { Client } from './client';
 import { ClideError, RequiredSubcommandError } from './errors';
@@ -9,9 +9,9 @@ import { HooksEmitter } from './hooks';
 import type { OptionsConfig } from './options/option';
 import type { Plugin, PluginInfo } from './plugin';
 import {
-  resolveCommand,
   type ResolveCommandFn,
   type ResolvedCommand,
+  resolveCommand,
 } from './resolve';
 import { State } from './state';
 
@@ -189,6 +189,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
       // 1. Initialize plugins
       for (const { name, init } of this._plugins) {
         const pluginInfo = this.plugins[name];
+        if (!pluginInfo) continue;
         pluginInfo.isReady = await init(this);
         Object.freeze(pluginInfo);
       }

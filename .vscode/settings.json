@@ -23,8 +23,5 @@
   },
   "[yaml]": {
     "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[markdown]": {
-    "editor.defaultFormatter": "biomejs.biome"
   }
 }

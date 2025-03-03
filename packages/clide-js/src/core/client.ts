@@ -1,25 +1,26 @@
-import prompts from 'prompts';
+import prompts, { type PromptType, type PromptObject } from 'prompts';
+import type { } from 'src/core/options/option';
 import { ClideError, ClientError } from './errors';
 
 /**
- * Variation of `prompts.PromptObject` with a few changes:
+ * A variation of {@linkcode PromptObject} with a few changes:
  * - name must be a string
  * - message is required
  * - separator is always ','
  *
- * @see https://github.com/terkelg/prompts#-prompt-objects
+ * @see [GitHub - terkelg/prompts - Prompt Objects](https://github.com/terkelg/prompts#-prompt-objects)
  * @group Client
  */
 // TODO: replace with own type?
-export type PromptOptions = Omit<
-  prompts.PromptObject,
+export type PromptOptions<T extends PromptType = PromptType> = Omit<
+  PromptObject,
   'name' | 'message' | 'separator' | 'type'
 > & {
   // make the message property required since prompts throws an error if it's
   // not defined.
   message: NonNullable<prompts.PromptObject['message']>;
   // make the type property optional since we'll default to 'text'
-  type?: prompts.PromptObject['type'];
+  type?: T;
 };
 
 /**
@@ -35,7 +36,7 @@ export class Client {
    * Log a message to stdout.
    * @param message - Any number of arguments to log.
    */
-  log(...message: any) {
+  log(...message: unknown[]) {
     console.log(...message);
   }
 
@@ -71,7 +72,9 @@ export class Client {
    *
    * @see https://github.com/terkelg/prompts#-prompt-objects
    */
-  async prompt(prompt: PromptOptions): Promise<any> {
+  async prompt<T extends PromptType = PromptType>(
+    prompt: PromptOptions<T>,
+  ): Promise<PromptTypeMap[T]> {
     const { value } = await prompts({
       type: 'text',
       active: 'yes',
@@ -83,3 +86,25 @@ export class Client {
     return value;
   }
 }
+
+type PromptTypeMap = PromptTypeMapDef<{
+  text: string;
+  password: string;
+  invisible: string;
+  number: number;
+  confirm: boolean;
+  list: string[];
+  toggle: boolean;
+  select: string;
+  multiselect: string[];
+  autocomplete: string;
+  date: Date;
+  autocompleteMultiselect: string[];
+}>;
+
+/**
+ * Ensures the type map is up-to-date. If any types are missing, a type error
+ * will be thrown.
+ */
+type PromptTypeMapDef<T extends Record<PromptType, unknown>> = T;
+// & Record<string, unknown>;

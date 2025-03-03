@@ -48,7 +48,7 @@ export function findSimilar(
 
   for (const [i, score] of distances.entries()) {
     if (score <= threshold) {
-      similar.push(choices[i]);
+      similar.push(choices[i]!);
       if (similar.length >= maxResults) {
         break;
       }

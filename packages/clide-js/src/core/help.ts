@@ -1,7 +1,7 @@
-import initCliui from 'cliui';
 import fs from 'node:fs';
+import initCliui from 'cliui';
 import { getBin } from 'src/utils/argv';
-import { convert, type Converted } from 'src/utils/convert';
+import { type Converted, convert } from 'src/utils/convert';
 import { isDirectory } from 'src/utils/fs';
 import { parseFileName } from 'src/utils/parse-file-name';
 import { removeFileExtension } from 'src/utils/remove-file-extension';
@@ -115,9 +115,8 @@ export async function getHelp({
   const allOptions: OptionsConfig = { ...context.options };
 
   // Get the last resolved command
-  const finalResolved = context.resolvedCommands[
-    context.resolvedCommands.length - 1
-  ] as ResolvedCommand | undefined;
+  const finalResolved =
+    context.resolvedCommands[context.resolvedCommands.length - 1];
 
   // Build up the usage string based on the resolved commands
   for (const resolved of context.resolvedCommands) {

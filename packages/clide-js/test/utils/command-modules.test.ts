@@ -21,7 +21,7 @@ const modules = {
 
 describe('mockCommandModule', () => {
   it('Mocks and unmocks single command modules', async () => {
-    const [path] = Object.entries(modules)[0];
+    const [path] = Object.entries(modules)[0]!;
 
     const { mock, unmock } = mockCommandModule(path);
     expect(mock).toMatchObject({
@@ -39,7 +39,7 @@ describe('mockCommandModule', () => {
   });
 
   it('Uses the provided module', async () => {
-    const [path, module] = Object.entries(modules)[0];
+    const [path, module] = Object.entries(modules)[0]!;
 
     const { mock } = mockCommandModule(path, {
       handler: module.handler,

@@ -210,7 +210,7 @@ export function createOptionGetter<
         }
       }
 
-      value = await client.prompt(promptOptions);
+      value = (await client.prompt(promptOptions)) as TValue;
       if (didCancel) {
         onPromptCancel?.();
       }

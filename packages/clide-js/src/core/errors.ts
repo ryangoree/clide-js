@@ -1,13 +1,44 @@
-interface ClideErrorOptions {
-  cause?: unknown;
+export interface ClideErrorOptions extends ErrorOptions {
+  /**
+   * A custom prefix to use in place of {@linkcode DriftError.prefix}.
+   */
+  prefix?: string;
+
+  /**
+   * A custom name to use in place of {@linkcode DriftError.name}.
+   */
+  name?: string;
 }
 
 /**
  * An error thrown by the CLI engine.
+ *
+ * This error is designed to ensure clean stack trace formatting even when
+ * minified and can be extended to create other error types with the same
+ * behavior.
+ *
+ * @example
+ * ```ts
+ * class FooCliError extends ClideError {
+ *   constructor(message: string, options?: ErrorOptions) {
+ *     super(message, {
+ *       ...options,
+ *       prefix: "🚨 ",
+ *       name: "Foo CLI Error",
+ *     });
+ *   }
+ * }
+ *
+ * throw new FooCliError("Something went wrong");
+ * // 🚨 Foo CLI Error: Something went wrong
+ * //     at ...
+ * ```
+ *
  * @group Errors
  */
 export class ClideError extends Error {
   static prefix = '✖ ';
+  static name = 'CLI Error' as const;
 
   constructor(error: any, options?: ClideErrorOptions) {
     // Coerce the error to a string, or throw the original error if unable.
@@ -19,7 +50,7 @@ export class ClideError extends Error {
     }
 
     super(message);
-    this.name = 'CLI Error';
+    this.name = options?.name ?? ClideError.name;
 
     // Minification can mangle the stack traces of custom errors by obfuscating
     // the class name and including large chunks of minified code in the output.
@@ -43,28 +74,38 @@ export class ClideError extends Error {
       customName = error.constructor.name;
     }
 
-    // Doing this in constructor prevents the need to add custom properties to
-    // the prototype, which would be displayed in the stack trace. The getter
+    // Doing this in the constructor prevents the need to add custom properties
+    // to the prototype, which would be displayed in the stack trace. The getter
     // ensures the name and message are up-to-date when accessed (e.g., after
     // subclassing and changing the name).
     Object.defineProperty(this, 'stack', {
       get(): string {
-        let stack = `${ClideError.prefix}${this.name}`;
+        let stack = `${options?.prefix ?? ClideError.prefix}${this.name}`;
 
         if (customName) {
           stack += ` [${customName}]`;
         }
 
         if (this.message) {
-          stack += `: ${this.message}`;
+          stack += `: ${this.message.replaceAll('\n', '\n  ')}`;
         }
 
         if (stackTarget.stack) {
-          stack += `\n${stackTarget.stack.replace(/^.*\n/, '')}`;
+          const stackLines = stackTarget.stack
+            .replace(this.message, '')
+            .split('\n')
+            .slice(1)
+            .join('\n');
+          if (stackLines) {
+            stack += `\n${stackLines}`;
+          }
         }
 
         if (cause) {
-          stack += `\n  Caused by: ${cause.stack || cause}`;
+          stack += `\nCaused by: ${cause.stack || cause}`.replaceAll(
+            '\n',
+            '\n  ',
+          );
         }
 
         return stack.trim();
