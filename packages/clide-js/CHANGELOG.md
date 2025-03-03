@@ -1,5 +1,12 @@
 # clide-js
 
+## 0.2.5
+
+### Patch Changes
+
+- 02e2b65: Fixed prompt types by adding missing `@types/prompts` dependency.
+- 02e2b65: General types and error formatting polish
+
 ## 0.2.4
 
 ### Patch Changes
