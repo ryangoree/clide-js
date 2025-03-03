@@ -21,13 +21,13 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@types/prompts": "^2.4.9",
     "cliui": "^8.0.1",
     "prompts": "^2.4.2",
     "yargs-parser": "^21.1.1"
   },
   "devDependencies": {
     "@types/node": "^22.13.8",
-    "@types/prompts": "^2.4.9",
     "@types/signale": "^1.4.7",
     "@types/yargs-parser": "^21.0.3",
     "@vitest/coverage-v8": "^3.0.7",
