@@ -28,4 +28,3 @@ export * from './utils/format-file-name';
 export * from './utils/fs';
 export * from './utils/parse-file-name';
 export * from './utils/remove-file-extension';
-

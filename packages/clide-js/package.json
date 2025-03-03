@@ -32,7 +32,6 @@
     "@types/yargs-parser": "^21.0.3",
     "@vitest/coverage-v8": "^3.0.7",
     "dotenv": "^16.4.7",
-    "tsconfig": "*",
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.4.0",
     "tsx": "^4.19.3",
