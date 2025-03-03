@@ -1,11 +1,11 @@
 export interface ClideErrorOptions extends ErrorOptions {
   /**
-   * A custom prefix to use in place of {@linkcode DriftError.prefix}.
+   * A custom prefix to use in place of {@linkcode ClideError.prefix}.
    */
   prefix?: string;
 
   /**
-   * A custom name to use in place of {@linkcode DriftError.name}.
+   * A custom name to use in place of {@linkcode ClideError.name}.
    */
   name?: string;
 }
