@@ -45,13 +45,13 @@ jobs:
         run: yarn workspace clide-js build:docs
 
       - name: setup pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
 
       - name: upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: './packages/clide-js/docs'
 
       - name: deploy to github pages
         id: deployment
-        uses: actions/deploy-pages@v3
+        uses: actions/deploy-pages@v4
