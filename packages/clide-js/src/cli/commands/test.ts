@@ -4,7 +4,7 @@ export default command({
   description: 'Get a greeting',
   handler: async ({ client }) => {
     const foo = await client.prompt({
-      type: 'invisible',
+      type: 'text',
       message: 'Enter a value',
     });
     console.log({

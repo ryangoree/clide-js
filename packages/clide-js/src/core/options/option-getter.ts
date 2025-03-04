@@ -115,7 +115,7 @@ export function createOptionGetter<
     }
 
     // Prompt for the option value if not provided and a prompt is provided
-    if (value === undefined && prompt) {
+    if (value === undefined && (prompt || config?.required)) {
       let didCancel = false;
       const promptOptions: PromptOptions = {
         type,
@@ -133,8 +133,11 @@ export function createOptionGetter<
               return validateFn?.(preppedValue as TValue);
             }
           : undefined,
+
         // options passed to the getter take precedence over the config
-        ...(typeof prompt === 'string' ? { message: prompt } : prompt),
+        ...(typeof prompt === 'string'
+          ? { message: prompt }
+          : prompt || { message: `Enter ${name}` }),
 
         onState: (state) => {
           if (state.aborted || state.exited) {
