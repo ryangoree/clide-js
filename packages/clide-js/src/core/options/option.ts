@@ -1,3 +1,5 @@
+import type { MaybeReadonly } from 'src/utils/types';
+
 /**
  * The possible types for an option.
  * @group Options
@@ -51,12 +53,12 @@ export type OptionPrimitiveType<T extends OptionType = OptionType> =
  * be parsed and validated.
  * @group Options
  */
-export type OptionConfig<
+export interface OptionConfig<
   T extends OptionType = OptionType,
   TAlias extends string = string,
-> = {
+> {
   /** One or more aliases for the option (optional). */
-  alias?: Readonly<TAlias[]>;
+  alias?: MaybeReadonly<TAlias[]>;
   /** The type of the option. */
   type: T;
   /**
@@ -78,16 +80,16 @@ export type OptionConfig<
    * The default value to use. This will be the initial value that the getter
    * prompt will show (optional).
    */
-  default?: Readonly<OptionPrimitiveType<T>>;
+  default?: MaybeReadonly<OptionPrimitiveType<T>>;
   /**
    * Whether the option is required. If `true`, the getter will throw an error
    * if no value is provided (optional).
    */
   required?: boolean;
   /** Other options that are required for this option to be used (optional). */
-  requires?: Readonly<string[]>;
+  requires?: MaybeReadonly<string[]>;
   /** Other options that are mutually exclusive with this option (optional). */
-  conflicts?: Readonly<string[]>;
+  conflicts?: MaybeReadonly<string[]>;
 
   /** The autocomplete function (optional). */
   // TODO: Not implemented yet
@@ -95,7 +97,7 @@ export type OptionConfig<
   // autoComplete?: [
   //   // potential values, engine will manage matching
   // ]
-};
+}
 
 /**
  * The options config for a command.
