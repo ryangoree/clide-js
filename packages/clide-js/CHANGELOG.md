@@ -1,5 +1,11 @@
 # clide-js
 
+## 0.2.10
+
+### Patch Changes
+
+- 022525d: Patched prompting for custom option types
+
 ## 0.2.9
 
 ### Patch Changes
