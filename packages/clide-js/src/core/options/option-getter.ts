@@ -98,9 +98,6 @@ export function createOptionGetter<
 
       // Determine prompt type based on option type
       switch (config?.type) {
-        case 'string':
-          type = config?.choices?.length ? 'select' : 'text';
-          break;
         case 'number':
           type = 'number';
           break;
@@ -114,7 +111,7 @@ export function createOptionGetter<
           type = 'password';
           break;
         default:
-          type = 'text';
+          type = config?.choices?.length ? 'select' : 'text';
           break;
       }
 
