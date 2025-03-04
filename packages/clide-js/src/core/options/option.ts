@@ -54,7 +54,6 @@ export type OptionPrimitiveType<T extends OptionType = OptionType> =
 export type OptionConfig<
   T extends OptionType = OptionType,
   TAlias extends string = string,
-  TChoices extends string = string,
 > = {
   /** One or more aliases for the option (optional). */
   alias?: Readonly<TAlias[]>;
@@ -65,8 +64,7 @@ export type OptionConfig<
    * will validate the value against the choices and, unless otherwise
    * specified, will use the choices when prompting.
    */
-  // choices?: Readonly<TChoices>;
-  choices?: TChoices[];
+  choices?: string[];
   /**
    * Whether the option is a string (optional, inferred from `type`). Useful
    * for array options to specify the type of the array values.
