@@ -295,6 +295,10 @@ function optionRows({ options, maxWidth = 40 }: OptionRowsOptions): {
 
       let description = option.description || '';
 
+      if (option.choices) {
+        description += ` (choices: ${option.choices.join(', ')})`;
+      }
+
       if (option.default) {
         if (option.type === 'secret') {
           description += ' (default: *****)';

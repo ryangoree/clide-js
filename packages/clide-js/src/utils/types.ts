@@ -20,7 +20,7 @@ export type Nothing = undefined | null;
  * @example
  * ```ts
  * type Intersection = { a: number } & { b: string };
- * type Prettified = Prettify<Intersection>;
+ * type Prettified = Eval<Intersection>;
  * // { a: number; b: string }
  * ```
  */

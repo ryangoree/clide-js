@@ -88,15 +88,14 @@ export function createOptionGetter<
     // Use the default validate function if the option is required and no
     // validate function is provided
     if (config?.required && !validateFn) {
-      validateFn = (value) => defaultValidate(value, config.type);
+      validateFn = (value) =>
+        defaultValidate(value, config.type, config.choices);
     }
 
     // Prompt for the option value if not provided and a prompt is provided
     if (value === undefined && (prompt || config?.required)) {
       let type: PromptOptions['type'];
 
-      // TODO: Add support for other prompt types like select, multiselect, etc.
-      // which will map to the appropriate option type
       // Determine prompt type based on option type
       switch (config?.type) {
         case 'string':
@@ -245,7 +244,9 @@ export function createOptionGetter<
     if (validateFn) {
       const valid = await validateFn(value);
       if (!valid) {
-        throw new OptionsError(`Invalid value for option "${name}": ${value}`);
+        throw new OptionsError(
+          `Invalid value for option "${name}": ${value}${config?.choices ? ` (choices: ${config.choices.join(', ')})` : ''}`,
+        );
       }
     }
 
@@ -297,11 +298,15 @@ interface OptionGetterOptions<T> {
  * be used during prompting and before returning the value.
  * @group Options
  */
-function defaultValidate(value: unknown, optionType?: OptionType) {
+function defaultValidate(
+  value: unknown,
+  optionType?: OptionType,
+  choices = [value],
+) {
   switch (optionType) {
     // Ensure numbers are numbers
     case 'number':
-      return typeof value === 'number';
+      return typeof value === 'number' && !Number.isNaN(value);
 
     // Ensure booleans are booleans
     case 'boolean':
@@ -313,9 +318,15 @@ function defaultValidate(value: unknown, optionType?: OptionType) {
       if (typeof _value === 'string') {
         _value = _value.split(',');
       }
-      return Array.isArray(_value) && _value.length > 0;
+      return (
+        Array.isArray(_value) &&
+        _value.length > 0 &&
+        _value.every((v) => choices.includes(v))
+      );
     }
     default:
-      return typeof value === 'string' && value.length > 0;
+      return (
+        typeof value === 'string' && value.length > 0 && choices.includes(value)
+      );
   }
 }
