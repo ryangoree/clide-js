@@ -1,5 +1,11 @@
 # clide-js
 
+## 0.2.9
+
+### Patch Changes
+
+- cfaf39a: Patched `OptionType` to include custom options added via `OptionPrimitiveTypeMap` declaration merging.
+
 ## 0.2.8
 
 ### Patch Changes
