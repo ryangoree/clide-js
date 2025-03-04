@@ -1,5 +1,12 @@
 # clide-js
 
+## 0.2.6
+
+### Patch Changes
+
+- a6212d1: Added a `choices` field to option configs which will default to a `"select"` prompt when triggered.
+- d7536ba: Added a default prompt for missing required options as explained in the README. Previously, the prompt would only show if explicitly provided in the getter options.
+
 ## 0.2.5
 
 ### Patch Changes
