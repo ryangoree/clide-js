@@ -124,19 +124,27 @@ export async function run({
 }: RunOptions = {}) {
   // attempt to find commands directory
   if (!commandsDir) {
+    // keep track of paths that were tried for the error message
+    const triedPaths: string[] = [];
+
     // default to "<cwd>/commands"
     const defaultCommandsDirName = 'commands';
     let defaultCommandsDir = path.resolve(defaultCommandsDirName);
 
     // if "<cwd>/commands" doesn't exist, try "<caller-dir>/commands"
     if (!isDirectory(defaultCommandsDir)) {
+      triedPaths.push(path.resolve(defaultCommandsDir));
       const callerDirPath = path.dirname(getCallerPath() || '');
       defaultCommandsDir = path.join(callerDirPath, defaultCommandsDirName);
     }
 
     // if neither "<cwd>/commands" nor "<caller-dir>/commands" exist, throw
     if (!isDirectory(defaultCommandsDir)) {
-      throw new ClideError('Unable to find commands directory');
+      throw new ClideError(`Unable to find commands directory
+  Tried:
+    - ${triedPaths.join('\n    - ')}  
+    - ${path.resolve(defaultCommandsDir)}
+  `);
     }
 
     commandsDir = defaultCommandsDir;
