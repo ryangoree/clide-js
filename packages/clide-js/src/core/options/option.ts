@@ -1,18 +1,6 @@
 import type { MaybeReadonly } from 'src/utils/types';
 
 /**
- * The possible types for an option.
- * @group Options
- */
-export type OptionType = 'string' | 'secret' | 'number' | 'boolean' | 'array';
-
-/**
- * Ensures a type map is up-to-date. If any types are missing, a type error
- * will be thrown.
- */
-type OptionTypeMapDef<T extends Record<OptionType, unknown>> = T;
-
-/**
  * The primitive types for each option type.
  *
  * This is used to map each option type to its corresponding primitive type.
@@ -33,13 +21,19 @@ type OptionTypeMapDef<T extends Record<OptionType, unknown>> = T;
  * @group Options
  */
 export interface OptionPrimitiveTypeMap extends _OptionPrimitiveTypeMap {}
-type _OptionPrimitiveTypeMap = OptionTypeMapDef<{
+type _OptionPrimitiveTypeMap = {
   string: string;
   secret: string;
   number: number;
   boolean: boolean;
   array: string[];
-}>;
+};
+
+/**
+ * The possible types for an option.
+ * @group Options
+ */
+export type OptionType = keyof OptionPrimitiveTypeMap;
 
 /**
  * Get the primitive type for an option type.
