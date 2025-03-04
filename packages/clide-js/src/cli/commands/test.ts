@@ -1,8 +1,6 @@
 import { command } from 'src/core/command';
 
 export default command({
-  description: 'Get a greeting',
-
   options: {
     i: {
       alias: ['input'],
@@ -11,7 +9,6 @@ export default command({
       required: true,
     },
   },
-
   handler: async ({ options }) => {
     const input = await options.input();
     console.log('input:', input);

@@ -109,6 +109,7 @@ export function parseCommand(
     ...parseOptions,
     configuration: {
       'unknown-options-as-args': true,
+      'parse-numbers': false,
     },
   });
 
