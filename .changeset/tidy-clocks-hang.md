@@ -2,4 +2,4 @@
 "clide-js": patch
 ---
 
-Patch prompting for custom option types
+Patched prompting for custom option types
