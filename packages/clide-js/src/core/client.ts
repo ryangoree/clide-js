@@ -107,4 +107,3 @@ type PromptTypeMap = PromptTypeMapDef<{
  * will be thrown.
  */
 type PromptTypeMapDef<T extends Record<PromptType, unknown>> = T;
-// & Record<string, unknown>;

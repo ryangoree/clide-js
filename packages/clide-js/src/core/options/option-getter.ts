@@ -83,29 +83,6 @@ export function createOptionGetter<
       return cachedValue;
     }
 
-    let type: PromptOptions['type'];
-
-    // TODO: Add support for other prompt types like select, multiselect, etc.
-    // which will map to the appropriate option type
-    // Determine prompt type based on option type
-    switch (config?.type) {
-      case 'number':
-        type = 'number';
-        break;
-      case 'boolean':
-        type = 'toggle';
-        break;
-      case 'array':
-        type = 'list';
-        break;
-      case 'secret':
-        type = 'password';
-        break;
-      default:
-        type = 'text';
-        break;
-    }
-
     let validateFn = validate;
 
     // Use the default validate function if the option is required and no
@@ -116,9 +93,39 @@ export function createOptionGetter<
 
     // Prompt for the option value if not provided and a prompt is provided
     if (value === undefined && (prompt || config?.required)) {
+      let type: PromptOptions['type'];
+
+      // TODO: Add support for other prompt types like select, multiselect, etc.
+      // which will map to the appropriate option type
+      // Determine prompt type based on option type
+      switch (config?.type) {
+        case 'string':
+          type = config?.choices?.length ? 'select' : 'text';
+          break;
+        case 'number':
+          type = 'number';
+          break;
+        case 'boolean':
+          type = 'toggle';
+          break;
+        case 'array':
+          type = config?.choices?.length ? 'multiselect' : 'list';
+          break;
+        case 'secret':
+          type = 'password';
+          break;
+        default:
+          type = 'text';
+          break;
+      }
+
       let didCancel = false;
       const promptOptions: PromptOptions = {
         type,
+        choices: config?.choices?.map((choice) => ({
+          title: choice,
+          value: choice,
+        })),
         validate: validateFn
           ? (_value) => {
               // prompts won't always pass the initial value to the validate

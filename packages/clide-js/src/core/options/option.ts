@@ -1,76 +1,16 @@
-import type { MaybeReadonly } from 'src/utils/types';
+import type { DeepValue } from 'src/utils/types';
 
 /**
- * Factory function to create an OptionConfig object with strong typing.
- *
- * @typeParam T - The option type (e.g., 'string', 'number').
- * @typeParam TAlias - The alias names for the option.
- *
- * @param config - The config for the option.
- *
- * @returns A constructed {@linkcode `OptionConfig`} object with strong types.
+ * The possible types for an option.
  * @group Options
  */
-export function option<
-  T extends OptionType = OptionType,
-  TAlias extends string = string,
->(config: OptionConfig<T, TAlias>) {
-  return config;
-}
+export type OptionType = 'string' | 'secret' | 'number' | 'boolean' | 'array';
 
 /**
- * The configuration interface for an option used to define how an option will
- * be parsed and validated.
- * @group Options
+ * Ensures a type map is up-to-date. If any types are missing, a type error
+ * will be thrown.
  */
-export interface OptionConfig<
-  T extends OptionType = OptionType,
-  TAlias extends string = string,
-> {
-  /** One or more aliases for the option (optional). */
-  alias?: MaybeReadonly<TAlias[]>;
-  /** The type of the option. */
-  type: T;
-  /**
-   * Whether the option is a string (optional, inferred from `type`). Useful
-   * for array options to specify the type of the array values.
-   */
-  string?: boolean;
-  /** The number of arguments the option accepts (optional). */
-  nargs?: number;
-  /** The description of the option (optional, has default based on `name`). */
-  description?: string;
-  /**
-   * The default value to use. This will be the initial value that the getter
-   * prompt will show (optional).
-   */
-  default?: MaybeReadonly<OptionPrimitiveType<T>>;
-  /**
-   * Whether the option is required. If `true`, the getter will throw an error
-   * if no value is provided (optional).
-   */
-  required?: boolean;
-  /** Other options that are required for this option to be used (optional). */
-  requires?: MaybeReadonly<string[]>;
-  /** Other options that are mutually exclusive with this option (optional). */
-  conflicts?: MaybeReadonly<string[]>;
-
-  /** The autocomplete function (optional). */
-  // TODO: Not implemented yet
-  // autoComplete?: (input: string) => MaybePromise<string[]>;
-  // autoComplete?: [
-  //   // potential values, engine will manage matching
-  // ]
-}
-
-/**
- * The options config for a command.
- * @group Options
- */
-export type OptionsConfig<
-  TKey extends string = string,
-  TType extends OptionType = OptionType,
-> = Record<TKey, OptionConfig<TType, TKey>>;
+type OptionTypeMapDef<T extends Record<OptionType, unknown>> = T;
 
 /**
  * The primitive types for each option type.
@@ -92,19 +32,14 @@ export type OptionsConfig<
  *
  * @group Options
  */
-export interface OptionPrimitiveTypeMap {
+export interface OptionPrimitiveTypeMap extends _OptionPrimitiveTypeMap {}
+type _OptionPrimitiveTypeMap = OptionTypeMapDef<{
   string: string;
   secret: string;
   number: number;
   boolean: boolean;
   array: string[];
-}
-
-/**
- * The possible types for an option.
- * @group Options
- */
-export type OptionType = keyof OptionPrimitiveTypeMap;
+}>;
 
 /**
  * Get the primitive type for an option type.
@@ -112,3 +47,84 @@ export type OptionType = keyof OptionPrimitiveTypeMap;
  */
 export type OptionPrimitiveType<T extends OptionType = OptionType> =
   OptionPrimitiveTypeMap[T];
+
+type OptionChoicesType<T extends OptionType> = DeepValue<
+  OptionPrimitiveTypeMap[T]
+>[];
+
+/**
+ * The configuration interface for an option used to define how an option will
+ * be parsed and validated.
+ * @group Options
+ */
+export type OptionConfig<
+  T extends OptionType = OptionType,
+  TAlias extends string = string,
+  TChoices extends OptionChoicesType<T> = OptionChoicesType<T>,
+> = {
+  /** One or more aliases for the option (optional). */
+  alias?: Readonly<TAlias[]>;
+  /** The type of the option. */
+  type: T;
+  /**
+   * The valid choices for the option (optional). If provided, the getter
+   * will validate the value against the choices and, unless otherwise
+   * specified, will use the choices when prompting.
+   */
+  // choices?: Readonly<TChoices>;
+  choices?: TChoices;
+  /**
+   * Whether the option is a string (optional, inferred from `type`). Useful
+   * for array options to specify the type of the array values.
+   */
+  string?: boolean;
+  /** The number of arguments the option accepts (optional). */
+  nargs?: number;
+  /** The description of the option (optional, has default based on `name`). */
+  description?: string;
+  /**
+   * The default value to use. This will be the initial value that the getter
+   * prompt will show (optional).
+   */
+  default?: Readonly<OptionPrimitiveType<T>>;
+  /**
+   * Whether the option is required. If `true`, the getter will throw an error
+   * if no value is provided (optional).
+   */
+  required?: boolean;
+  /** Other options that are required for this option to be used (optional). */
+  requires?: Readonly<string[]>;
+  /** Other options that are mutually exclusive with this option (optional). */
+  conflicts?: Readonly<string[]>;
+
+  /** The autocomplete function (optional). */
+  // TODO: Not implemented yet
+  // autoComplete?: (input: string) => MaybePromise<string[]>;
+  // autoComplete?: [
+  //   // potential values, engine will manage matching
+  // ]
+};
+
+/**
+ * The options config for a command.
+ * @group Options
+ */
+export type OptionsConfig<
+  TKey extends string = string,
+  TType extends OptionType = OptionType,
+> = Record<TKey, OptionConfig<TType, TKey>>;
+
+/**
+ * Factory function to create an OptionConfig object with strong typing.
+ *
+ * @typeParam T - The option type (e.g., 'string', 'number').
+ * @typeParam TAlias - The alias names for the option.
+ *
+ * @param config - The config for the option.
+ *
+ * @returns A constructed {@linkcode `OptionConfig`} object with strong types.
+ * @group Options
+ */
+export function option<const T extends OptionConfig = OptionConfig>(config: T) {
+  return config;
+}
