@@ -1,5 +1,11 @@
 # clide-js
 
+## 0.2.11
+
+### Patch Changes
+
+- 48c37f3: Fixed parsing for hex strings
+
 ## 0.2.10
 
 ### Patch Changes
