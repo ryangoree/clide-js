@@ -1,5 +1,12 @@
 # clide-js
 
+## 0.2.8
+
+### Patch Changes
+
+- 500b0e7: Fixed parsing for quoted strings.
+- e200d9c: Added a `defaultCommand` option to `run` that will be run if no command is provided in `argv`.
+
 ## 0.2.7
 
 ### Patch Changes
