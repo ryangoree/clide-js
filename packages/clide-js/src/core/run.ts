@@ -2,6 +2,7 @@ import path from 'node:path';
 import { hideBin } from 'src/utils/argv';
 import { getCallerPath } from 'src/utils/caller-path';
 import { isDirectory } from 'src/utils/fs';
+import { joinTokens } from 'src/utils/tokens';
 import { Context } from './context';
 import { ClideError, ClientError } from './errors';
 import { type HookPayload, HooksEmitter } from './hooks';
@@ -151,14 +152,11 @@ export async function run({
   }
 
   // coerce command to string
-  let commandString = typeof command === 'string' ? command : command.join(' ');
+  let commandString = joinTokens(command);
 
   // use default command if no command is provided
   if (!commandString && defaultCommand) {
-    commandString =
-      typeof defaultCommand === 'string'
-        ? defaultCommand
-        : defaultCommand.join(' ');
+    commandString = joinTokens(defaultCommand);
   }
 
   // create hooks emitter

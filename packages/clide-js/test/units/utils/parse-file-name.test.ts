@@ -1,4 +1,4 @@
-import { parseFileName } from 'src/utils/parse-file-name';
+import { parseFileName } from 'src/utils/filename';
 import { describe, expect, it } from 'vitest';
 
 describe('parse-file-name', () => {

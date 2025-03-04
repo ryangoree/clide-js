@@ -1,4 +1,4 @@
-import { removeFileExtension } from 'src/utils/remove-file-extension';
+import { removeFileExtension } from 'src/utils/filename';
 import { describe, expect, it } from 'vitest';
 
 describe('remove-file-extension', () => {

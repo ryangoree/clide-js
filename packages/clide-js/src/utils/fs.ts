@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { removeFileExtension } from './remove-file-extension';
+import { removeFileExtension } from 'src/utils/filename';
 
 /**
  * Determine if a path is a directory without throwing an error

@@ -8,10 +8,13 @@ import {
   UsageError,
 } from 'src/core/errors';
 import { type ParseCommandFn, parseCommand } from 'src/core/parse';
-import { formatFileName } from 'src/utils/format-file-name';
+import {
+  formatFileName,
+  parseFileName,
+  removeFileExtension,
+} from 'src/utils/filename';
 import { isDirectory, isFile } from 'src/utils/fs';
-import { parseFileName } from 'src/utils/parse-file-name';
-import { removeFileExtension } from 'src/utils/remove-file-extension';
+import { joinTokens, splitTokens } from 'src/utils/tokens';
 import type { MaybePromise } from 'src/utils/types';
 
 /**
@@ -65,7 +68,7 @@ export async function resolveCommand({
 }: ResolveCommandOptions): Promise<ResolvedCommand> {
   if (!commandString.length) throw new UsageError('Command required.');
 
-  const [commandName, ...remainingTokens] = commandString.split(' ') as [
+  const [commandName, ...remainingTokens] = splitTokens(commandString) as [
     string,
     ...string[],
   ];
@@ -88,7 +91,7 @@ export async function resolveCommand({
   const subcommandsDir = path.join(commandsDir, commandName);
   const commandPath = formatFileName(subcommandsDir);
   const commandTokens = [commandName];
-  const remainingCommandString = remainingTokens.join(' ');
+  const remainingCommandString = joinTokens(remainingTokens);
 
   let resolved: ResolvedCommand | undefined;
 
@@ -159,7 +162,7 @@ async function resolveParamCommand({
   if (!commandString.length) throw new UsageError('Command required.');
 
   const fileNames = await fs.promises.readdir(commandsDir);
-  let tokens = commandString.split(' ') as [string, ...string[]];
+  let tokens = splitTokens(commandString) as [string, ...string[]];
   let resolved: ResolvedCommand | undefined;
 
   // optimization opportunities:
@@ -181,7 +184,7 @@ async function resolveParamCommand({
     // passed to the command.
     const remainingCommandString = spreadOperator
       ? ''
-      : remainingTokens.join(' ');
+      : joinTokens(remainingTokens);
 
     // Attempt to load the command file.
     try {

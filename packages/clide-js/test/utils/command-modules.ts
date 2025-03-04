@@ -3,7 +3,7 @@ import type { CommandModule } from 'src/core/command';
 import { NotFoundError } from 'src/core/errors';
 import { parseCommand } from 'src/core/parse';
 import type { State } from 'src/core/state';
-import { formatFileName } from 'src/utils/format-file-name';
+import { formatFileName } from 'src/utils/filename';
 import { type Mock, vi } from 'vitest';
 
 const mockCommandDirs = new Map<string, Set<string>>();

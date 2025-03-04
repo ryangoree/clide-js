@@ -1,4 +1,4 @@
-import { formatFileName } from 'src/utils/format-file-name';
+import { formatFileName } from 'src/utils/filename';
 import { describe, expect, it } from 'vitest';
 
 describe('format-file-name', () => {

@@ -1,3 +1,24 @@
+/**
+ * Removes the file extension from a string and treats multiple dots in a row as
+ * part of the file name.
+ *
+ * @example
+ * removeFileExtension('foo.txt') // 'foo'
+ *
+ * @group Utils
+ */
+export function removeFileExtension(str: string): string {
+  return str.replace(/(?<!\.)\.[^.]+$/, '');
+}
+
+/**
+ * Formats a file name to ensure it ends with `.js`.
+ * @group Resolve
+ */
+export function formatFileName(fileName: string, extension = '.js'): string {
+  return `${removeFileExtension(fileName)}${extension}`;
+}
+
 // https://regex101.com/r/H6PKtJ/5
 const PARAM_FILE_NAME_REGEX = /^\[(\.{3})?([a-zA-Z_][\w-]*)\](\.\w+)?$/;
 
