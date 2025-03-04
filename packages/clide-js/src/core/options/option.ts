@@ -1,5 +1,3 @@
-import type { DeepValue } from 'src/utils/types';
-
 /**
  * The possible types for an option.
  * @group Options
@@ -48,10 +46,6 @@ type _OptionPrimitiveTypeMap = OptionTypeMapDef<{
 export type OptionPrimitiveType<T extends OptionType = OptionType> =
   OptionPrimitiveTypeMap[T];
 
-type OptionChoicesType<T extends OptionType> = DeepValue<
-  OptionPrimitiveTypeMap[T]
->[];
-
 /**
  * The configuration interface for an option used to define how an option will
  * be parsed and validated.
@@ -60,7 +54,7 @@ type OptionChoicesType<T extends OptionType> = DeepValue<
 export type OptionConfig<
   T extends OptionType = OptionType,
   TAlias extends string = string,
-  TChoices extends OptionChoicesType<T> = OptionChoicesType<T>,
+  TChoices extends string = string,
 > = {
   /** One or more aliases for the option (optional). */
   alias?: Readonly<TAlias[]>;
@@ -72,7 +66,7 @@ export type OptionConfig<
    * specified, will use the choices when prompting.
    */
   // choices?: Readonly<TChoices>;
-  choices?: TChoices;
+  choices?: TChoices[];
   /**
    * Whether the option is a string (optional, inferred from `type`). Useful
    * for array options to specify the type of the array values.
