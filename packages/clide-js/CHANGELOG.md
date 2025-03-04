@@ -1,5 +1,11 @@
 # clide-js
 
+## 0.2.7
+
+### Patch Changes
+
+- e340a78: Patched option type
+
 ## 0.2.6
 
 ### Patch Changes
