@@ -10,6 +10,7 @@ const result = await run({
     }),
     help(),
   ],
+  defaultCommand: 'test',
 }).catch((e) => {
   console.error(e);
   process.exit(1);

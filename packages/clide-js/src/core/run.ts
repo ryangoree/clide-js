@@ -19,6 +19,10 @@ export interface RunOptions {
    */
   command?: string | string[];
   /**
+   * The command string to run if no command is provided.
+   */
+  defaultCommand?: string | string[];
+  /**
    * A directory path containing command modules.
    * @default "<cwd>/commands" || "<caller-dir>/commands"
    */
@@ -102,6 +106,7 @@ export interface RunOptions {
  */
 export async function run({
   command = hideBin(process.argv),
+  defaultCommand,
   commandsDir,
   initialData,
   options,
@@ -138,8 +143,15 @@ export async function run({
   }
 
   // coerce command to string
-  const commandString =
-    typeof command === 'string' ? command : command.join(' ');
+  let commandString = typeof command === 'string' ? command : command.join(' ');
+
+  // use default command if no command is provided
+  if (!commandString && defaultCommand) {
+    commandString =
+      typeof defaultCommand === 'string'
+        ? defaultCommand
+        : defaultCommand.join(' ');
+  }
 
   // create hooks emitter
   const hooks = new HooksEmitter();
