@@ -1,5 +1,12 @@
 # clide-js
 
+## 0.2.13
+
+### Patch Changes
+
+- 178184c: Changed `OptionsGetter.get` to take the options as direct arguments instead of an array.
+- ad5b64a: Fixed type error in `fork`.
+
 ## 0.2.12
 
 ### Patch Changes
