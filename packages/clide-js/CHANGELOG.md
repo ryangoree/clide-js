@@ -1,5 +1,11 @@
 # clide-js
 
+## 0.2.12
+
+### Patch Changes
+
+- 5e18330: Added an `options` factory function for creating strongly typed `OptionsConfig` objects.
+
 ## 0.2.11
 
 ### Patch Changes
