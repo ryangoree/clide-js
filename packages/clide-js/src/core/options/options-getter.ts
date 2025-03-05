@@ -173,6 +173,8 @@ export type OptionsGetter<TOptions extends OptionsConfig = OptionsConfig> = {
    * both their original keys and camelCased keys.
    */
   get<K extends keyof TOptions | OptionAlias<TOptions[keyof TOptions]>>(
+    // TODO: Remove array and spread the keys so they can be passed directly
+    // as arguments.
     optionNames: K[],
   ): Promise<{
     [O in K as O | CamelCase<O>]: CommandOptionsTypes<TOptions>[O];

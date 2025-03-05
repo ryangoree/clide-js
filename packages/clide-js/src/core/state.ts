@@ -256,7 +256,7 @@ export class State<
    * Fork the state and execute a new set of commands with the same context.
    * @returns The data from the last command.
    */
-  readonly fork = async <TCommand extends CommandModule>({
+  readonly fork = async <TCommand extends CommandModule<any, any>>({
     commands,
     initialData = this.data,
     optionValues,
@@ -264,6 +264,8 @@ export class State<
   }: {
     commands: (TCommand | ResolvedCommand)[];
     initialData?: unknown;
+    // FIXME: If provided a value for an alias, but the command already has a
+    // value for the original option key, the alias value is ignored.
     optionValues?: OptionValues<
       Required<TCommand>['options'] extends OptionsConfig
         ? Required<TCommand>['options']
