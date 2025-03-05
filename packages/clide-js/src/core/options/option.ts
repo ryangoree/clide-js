@@ -103,16 +103,25 @@ export type OptionsConfig<
 > = Record<TKey, OptionConfig<TType, TKey>>;
 
 /**
- * Factory function to create an OptionConfig object with strong typing.
- *
- * @typeParam T - The option type (e.g., 'string', 'number').
- * @typeParam TAlias - The alias names for the option.
+ * Factory function to create an {@linkcode OptionConfig} object with strong typing.
  *
  * @param config - The config for the option.
  *
- * @returns A constructed {@linkcode `OptionConfig`} object with strong types.
  * @group Options
  */
 export function option<const T extends OptionConfig = OptionConfig>(config: T) {
+  return config;
+}
+
+/**
+ * Factory function to create an {@linkcode OptionsConfig} object with strong typing.
+ *
+ * @param config - The config for the options.
+ *
+ * @group Options
+ */
+export function options<const T extends OptionsConfig = OptionsConfig>(
+  config: T,
+) {
   return config;
 }
