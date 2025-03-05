@@ -10,7 +10,7 @@
     "lint:fix:unsafe": "yarn lint:fix --unsafe",
     "test": "turbo run test:ci",
     "typecheck": "turbo run typecheck",
-    "release": "turbo run build && changeset publish",
+    "release": "sh scripts/release.sh",
     "reset-node-modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && yarn cache clean && yarn"
   },
   "devDependencies": {

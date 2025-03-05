@@ -424,7 +424,7 @@ options.
     const altName = await options.altName();
 
     // Get function
-    const { name, altName } = options.get(['name', 'alt-name']);
+    const { name, altName } = options.get('name', 'alt-name');
 
     // Direct values access
     const { name, altName } = options.values;

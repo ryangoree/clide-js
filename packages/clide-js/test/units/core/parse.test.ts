@@ -171,4 +171,19 @@ describe('parse', () => {
       },
     } as ParsedCommand);
   });
+
+  it('parses quoted strings with spaces', async () => {
+    const commandString = 'foo -a="hello world"';
+
+    expect(
+      await parseCommand(commandString, {
+        a: { type: 'string' },
+      }),
+    ).toMatchObject({
+      tokens: ['foo'],
+      options: {
+        a: 'hello world',
+      },
+    } as ParsedCommand);
+  });
 });

@@ -43,7 +43,7 @@ describe('options', () => {
         },
       });
 
-      expect(await getter.get(['foo', 'f', 'foo-bar'])).toEqual({
+      expect(await getter.get('foo', 'f', 'foo-bar')).toEqual({
         foo: 'bar',
         f: 'bar',
         'foo-bar': 'bar-baz',

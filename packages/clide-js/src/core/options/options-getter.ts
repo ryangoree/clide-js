@@ -1,6 +1,6 @@
 import { Client } from 'src/core/client';
 import type { OptionValues } from 'src/core/parse';
-import { camelCase, type CamelCase } from 'src/utils/camel-case';
+import { type CamelCase, camelCase } from 'src/utils/camel-case';
 import type { MaybeReadonly } from 'src/utils/types';
 import type {
   OptionConfig,
@@ -8,7 +8,7 @@ import type {
   OptionType,
   OptionsConfig,
 } from './option';
-import { createOptionGetter, type OptionGetter } from './option-getter';
+import { type OptionGetter, createOptionGetter } from './option-getter';
 
 /**
  * Configuration options for the {@linkcode createOptionsGetter} function.
@@ -77,11 +77,11 @@ export function createOptionsGetter<
   TOptionValues
 >): OptionsGetter<TOptionsConfig> {
   // create a new getter object with the values
-  const getter: OptionsGetter = {
+  const getter = {
     values: { ...optionValues },
 
     // getter for all option values
-    get: async (keys: string[]) => {
+    get: async (...keys: string[]) => {
       const result: Record<string, unknown> = {};
       // get the value for each key
       for (const key of keys) {
@@ -91,7 +91,7 @@ export function createOptionsGetter<
       }
       return result;
     },
-  } as any;
+  } as unknown as OptionsGetter;
 
   // iterate over all keys in the options config
   for (const configKey in optionsConfig) {
@@ -136,11 +136,9 @@ export function createOptionsGetter<
       // wrap the getter function to update the values object
       const wrappedGetterFn = async (...args: Parameters<typeof getterFn>) => {
         const value = (await getterFn(...args)) as OptionPrimitiveType;
-        // TODO: Update all keys for the option? This would add more overhead to
-        // the getter, but could potentially improve the experience for complex
-        // commands chains that may access the same option multiple times with
-        // different keys.
-        getter.values[key] = value;
+        for (const key of allKeysForOption) {
+          getter.values[key] = value;
+        }
         return value;
       };
 
@@ -173,9 +171,7 @@ export type OptionsGetter<TOptions extends OptionsConfig = OptionsConfig> = {
    * both their original keys and camelCased keys.
    */
   get<K extends keyof TOptions | OptionAlias<TOptions[keyof TOptions]>>(
-    // TODO: Remove array and spread the keys so they can be passed directly
-    // as arguments.
-    optionNames: K[],
+    ...optionNames: K[]
   ): Promise<{
     [O in K as O | CamelCase<O>]: CommandOptionsTypes<TOptions>[O];
   }>;

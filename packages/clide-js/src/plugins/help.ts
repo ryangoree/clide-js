@@ -119,7 +119,7 @@ export function help({ maxWidth = 80 }: HelpPluginOptions = {}): Plugin {
       hooks.on('beforeExecute', async ({ state, setResultAndSkip, skip }) => {
         isExecuting = true;
 
-        const { help } = await state.options.get(['help']);
+        const { help } = await state.options.get('help');
 
         // If there's no error and the help flag isn't present, do nothing
         if (!usageError && !help) return;

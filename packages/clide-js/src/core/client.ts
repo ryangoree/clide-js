@@ -11,7 +11,6 @@ import { ClideError, ClientError } from './errors';
  * @see [GitHub - terkelg/prompts - Prompt Objects](https://github.com/terkelg/prompts#-prompt-objects)
  * @group Client
  */
-// TODO: replace with own type?
 export type PromptOptions<T extends PromptType = PromptType> = Omit<
   PromptObject,
   'name' | 'message' | 'separator' | 'type'
