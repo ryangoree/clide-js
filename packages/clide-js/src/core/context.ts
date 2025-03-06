@@ -1,4 +1,3 @@
-
 import {
   type OptionValues,
   type ParseCommandFn,
@@ -558,7 +557,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
 
     // Don't parse if the hook skipped
     if (!this.#isParsed) {
-      const { options } = await parseCommand(this.commandString, this.options);
+      const { options } = await this.parseCommand();
       this.#parsedOptions = options;
       this.#isParsed = true;
     }
