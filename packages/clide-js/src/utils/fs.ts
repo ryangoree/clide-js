@@ -17,8 +17,8 @@ export function isDirectory(path: string): boolean {
  * Attempt to determine if a path is a file. If the path does not exist, check
  * if the path with any of the provided fallback extensions is a file.
  * @param path - The path to check.
- * @param fallbackExtensions - The fallback extensions to check if the path
- * does not exist.
+ * @param fallbackExtensions - The fallback extensions to check if the path does
+ * not exist.
  * @group Utils
  */
 export function isFile(

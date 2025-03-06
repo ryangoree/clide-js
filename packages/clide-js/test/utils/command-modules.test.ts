@@ -1,5 +1,6 @@
 // Must be imported first
 import type { CommandModule } from 'src/core/command';
+
 import { describe, expect, it, test } from 'vitest';
 import {
   mockCommandModule,
@@ -35,7 +36,7 @@ describe('mockCommandModule', () => {
     expect(imported.handler).toEqual(expect.any(Function));
 
     unmock();
-    expect(() => import(path)).rejects.toThrow();
+    await expect(import(path)).rejects.toThrow();
   });
 
   it('Uses the provided module', async () => {
@@ -61,7 +62,7 @@ describe('mockCommandModules', () => {
 
     unmock();
     for (const path of Object.keys(modules)) {
-      expect(() => import(path)).rejects.toThrow();
+      await expect(import(path)).rejects.toThrow();
     }
   });
 });
@@ -86,7 +87,7 @@ describe('mockCommandStringModules', () => {
 
     unmock();
     for (const path of Object.keys(modules)) {
-      expect(() => import(path)).rejects.toThrow();
+      await expect(import(path)).rejects.toThrow();
     }
   });
 

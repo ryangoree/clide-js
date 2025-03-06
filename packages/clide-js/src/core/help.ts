@@ -86,8 +86,8 @@ export interface GetHelpOptions {
  * Generates the help information for a given command based on the provided
  * tokens.
  *
- * This function constructs a dynamic usage string based on the resolved commands
- * and their parameters, then formats this information along with the
+ * This function constructs a dynamic usage string based on the resolved
+ * commands and their parameters, then formats this information along with the
  * description, available options, and subcommands. The output is structured
  * using `cliui` for better formatting in the terminal.
  *
@@ -416,9 +416,6 @@ async function commandRows({
 
   return rows;
 }
-
-// causes build errors for referencing external types
-// type Column = Exclude<Parameters<typeof cliui.div>[0], string>;
 
 type Column = {
   text: string;

@@ -25,8 +25,8 @@ interface StateOptions<TData = unknown> {
    */
   options?: OptionsConfig;
   /**
-   * The option values to use when creating the options getter. If not
-   * provided, it defaults to the parsed options from the context.
+   * The option values to use when creating the options getter. If not provided,
+   * it defaults to the parsed options from the context.
    */
   optionValues?: OptionValues;
 }
@@ -34,8 +34,8 @@ interface StateOptions<TData = unknown> {
 /**
  * Execution state management.
  *
- * The `State` is responsible for managing the state of command execution.
- * It provides mechanisms to progress through command execution, handle state
+ * The `State` is responsible for managing the state of command execution. It
+ * provides mechanisms to progress through command execution, handle state
  * transitions, and manage the lifecycle of command data.
  *
  * @group State
@@ -51,22 +51,22 @@ export class State<
    * expected count based on the number of steps, the next step will be called
    * automatically.
    */
-  private actionCallCount = 0;
-  private _context: Context;
-  private _data: TData;
-  private _i = -1;
-  private _commands: ResolvedCommand[];
-  private _options: OptionsGetter<TOptions>;
-  private _params: Params = {};
+  #actionCallCount = 0;
+  #context: Context;
+  #data: TData;
+  #i = -1;
+  #commands: ResolvedCommand[];
+  #options: OptionsGetter;
+  #params: Params = {};
 
   /**
    * A promise that resolves when the steps are done. This is useful for
    * ensuring that all steps have completed without requiring each handler to
    * worry about awaiting the next step or returning a promise.
    */
-  private executionPromise: Promise<void> | undefined;
+  #executionPromise: Promise<void> | undefined;
   /** A function that resolves the promise when called. */
-  private resolvePromise: (() => void) | undefined;
+  #resolvePromise: (() => void) | undefined;
 
   constructor({
     context,
@@ -75,22 +75,22 @@ export class State<
     options = context.options,
     optionValues = context.parsedOptions,
   }: StateOptions<TData>) {
-    this._context = context;
-    this._data = initialData as TData;
-    this._commands = commands || context.resolvedCommands;
+    this.#context = context;
+    this.#data = initialData as TData;
+    this.#commands = commands || context.resolvedCommands;
 
     // Create a getter to dynamically get the options from context.
-    this._options = createOptionsGetter({
+    this.#options = createOptionsGetter({
       client: context.client,
       optionsConfig: options,
       optionValues: optionValues,
       onPromptCancel: context.exit,
-    }) as OptionsGetter<TOptions>;
+    });
   }
 
   /** The current step index. */
   get i() {
-    return this._i;
+    return this.#i;
   }
   /** The current command. */
   get command() {
@@ -98,23 +98,23 @@ export class State<
   }
   /** The commands that will be executed. */
   get commands() {
-    return this._commands;
+    return this.#commands;
   }
   /** The context for the command. */
   get context() {
-    return this._context;
+    return this.#context;
   }
   /** The current data. */
   get data() {
-    return this._data;
+    return this.#data;
   }
   /** The current params, including params from previous steps. */
   get params() {
-    return this._params;
+    return this.#params;
   }
   /** An `OptionsGetter` to dynamically retrieve options. */
   get options() {
-    return this._options;
+    return this.#options as OptionsGetter<TOptions>;
   }
   /** The client for the command. */
   get client() {
@@ -126,26 +126,26 @@ export class State<
    * @throws {ClideError} If the steps have already started.
    * @returns A promise that resolves when the steps are done.
    */
-  readonly start = async (initialData: unknown = this._data): Promise<void> => {
+  readonly start = async (initialData: unknown = this.#data): Promise<void> => {
     // Avoid starting the steps if they're already started.
-    if (this.executionPromise) {
+    if (this.#executionPromise) {
       throw new ClideError('Steps have already started.');
     }
 
     // Create a promise that will resolve when the steps are done.
-    this.executionPromise = new Promise((resolve) => {
-      this.resolvePromise = resolve;
+    this.#executionPromise = new Promise((resolve) => {
+      this.#resolvePromise = resolve;
     });
 
     // Start the steps.
     await this.next(initialData);
 
     // Return the promise so that the caller can wait for the steps to complete.
-    return this.executionPromise.then(() => {
-      // Reset the promise and resolve function so that the steps can be
-      // started again.
-      this.executionPromise = undefined;
-      this.resolvePromise = undefined;
+    return this.#executionPromise.then(() => {
+      // Reset the promise and resolve function so that the steps can be started
+      // again.
+      this.#executionPromise = undefined;
+      this.#resolvePromise = undefined;
     });
   };
 
@@ -155,7 +155,7 @@ export class State<
    * @param data The data to pass to the next step or return.
    */
   readonly next = async (data?: unknown): Promise<void> => {
-    this.actionCallCount++;
+    this.#actionCallCount++;
     let _data = data;
     const nextIndex = this.i + 1;
     let nextCommand = this.commands[nextIndex] as ResolvedCommand | undefined;
@@ -185,12 +185,12 @@ export class State<
         },
       });
 
-      const actionCallCountBefore = this.actionCallCount;
+      const actionCallCountBefore = this.#actionCallCount;
       await nextCommand.command.handler(this);
 
       // Prevent the process from hanging if a command handler neglects to call
       // `next()` or `end()` by checking if the action call count has changed.
-      if (actionCallCountBefore === this.actionCallCount) {
+      if (actionCallCountBefore === this.#actionCallCount) {
         await this.next(_data);
       }
     } else {
@@ -200,7 +200,7 @@ export class State<
       });
 
       // Resolve the promise to return the data to callers of `start()`.
-      this.resolvePromise?.();
+      this.#resolvePromise?.();
     }
   };
 
@@ -212,7 +212,7 @@ export class State<
     data?: unknown,
     // endOptions: EndOptions = {},
   ): Promise<void> => {
-    this.actionCallCount++;
+    this.#actionCallCount++;
     let _data = data;
 
     await this.context.hooks.call('beforeEnd', {
@@ -247,8 +247,8 @@ export class State<
     });
 
     // Resolve the promise to return the data to callers of `start()`.
-    if (this.resolvePromise) {
-      this.resolvePromise();
+    if (this.#resolvePromise) {
+      this.#resolvePromise();
     }
   };
 
@@ -346,18 +346,18 @@ export class State<
 
     // Set new state values if defined.
     if (_changes.i !== undefined) {
-      this._i = _changes.i;
+      this.#i = _changes.i;
     }
     if (_changes.params !== undefined) {
-      this._params = _changes.params;
+      this.#params = _changes.params;
     }
     if (_changes.options !== undefined) {
-      Object.assign(this._options.values, _changes.options);
+      Object.assign(this.#options.values, _changes.options);
     }
 
     // Data can be undefined, so we simply check if the key exists.
     if ('data' in _changes) {
-      this._data = _changes.data as TData;
+      this.#data = _changes.data as TData;
     }
 
     // post hook

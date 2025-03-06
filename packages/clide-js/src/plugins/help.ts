@@ -49,7 +49,8 @@ export function help({ maxWidth = 80 }: HelpPluginOptions = {}): Plugin {
         if (error instanceof UsageError) {
           usageError = error;
 
-          // If the command is already executing, print the help text immediately
+          // If the command is already executing, print the help text
+          // immediately
           if (isExecuting) {
             let helpText = '';
 
@@ -114,8 +115,8 @@ export function help({ maxWidth = 80 }: HelpPluginOptions = {}): Plugin {
         }
       });
 
-      // Print the help text and skip execution if the help flag is present or if
-      // a usage error occurred previously
+      // Print the help text and skip execution if the help flag is present or
+      // if a usage error occurred previously
       hooks.on('beforeExecute', async ({ state, setResultAndSkip, skip }) => {
         isExecuting = true;
 
@@ -142,9 +143,9 @@ export function help({ maxWidth = 80 }: HelpPluginOptions = {}): Plugin {
         skip();
       });
 
-      // Reset the isExecuting flag and set the result if there was a usage error
-      // and it wasn't already set in the beforeExecute hook. This can happen if a
-      // usage error is thrown during execution.
+      // Reset the isExecuting flag and set the result if there was a usage
+      // error and it wasn't already set in the beforeExecute hook. This can
+      // happen if a usage error is thrown during execution.
       hooks.on('afterExecute', async ({ setResult }) => {
         isExecuting = false;
 

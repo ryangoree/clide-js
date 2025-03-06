@@ -38,12 +38,12 @@ export type CommandModule<
 };
 
 /**
- * Factory function to create a Command object with strong typing. This is
- * used to define a command with its associated metadata, options, and handler
- * logic.
+ * Factory function to create a Command object with strong typing. This is used
+ * to define a command with its associated metadata, options, and handler logic.
  *
  * @typeParam TData - Optional type for data specific to this command.
- * @typeParam TOptions - The `OptionsConfig` type that represents all options for the command.
+ * @typeParam TOptions - The `OptionsConfig` type that represents all options
+ * for the command.
  *
  * @param options - The config for constructing the Command.
  *
@@ -77,8 +77,8 @@ export function command<
 }
 
 /**
- * A command handler function that receives the current state and performs
- * some action.
+ * A command handler function that receives the current state and performs some
+ * action.
  * @typeParam TData - Optional type for data specific to this command.
  * @typeParam TOptions - The `OptionsConfig` type for the command.
  * @param state - The current state of the CLI engine.

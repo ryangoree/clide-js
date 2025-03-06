@@ -40,10 +40,10 @@ interface OptionGetterFactoryOptions<
 }
 
 /**
- * Creates an `OptionGetter` function to dynamically retrieve the
- * value of a command option. The getter function accepts an optional
- * `OptionGetterOptions` object, which can be used to prompt the user when no value
- * is provided and/or validate the value.
+ * Creates an `OptionGetter` function to dynamically retrieve the value of a
+ * command option. The getter function accepts an optional `OptionGetterOptions`
+ * object, which can be used to prompt the user when no value is provided and/or
+ * validate the value.
  *
  * @param getOptions - The options to create the getter.
  *
@@ -127,6 +127,7 @@ export function createOptionGetter<
               // prompts won't always pass the initial value to the validate
               // function, so we need to check for an empty string and use the
               // default value if provided.
+              //
               // see: https://github.com/terkelg/prompts/issues/410
               let value = _value;
               if (value === '' && config?.default !== undefined) {

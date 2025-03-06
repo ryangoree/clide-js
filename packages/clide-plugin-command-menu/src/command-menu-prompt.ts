@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import cfonts from 'cfonts';
 import {
   Client,
@@ -9,8 +11,6 @@ import {
   resolveCommand,
 } from 'clide-js';
 import colors from 'colors';
-import fs from 'node:fs';
-import path from 'node:path';
 import type { Choice } from 'prompts';
 import type { CommandMenuOptions } from './command-menu.js';
 

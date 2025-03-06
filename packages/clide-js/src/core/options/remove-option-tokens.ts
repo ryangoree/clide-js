@@ -30,8 +30,8 @@ export function removeOptionTokens(
     }
   }
 
-  // Create a regular expression to match the option tokens based on the
-  // option names and values.
+  // Create a regular expression to match the option tokens based on the option
+  // names and values.
   const optionTokensRegExp = optionTokens.length
     ? new RegExp(
         `((?<=^|\\s)${optionTokens.join('\\b\\s?|(?<=^|\\s)')}\\b)`,

@@ -29,13 +29,16 @@ function getBinIndex() {
 }
 
 function isBundledElectronApp() {
-  // process.defaultApp is either set by electron in an electron unbundled app, or undefined
+  // process.defaultApp is either set by electron in an electron unbundled app,
+  // or undefined
+  //
   // see https://github.com/electron/electron/blob/main/docs/api/process.md#processdefaultapp-readonly
   return isElectronApp() && !(process as ElectronProcess).defaultApp;
 }
 
 function isElectronApp() {
   // process.versions.electron is either set by electron, or undefined
+  //
   // see https://github.com/electron/electron/blob/main/docs/api/process.md#processversionselectron-readonly
   return !!(process as ElectronProcess).versions.electron;
 }

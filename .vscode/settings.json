@@ -23,5 +23,6 @@
   },
   "[yaml]": {
     "editor.defaultFormatter": "biomejs.biome"
-  }
+  },
+  "typescript.preferences.autoImportFileExcludePatterns": ["src/index.*"]
 }

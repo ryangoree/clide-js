@@ -71,8 +71,8 @@ export function validateOptions(options: OptionValues, config: OptionsConfig) {
 }
 
 /**
- * Validates an option value based on its type and throws an error if the
- * value is invalid.
+ * Validates an option value based on its type and throws an error if the value
+ * is invalid.
  * @param value - The option value to validate.
  * @param name - The name of the option.
  * @param type - The expected type of the option.

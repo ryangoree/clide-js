@@ -56,9 +56,9 @@ export interface ResolveCommandOptions {
  * @returns Object containing details about the resolved command, the path to
  * the command file, any parameters, and a function to resolve the next command,
  * if any.
- * @throws {UsageError | NotFoundError | MissingDefaultExportError}
- * Throws an error if command resolution fails due to missing tokens, command
- * not found, or missing default export.
+ * @throws {UsageError | NotFoundError | MissingDefaultExportError} Throws an
+ * error if command resolution fails due to missing tokens, command not found,
+ * or missing default export.
  * @group Resolve
  */
 export async function resolveCommand({
@@ -151,8 +151,8 @@ export async function resolveCommand({
 }
 
 /**
- * Attempts to load a command module by finding a param file name in the
- * given directory.
+ * Attempts to load a command module by finding a param file name in the given
+ * directory.
  */
 async function resolveParamCommand({
   commandString,
@@ -200,8 +200,8 @@ async function resolveParamCommand({
         tokens = parsedString.tokens as [string, ...string[]];
       }
 
-      // If the param has a spread operator (e.g., [...param].ts), then pass
-      // all command tokens as the param value. Otherwise, pass only the first
+      // If the param has a spread operator (e.g., [...param].ts), then pass all
+      // command tokens as the param value. Otherwise, pass only the first
       // command token.
       const params = {
         [paramName]: spreadOperator ? tokens : commandToken,
@@ -266,8 +266,8 @@ export async function prepareResolvedCommand(
 
   // Ensure the remaining command string starts with a subcommand name by
   // removing any leading options. This will ensure they aren't treated as
-  // command names which would cause errors during resolution.
-  // Example: `--help foo` -> `foo`
+  // command names which would cause errors during resolution. Example: `--help
+  // foo` -> `foo`
   if (resolved.remainingCommandString.length) {
     // Parse the remaining command string to separate the tokens from the
     // options.
@@ -325,9 +325,8 @@ export type ResolveCommandFn = (
 export type Params = Record<string, string | string[]>;
 
 /**
- * Object containing details about the resolved command, the path to the
- * command file, any parameters, and a function to resolve the next command, if
- * any.
+ * Object containing details about the resolved command, the path to the command
+ * file, any parameters, and a function to resolve the next command, if any.
  * @group Resolve
  */
 export interface ResolvedCommand {

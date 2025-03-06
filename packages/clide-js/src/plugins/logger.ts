@@ -167,8 +167,8 @@ export function logger({
     description: 'Logs the result of each execution step.',
     meta: {
       // Create a meta object to provide read-only access to the enabled state.
-      // It's important that the enabled state can't be modified directly because
-      // the hooks need to be aware of the state changes.
+      // It's important that the enabled state can't be modified directly
+      // because the hooks need to be aware of the state changes.
       get enabled() {
         return enabled;
       },

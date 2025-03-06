@@ -11,8 +11,8 @@ import type { ResolveCommandFn, ResolvedCommand } from './resolve';
 import type { NextState, State } from './state';
 
 /**
- * The core hooks interface that defines lifecycle events for the CLI execution process.
- * Hooks are called in sequential order as listed below.
+ * The core hooks interface that defines lifecycle events for the CLI execution
+ * process. Hooks are called in sequential order as listed below.
  * @group Hooks
  */
 export interface ClideHooks {
@@ -66,7 +66,7 @@ export interface ClideHooks {
      */
     setParseFn: (parseFn: ParseCommandFn) => void;
     /**
-     * Register additional resolved commands
+     * Register additional resolved commands.
      * @param resolvedCommands - Array of resolved command objects to add
      */
     addResolvedCommands: (resolvedCommands: ResolvedCommand[]) => void;
@@ -87,10 +87,11 @@ export interface ClideHooks {
      * @param resolvedCommands - Array of resolved command objects to add
      *
      * @remarks
-     * Options configurations are merged into the context immediately after each command
-     * is resolved to maintain context consistency in the {@linkcode beforeResolveNext} hook.
-     * Due to this, resolved commands can only be added, not replaced. To replace resolved
-     * commands entirely, use the {@linkcode beforeResolve} hook instead.
+     * Options configurations are merged into the context immediately after each
+     * command is resolved to maintain context consistency in the
+     * {@linkcode beforeResolveNext} hook. Due to this, resolved commands can
+     * only be added, not replaced. To replace resolved commands entirely, use
+     * the {@linkcode beforeResolve} hook instead.
      */
     addResolvedCommands: (resolvedCommands: ResolvedCommand[]) => void;
     /** The CLI context object */
@@ -103,7 +104,8 @@ export interface ClideHooks {
   beforeParse: (payload: {
     /** The raw command input (string or array format) */
     commandString: string | string[];
-    /** The consolidated options configuration from all plugins and resolved commands */
+    /** The consolidated options configuration from all plugins and resolved
+     * commands */
     optionsConfig: OptionsConfig;
     /**
      * Replace the configured parsing function
@@ -158,8 +160,8 @@ export interface ClideHooks {
   /**
    * 7. Called before each state transition during command execution
    *
-   * @remarks This hook is triggered by both explicit `state.next()` calls and the
-   * initial `state.start()` call, which internally uses `state.next()`.
+   * @remarks This hook is triggered by both explicit `state.next()` calls and
+   * the initial `state.start()` call, which internally uses `state.next()`.
    */
   beforeNext: (payload: {
     /** The command execution state object */
@@ -208,7 +210,8 @@ export interface ClideHooks {
   }) => MaybePromise<void>;
 
   /**
-   * 10. Called once per execution, before the final state update, if `state.end()` is called.
+   * 10. Called once per execution, before the final state update, if
+   *     `state.end()` is called.
    */
   beforeEnd: (payload: {
     /** The command execution state object */
@@ -280,11 +283,11 @@ export interface ClideHooks {
 }
 
 /**
- * A registry for managing and executing lifecycle hooks.
- * Handlers are executed sequentially in registration order.
+ * A registry for managing and executing lifecycle hooks. Handlers are executed
+ * sequentially in registration order.
  *
- * While built-in hooks are defined in {@linkcode ClideHooks},
- * custom hooks can be registered using any string as the hook name.
+ * While built-in hooks are defined in {@linkcode ClideHooks}, custom hooks can
+ * be registered using any string as the hook name.
  *
  * @template T - The hooks configuration object
  */
@@ -350,8 +353,8 @@ export class HooksEmitter<T extends AnyObject = ClideHooks> {
   }
 
   /**
-   * Call all handlers registered for a hook.
-   * Handlers are called sequentially in registration order.
+   * Call all handlers registered for a hook. Handlers are called sequentially
+   * in registration order.
    * @param hook - The hook to call
    * @param args - Arguments to pass to each handler
    */

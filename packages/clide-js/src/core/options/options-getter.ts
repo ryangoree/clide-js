@@ -34,12 +34,11 @@ interface CreateOptionsGetterOptions<
 /**
  * Converts command options to a getter object.
  *
- * This function transforms an `Options` object into a
- * `CommandOptionsGetter` object that has getter methods for each of the
- * options. The getters can then be used to retrieve the values of the options
- * dynamically. If an option has defined aliases, the returned getter will have
- * additional getter methods for each alias, all pointing to the original
- * option's value.
+ * This function transforms an `Options` object into a `CommandOptionsGetter`
+ * object that has getter methods for each of the options. The getters can then
+ * be used to retrieve the values of the options dynamically. If an option has
+ * defined aliases, the returned getter will have additional getter methods for
+ * each alias, all pointing to the original option's value.
  *
  * Additionally, the returned object has a `get` method, which accepts an array
  * of option keys and returns an object with the corresponding camelCased
@@ -118,8 +117,7 @@ export function createOptionsGetter<
 
     // loop through the keys again to set values and create getters
     for (const key of allKeysForOption) {
-      // set values
-      // to be set if there was a keyWithValue?
+      // set values to be set if there was a keyWithValue?
       getter.values[key] = keyWithValue
         ? optionValues[keyWithValue]
         : (config.default as OptionPrimitiveType | undefined);
@@ -167,8 +165,8 @@ export type OptionsGetter<TOptions extends OptionsConfig = OptionsConfig> = {
    * Get the values of the specified options. This is useful when you want to
    * get the values of multiple options at once.
    * @param optionNames - The names of the options to get.
-   * @returns An object with the values of the specified options keyed by
-   * both their original keys and camelCased keys.
+   * @returns An object with the values of the specified options keyed by both
+   * their original keys and camelCased keys.
    */
   get<K extends keyof TOptions | OptionAlias<TOptions[keyof TOptions]>>(
     ...optionNames: K[]

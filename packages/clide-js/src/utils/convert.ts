@@ -1,6 +1,6 @@
 /**
- * Recursively converts a type to a new type. The `predicateFn` is
- * used to determine if the `converterFn` should be run on the value.
+ * Recursively converts a type to a new type. The `predicateFn` is used to
+ * determine if the `converterFn` should be run on the value.
  *
  * The function first checks the value itself, if the `predicateFn` returns
  * false and the value is an array or object, the function will recursively
