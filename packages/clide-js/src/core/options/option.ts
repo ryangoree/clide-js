@@ -1,4 +1,14 @@
-import type { MaybeReadonly } from 'src/utils/types';
+import { type CamelCase, camelCase } from 'src/utils/camel-case';
+import type { Eval, MaybeReadonly, Merge } from 'src/utils/types';
+
+/**
+ * A key for an option, including the option key, aliases, and camelCased
+ * versions of each.
+ */
+export type OptionKey<
+  TKey extends PropertyKey = string,
+  TAlias extends string = string,
+> = TKey | TAlias | CamelCase<TKey | TAlias>;
 
 /**
  * The primitive types for each option type.
@@ -31,12 +41,14 @@ type _OptionPrimitiveTypeMap = {
 
 /**
  * The possible types for an option.
+ *
  * @group Options
  */
 export type OptionType = keyof OptionPrimitiveTypeMap;
 
 /**
  * Get the primitive type for an option type.
+ *
  * @group Options
  */
 export type OptionPrimitiveType<T extends OptionType = OptionType> =
@@ -45,6 +57,7 @@ export type OptionPrimitiveType<T extends OptionType = OptionType> =
 /**
  * The configuration interface for an option used to define how an option will
  * be parsed and validated.
+ *
  * @group Options
  */
 export interface OptionConfig<
@@ -94,13 +107,49 @@ export interface OptionConfig<
 }
 
 /**
+ * Get the primitive type for an option considering it's config.
+ */
+export type OptionConfigPrimitiveType<T extends OptionConfig = OptionConfig> =
+  T['required'] extends true
+    ? OptionPrimitiveType<T['type']>
+    : T['default'] extends MaybeReadonly<OptionPrimitiveType<T['type']>>
+      ? OptionPrimitiveType<T['type']>
+      : OptionPrimitiveType<T['type']> | undefined;
+
+/**
+ * Get a union of all aliases for an option.
+ *
+ * @group Options
+ */
+export type OptionAlias<T extends OptionConfig> = T extends {
+  alias: string[];
+}
+  ? T['alias'][number]
+  : never;
+
+/**
  * The options config for a command.
+ *
  * @group Options
  */
 export type OptionsConfig<
   TKey extends string = string,
   TType extends OptionType = OptionType,
 > = Record<TKey, OptionConfig<TType, TKey>>;
+
+/**
+ * The values for each option.
+ * @group Options
+ */
+export type OptionValues<TOptions extends OptionsConfig = OptionsConfig> =
+  Merge<TOptions> extends infer TMerged extends OptionsConfig
+    ? Eval<{
+        [K in keyof TMerged as OptionKey<
+          K,
+          OptionAlias<TMerged[K]>
+        >]?: OptionConfigPrimitiveType<TMerged[K]>;
+      }>
+    : Record<string, OptionPrimitiveType | undefined>;
 
 /**
  * Factory function to create an {@linkcode OptionConfig} object with strong typing.
@@ -124,4 +173,35 @@ export function options<const T extends OptionsConfig = OptionsConfig>(
   config: T,
 ) {
   return config;
+}
+
+/**
+ * Get all keys for an option, including the option key, aliases, and
+ * camelCased versions of each.
+ *
+ * @param configKey - The option's key in the command's options config.
+ * @param config - The option's config entry.
+ *
+ * @group Options
+ */
+export function getOptionKeys(configKey: string, config: OptionConfig) {
+  const allKeysForOption = [configKey, ...(config.alias || [])];
+  return [
+    ...allKeysForOption,
+    ...allKeysForOption.map((key) => camelCase(key)),
+  ];
+}
+
+/**
+ * Get a display name for an option by checking it's key and aliases for a name
+ * longer than one character, falling back to the key.
+ *
+ * @param configKey - The option's key in the command's options config.
+ * @param config - The option's config entry.
+ *
+ * @group Options
+ */
+export function getOptionDisplayName(configKey: string, config: OptionConfig) {
+  if (configKey.length > 1) return configKey;
+  return config.alias?.find((alias) => alias.length > 1) || configKey;
 }

@@ -1,13 +1,12 @@
-import type { CommandModule } from './command';
-import type { Context } from './context';
-import { ClideError } from './errors';
-import type { OptionsConfig } from './options/option';
+import type { CommandModule } from 'src/core/command';
+import type { Context } from 'src/core/context';
+import { ClideError } from 'src/core/errors';
+import type { OptionValues, OptionsConfig } from 'src/core/options/option';
 import {
   type OptionsGetter,
   createOptionsGetter,
-} from './options/options-getter';
-import type { OptionValues } from './parse';
-import type { Params, ResolvedCommand } from './resolve';
+} from 'src/core/options/options-getter';
+import type { Params, ResolvedCommand } from 'src/core/resolve';
 
 interface StateOptions<TData = unknown> {
   /** The context for the command. */

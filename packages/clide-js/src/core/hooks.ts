@@ -1,14 +1,14 @@
+import type { Context } from 'src/core/context';
+import type { OptionValues, OptionsConfig } from 'src/core/options/option';
+import type { ParseCommandFn } from 'src/core/parse';
+import type { ResolveCommandFn, ResolvedCommand } from 'src/core/resolve';
+import type { NextState, State } from 'src/core/state';
 import type {
   AnyFunction,
   AnyObject,
   FunctionKey,
   MaybePromise,
 } from 'src/utils/types';
-import type { Context } from './context';
-import type { OptionsConfig } from './options/option';
-import type { OptionValues, ParseCommandFn } from './parse';
-import type { ResolveCommandFn, ResolvedCommand } from './resolve';
-import type { NextState, State } from './state';
 
 /**
  * The core hooks interface that defines lifecycle events for the CLI execution

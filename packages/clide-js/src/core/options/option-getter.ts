@@ -1,8 +1,13 @@
 import type { Client, PromptOptions } from 'src/core/client';
 import { OptionsError, UsageError } from 'src/core/errors';
+import type {
+  OptionConfig,
+  OptionConfigPrimitiveType,
+  OptionPrimitiveType,
+  OptionType,
+} from 'src/core/options/option';
+import { validateOptionType } from 'src/core/options/validate-options';
 import type { MaybePromise, MaybeReadonly } from 'src/utils/types';
-import type { OptionConfig, OptionPrimitiveType, OptionType } from './option';
-import { validateOptionType } from './validate-options';
 
 /**
  * A function to dynamically retrieve the value of a command option.
@@ -67,7 +72,7 @@ interface OptionGetterFactoryOptions<
  */
 export function createOptionGetter<
   TConfig extends OptionConfig = OptionConfig,
-  TValue = MaybeReadonly<OptionPrimitiveType<TConfig['type']>> | undefined,
+  TValue = MaybeReadonly<OptionConfigPrimitiveType<TConfig>> | undefined,
 >({
   name,
   config,

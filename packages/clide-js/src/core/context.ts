@@ -1,12 +1,8 @@
-import {
-  type OptionValues,
-  type ParseCommandFn,
-  parseCommand,
-} from 'src/core/parse';
+import { type ParseCommandFn, parseCommand } from 'src/core/parse';
 import { Client } from './client';
 import { ClideError, RequiredSubcommandError } from './errors';
 import { HooksEmitter } from './hooks';
-import type { OptionsConfig } from './options/option';
+import type { OptionValues, OptionsConfig } from './options/option';
 import type { Plugin, PluginInfo } from './plugin';
 import {
   type ResolveCommandFn,

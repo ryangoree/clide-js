@@ -1,20 +1,25 @@
 import { Client } from 'src/core/client';
-import type { OptionValues } from 'src/core/parse';
+import {
+  type OptionAlias,
+  type OptionConfigPrimitiveType,
+  type OptionKey,
+  type OptionType,
+  type OptionValues,
+  type OptionsConfig,
+  getOptionKeys,
+} from 'src/core/options/option';
+import {
+  type OptionGetter,
+  createOptionGetter,
+} from 'src/core/options/option-getter';
 import { type CamelCase, camelCase } from 'src/utils/camel-case';
-import type { MaybeReadonly } from 'src/utils/types';
-import type {
-  OptionConfig,
-  OptionPrimitiveType,
-  OptionType,
-  OptionsConfig,
-} from './option';
-import { type OptionGetter, createOptionGetter } from './option-getter';
 
 /**
  * Configuration options for the {@linkcode createOptionsGetter} function.
+ *
  * @group Options
  */
-interface CreateOptionsGetterOptions<
+export interface CreateOptionsGetterOptions<
   TOptionsConfig extends OptionsConfig,
   TOptions extends OptionValues = {},
 > {
@@ -82,7 +87,6 @@ export function createOptionsGetter<
     // getter for all option values
     get: async (...keys: string[]) => {
       const result: Record<string, unknown> = {};
-      // get the value for each key
       for (const key of keys) {
         const value = await getter[key]?.();
         result[key] = value;
@@ -94,49 +98,28 @@ export function createOptionsGetter<
 
   // iterate over all keys in the options config
   for (const configKey in optionsConfig) {
-    // get the config for the option's key
     const config = optionsConfig[configKey];
+    const optionKeys = getOptionKeys(configKey, config);
+    const valueKey = optionKeys.find((key) => key in optionValues);
 
-    // get all keys for the option, including the option key, aliases, and
-    // camelCased versions of each
-    let allKeysForOption: string[] = [configKey, ...(config.alias || [])];
-    allKeysForOption = [
-      ...allKeysForOption,
-      ...allKeysForOption.map((key) => camelCase(key)),
-    ];
+    // loop through all keys for the option to set values and create getters
+    for (const key of optionKeys) {
+      getter.values[key] = valueKey
+        ? optionValues[valueKey]
+        : (config.default as OptionConfigPrimitiveType | undefined);
 
-    // loop through the keys once to find the first one with an entry in
-    // optionValues
-    let keyWithValue: string | undefined;
-    for (const key of allKeysForOption) {
-      if (key in optionValues) {
-        keyWithValue = key;
-        break;
-      }
-    }
-
-    // loop through the keys again to set values and create getters
-    for (const key of allKeysForOption) {
-      // set values to be set if there was a keyWithValue?
-      getter.values[key] = keyWithValue
-        ? optionValues[keyWithValue]
-        : (config.default as OptionPrimitiveType | undefined);
-
-      // create a getter fn for the key
       const getterFn = createOptionGetter({
         name: key,
         config,
         client,
-        value: keyWithValue ? optionValues[keyWithValue] : undefined,
+        value: valueKey ? optionValues[valueKey] : undefined,
         onPromptCancel,
       });
 
       // wrap the getter function to update the values object
       const wrappedGetterFn = async (...args: Parameters<typeof getterFn>) => {
-        const value = (await getterFn(...args)) as OptionPrimitiveType;
-        for (const key of allKeysForOption) {
-          getter.values[key] = value;
-        }
+        const value = await getterFn(...args);
+        for (const key of optionKeys) getter.values[key] = value;
         return value;
       };
 
@@ -151,27 +134,29 @@ export function createOptionsGetter<
  * An object that can be used to dynamically retrieve the values of command
  * options, including aliases. Options can be retrieved by their original key,
  * any of their aliases, or camelCased versions of either.
+ *
  * @group Options
  */
 export type OptionsGetter<TOptions extends OptionsConfig = OptionsConfig> = {
-  [K in keyof TOptions as
-    | K
-    | OptionAlias<TOptions[K]>
-    | CamelCase<K | OptionAlias<TOptions[K]>>]: OptionGetter<
-    CommandOptionType<TOptions[K]>
+  [K in keyof TOptions as OptionKey<K, OptionAlias<TOptions[K]>>]: OptionGetter<
+    OptionConfigPrimitiveType<TOptions[K]>
   >;
 } & {
   /**
    * Get the values of the specified options. This is useful when you want to
    * get the values of multiple options at once.
+   *
    * @param optionNames - The names of the options to get.
+   *
    * @returns An object with the values of the specified options keyed by both
    * their original keys and camelCased keys.
    */
-  get<K extends keyof TOptions | OptionAlias<TOptions[keyof TOptions]>>(
+  get: <
+    K extends OptionKey<keyof TOptions, OptionAlias<TOptions[keyof TOptions]>>,
+  >(
     ...optionNames: K[]
-  ): Promise<{
-    [O in K as O | CamelCase<O>]: CommandOptionsTypes<TOptions>[O];
+  ) => Promise<{
+    [O in K as O | CamelCase<O>]: OptionConfigPrimitiveType<TOptions[K]>;
   }>;
   /**
    * Direct access to the values of the options, keyed by their original keys,
@@ -179,41 +164,9 @@ export type OptionsGetter<TOptions extends OptionsConfig = OptionsConfig> = {
    * option values without triggering any validation or prompting.
    */
   readonly values: {
-    [K in keyof TOptions as
-      | K
-      | OptionAlias<TOptions[K]>
-      | CamelCase<K | OptionAlias<TOptions[K]>>]: CommandOptionType<
-      TOptions[K]
-    >;
+    [K in keyof TOptions as OptionKey<
+      K,
+      OptionAlias<TOptions[K]>
+    >]: OptionConfigPrimitiveType<TOptions[K]>;
   };
-};
-
-/**
- * Get a union of all aliases for an option.
- * @group Options
- */
-export type OptionAlias<T extends OptionConfig> = T extends {
-  alias: string[];
-}
-  ? T['alias'][number]
-  : never;
-
-/**
- * Get the primitive type for an option considering whether it is required or
- * has a default value. If neither is true, the type is the primitive type
- * unioned with `undefined`.
- */
-type CommandOptionType<T extends OptionConfig> = T['required'] extends true
-  ? OptionPrimitiveType<T['type']>
-  : T['default'] extends MaybeReadonly<OptionPrimitiveType<T['type']>>
-    ? OptionPrimitiveType<T['type']>
-    : OptionPrimitiveType<T['type']> | undefined;
-
-/**
- * Get the primitive type for each option in an options config.
- */
-type CommandOptionsTypes<T extends OptionsConfig> = {
-  [K in keyof T]: CommandOptionType<T[K]>;
-} & {
-  [K in keyof T as OptionAlias<T[K]>]: CommandOptionType<T[K]>;
 };

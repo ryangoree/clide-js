@@ -1,19 +1,19 @@
-import type { OptionValues } from 'src/core/parse';
+import type { OptionValues } from 'src/core/options/option';
 
 /**
  * Removes option tokens from a command string.
  * @param commandString - The command string to remove the tokens from.
- * @param options - The option values to remove the tokens for.
+ * @param values - The option values to remove the tokens for.
  * @returns The command string with the option tokens removed.
  * @group Options
  */
 export function removeOptionTokens(
   commandString: string,
-  options: OptionValues,
+  values: OptionValues,
 ): string {
   const optionTokens: string[] = [];
 
-  for (const [name, value] of Object.entries(options)) {
+  for (const [name, value] of Object.entries(values)) {
     optionTokens.push(`${name.length === 1 ? '-' : '--'}${name}`);
 
     switch (typeof value) {
