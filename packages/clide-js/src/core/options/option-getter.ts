@@ -90,11 +90,16 @@ export function createOptionGetter<
 
     let validateFn = validate;
 
-    // Use the default validate function if the option is required and no
+    // Assign a default validate function if the option is required and no
     // validate function is provided
     if (config?.required && !validateFn) {
       validateFn = (value) =>
-        defaultValidate(value, config.type, config.choices);
+        !!validateOptionType({
+          value,
+          name,
+          config,
+          throws: false,
+        });
     }
 
     // Prompt for the option value if not provided and a prompt is provided
@@ -240,7 +245,7 @@ export function createOptionGetter<
 
     // Validate option value type
     if (config?.type) {
-      validateOptionType(value, name, config.type);
+      validateOptionType({ value, name, config });
     }
 
     // Validate the option value if a validate function is provided
@@ -288,48 +293,4 @@ interface OptionGetterOptions<T> {
    * The validation function (optional).
    */
   validate?: (value: T) => MaybePromise<boolean>;
-}
-
-/**
- * A minimal default validate function that validates the value based on the
- * option type. Used during prompting and before returning the value.
- * @param value - The value to validate.
- * @param optionType - The type of the option.
- * @returns `true` if the value is valid, otherwise `false`.
- * @remarks
- * This function doesn't throw an error if the value is invalid. It's meant to
- * be used during prompting and before returning the value.
- * @group Options
- */
-function defaultValidate(
-  value: unknown,
-  optionType?: OptionType,
-  choices = [value],
-) {
-  switch (optionType) {
-    // Ensure numbers are numbers
-    case 'number':
-      return typeof value === 'number' && !Number.isNaN(value);
-
-    // Ensure booleans are booleans
-    case 'boolean':
-      return typeof value === 'boolean';
-
-    // Ensure arrays are arrays and have at least one item
-    case 'array': {
-      let _value = value;
-      if (typeof _value === 'string') {
-        _value = _value.split(',');
-      }
-      return (
-        Array.isArray(_value) &&
-        _value.length > 0 &&
-        _value.every((v) => choices.includes(v))
-      );
-    }
-    default:
-      return (
-        typeof value === 'string' && value.length > 0 && choices.includes(value)
-      );
-  }
 }

@@ -1,4 +1,6 @@
 import type { OptionValues, OptionsConfig } from 'src/core/options/option';
+import { validateOptionsConfig } from 'src/core/options/validate-option-config';
+import { validateOptions } from 'src/core/options/validate-options';
 import type { MaybePromise } from 'src/utils/types';
 import parse from 'yargs-parser';
 
@@ -41,6 +43,8 @@ export function parseCommand(
   commandString: string,
   optionsConfig: OptionsConfig,
 ): ParsedCommand {
+  validateOptionsConfig(optionsConfig);
+
   // Prepare the options config for yargs-parser
   const parseOptions: {
     alias: Record<string, string[]>;
@@ -104,13 +108,13 @@ export function parseCommand(
     return true;
   });
 
-  // validateOptions({
-  //   values: options,
-  //   config: optionsConfig,
-  //   enabledValidations: {
-  //     required: false,
-  //   },
-  // });
+  validateOptions({
+    values: options,
+    config: optionsConfig,
+    enabledValidations: {
+      required: false,
+    },
+  });
 
   return { tokens, options };
 }

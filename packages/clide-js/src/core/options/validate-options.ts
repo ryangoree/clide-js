@@ -1,73 +1,135 @@
 import { OptionsError } from 'src/core/errors';
-import type {
-  OptionType,
-  OptionValues,
-  OptionsConfig,
+import {
+  type OptionConfig,
+  type OptionValues,
+  type OptionsConfig,
+  getOptionDisplayName,
+  getOptionKeys,
 } from 'src/core/options/option';
+
+interface ValidationOptions {
+  values: OptionValues;
+  config: OptionsConfig;
+  enabledValidations?: {
+    type?: boolean;
+    required?: boolean;
+    conflicts?: boolean;
+    requires?: boolean;
+  };
+}
 
 /**
  * Validates the options for a command by checking for required options,
  * conflicts, and dependencies.
- * @param config - The option config to be validated.
+ *
+ * @param options - The options to be validated.
+ * @param optionsConfig - The options config.
+ *
  * @throws {OptionsError} Throws an error if the options are invalid.
+ *
  * @group Options
  */
-export function validateOptions(options: OptionValues, config: OptionsConfig) {
-  const configEntries = Object.entries(config);
-  const valuesByNameAndAlias: Record<string, unknown> = {};
+export function validateOptions({
+  config,
+  values,
+  enabledValidations = {},
+}: ValidationOptions) {
+  const {
+    type: validateType = true,
+    required: validateRequired = true,
+    conflicts: validateConflicts = true,
+    requires: validateRequires = true,
+  } = enabledValidations;
 
-  // Build up a map of option values keyed by option name and aliases
-  for (const [name, value] of Object.entries(options)) {
-    // Find the config for the option
-    for (const [configName, config] of configEntries) {
-      const isConfigForOption =
-        configName === name || config.alias?.includes(name);
+  // Expand the config object to include all keys for each option
+  const expandedConfig: OptionsConfig = {};
 
-      // If found, add the value to the map for the option name and all aliases
-      if (isConfigForOption) {
-        valuesByNameAndAlias[configName] = value;
-        for (const alias of config.alias || []) {
-          valuesByNameAndAlias[alias] = value;
-        }
+  // Populate expanded config and check for required options
+  for (const [configKey, optionConfig] of Object.entries(config)) {
+    let hasValue = false;
 
-        // config found, stop searching
-        break;
-      }
+    const allKeysForOption = getOptionKeys(configKey, optionConfig);
+    for (const key of allKeysForOption) {
+      if (key in values) hasValue = true;
+      expandedConfig[key] = {
+        ...optionConfig,
+        alias: optionConfig.alias && [...optionConfig.alias, configKey],
+      };
+    }
+
+    // Validate required
+    if (validateRequired && optionConfig.required && !hasValue) {
+      const optionName = getOptionDisplayName(configKey, optionConfig);
+      throw new OptionsError(`Option "${optionName}" is required`);
     }
   }
 
-  // Validate each option based on its config
-  for (const [name, option] of Object.entries(config)) {
-    const hasValue = name in valuesByNameAndAlias;
-    const value = valuesByNameAndAlias[name];
+  const valueEntries = Object.entries(values);
 
-    // Validate option value
-    if (hasValue) {
-      validateOptionType(value, name, option.type);
+  // Expand the values object to include all keys for each option for
+  // inter-option validation
+  const expandedValues: Record<string, unknown> = {};
+
+  // Populate expanded values and check option types
+  for (const [valueKey, value] of valueEntries) {
+    const valueConfig = expandedConfig[valueKey];
+    if (!valueConfig) continue;
+
+    // Validate type
+    if (validateType) {
+      validateOptionType({
+        value,
+        name: valueKey,
+        config: valueConfig,
+      });
     }
 
-    // Validate that required options are present
-    if (option.required && !hasValue) {
-      throw new OptionsError(`Option "${name}" is required`);
+    const allKeysForValue = getOptionKeys(valueKey, valueConfig);
+    for (const key of allKeysForValue) {
+      expandedValues[key] = value;
     }
+  }
 
-    // Validate option conflicts
-    for (const conflict of option.conflicts || []) {
-      const hasConflict = conflict in valuesByNameAndAlias;
-      if (hasConflict) {
-        throw new OptionsError(
-          `Option "${conflict}" conflicts with option "${name}"`,
-        );
+  // Skip inter-option validation if disabled
+  if (!validateConflicts && !validateRequires) return;
+
+  // Validate inter-option dependencies and conflicts
+  for (const [valueKey] of valueEntries) {
+    const valueConfig = expandedConfig[valueKey];
+    if (!valueConfig) continue;
+
+    // Validate dependencies
+    if (valueConfig.requires) {
+      for (const dependency of valueConfig.requires) {
+        if (!(dependency in expandedValues)) {
+          const dependencyName = getOptionDisplayName(
+            dependency,
+            expandedConfig[dependency],
+          );
+          throw new OptionsError(
+            `Option "${valueKey}" requires option "${dependencyName}"`,
+          );
+        }
       }
     }
 
-    // Validate option dependencies
-    for (const dependency of option.requires || []) {
-      const hasDependency = dependency in valuesByNameAndAlias;
-      if (!hasDependency) {
-        throw new OptionsError(
-          `Option "${name}" requires option "${dependency}"`,
-        );
+    // Validate conflicts
+    if (valueConfig.conflicts) {
+      for (const conflictingKey of valueConfig.conflicts) {
+        if (conflictingKey in expandedValues) {
+          // Find the key provided in the values object that conflicts
+          const conflictConfig = expandedConfig[conflictingKey]!;
+          const allKeysForConflict = getOptionKeys(
+            conflictingKey,
+            conflictConfig,
+          );
+          const conflictingValueKey = allKeysForConflict.find(
+            (key) => key in values,
+          );
+          throw new OptionsError(
+            `Option "${valueKey}" conflicts with option "${conflictingValueKey}"`,
+          );
+        }
       }
     }
   }
@@ -76,42 +138,96 @@ export function validateOptions(options: OptionValues, config: OptionsConfig) {
 /**
  * Validates an option value based on its type and throws an error if the value
  * is invalid.
- * @param value - The option value to validate.
- * @param name - The name of the option.
- * @param type - The expected type of the option.
- * @throws {OptionsError} Throws an error if the option value is invalid.
+ *
+ * @throws {OptionsError} Throws an error if the option value is invalid and
+ * `throws` is `true`.
+ *
  * @group Options
  */
-export function validateOptionType(
-  value: unknown,
-  name: string,
-  type: OptionType,
-): void {
-  if (value === undefined) {
-    return;
+export function validateOptionType({
+  value,
+  name,
+  config,
+  throws = true,
+}: {
+  /**
+   * The option value to validate.
+   */
+  value: unknown;
+  /**
+   * The name of the option.
+   */
+  name: string;
+  /**
+   * The option config.
+   */
+  config: OptionConfig;
+  /**
+   * Whether to throw an error if the value is invalid.
+   *
+   * @default true
+   */
+  throws?: boolean;
+}) {
+  if (value === undefined) return;
+  const { choices, nargs, type } = config;
+  let isValid = true;
+
+  if (nargs) {
+    let values: any[];
+    if (type === 'array') {
+      values = typeof value === 'string' ? [value.split(',')] : [value];
+    } else {
+      values = Array.isArray(value)
+        ? value
+        : typeof value === 'string'
+          ? value.split(',')
+          : [value];
+    }
+
+    isValid =
+      values.length === nargs &&
+      values.every((v) => isValidValueType(v, config));
+  } else {
+    isValid = !!isValidValueType(value, config);
   }
 
-  switch (type) {
-    case 'string':
-    case 'secret':
-      if (typeof value !== 'string') {
-        throw new OptionsError(`Option "${name}" must be a string`);
-      }
-      break;
+  if (!isValid && throws) {
+    const choicesString = choices ? ` (choices: ${choices.join(', ')})` : '';
+    throw new OptionsError(
+      `Invalid value for ${config.type} option "${name}": ${value}${choicesString}`,
+    );
+  }
+
+  return isValid;
+}
+
+function isValidValueType(value: unknown, config: OptionConfig) {
+  if (value === undefined) return;
+  const { choices } = config;
+
+  switch (config.type) {
     case 'number':
-      if (typeof value !== 'number' || Number.isNaN(value)) {
-        throw new OptionsError(`Option "${name}" must be a number`);
-      }
-      break;
+      return typeof value === 'number' && !Number.isNaN(value);
+
     case 'boolean':
-      if (typeof value !== 'boolean') {
-        throw new OptionsError(`Option "${name}" must be a boolean`);
-      }
-      break;
+      return typeof value === 'boolean';
+
     case 'array':
-      if (!Array.isArray(value)) {
-        throw new OptionsError(`Option "${name}" must be an array`);
+      if (typeof value === 'string') {
+        value = value.split(',').length > 0;
       }
-      break;
+      return (
+        Array.isArray(value) &&
+        value.length > 0 &&
+        (!choices || value.every((v) => choices.includes(v)))
+      );
+
+    default:
+      return (
+        typeof value === 'string' &&
+        value.length > 0 &&
+        (!choices || choices.includes(value))
+      );
   }
 }

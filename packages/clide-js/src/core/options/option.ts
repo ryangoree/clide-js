@@ -201,7 +201,10 @@ export function getOptionKeys(configKey: string, config: OptionConfig) {
  *
  * @group Options
  */
-export function getOptionDisplayName(configKey: string, config: OptionConfig) {
+export function getOptionDisplayName(
+  configKey: string,
+  config: OptionConfig | undefined,
+) {
   if (configKey.length > 1) return configKey;
-  return config.alias?.find((alias) => alias.length > 1) || configKey;
+  return config?.alias?.find((alias) => alias.length > 1) || configKey;
 }
