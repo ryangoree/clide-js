@@ -6,9 +6,7 @@
   "license": "MIT",
   "bin": "dist/cli.js",
   "type": "module",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "dev": "NODE_ENV=development tsx src/cli.ts",
     "prod": "node dist/cli.js",

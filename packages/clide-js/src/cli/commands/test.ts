@@ -1,27 +1,21 @@
 import { command } from 'src/core/command';
-import otherCommand from './other';
 
 export default command({
   options: {
-    i: {
-      alias: ['input'],
+    a: {
       type: 'string',
-      required: true,
+      alias: ['A', 'a-alias'],
+      nargs: 2,
+      choices: ['a', 'b', 'c'],
     },
   },
-  handler: async ({ next, options, fork }) => {
-    const input = await options.input();
-    console.log(`test input: ${input}`);
+  handler: async ({ options }) => {
+    const a = await options.a();
+    //    ^?
+    console.log('a', a);
 
-    const forkResult = await fork({
-      commands: [otherCommand],
-      optionValues: {
-        i: `forked ${input}`,
-        // input: `forked ${input}`,
-      },
-    });
-    console.log('fork result:', forkResult);
-
-    next(forkResult);
+    const aAlias = await options.aAlias();
+    //    ^?
+    console.log('aAlias', aAlias);
   },
 });

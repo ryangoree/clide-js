@@ -1,5 +1,4 @@
 import prompts, { type PromptType, type PromptObject } from 'prompts';
-import type { } from 'src/core/options/option';
 import { ClideError, ClientError } from './errors';
 
 /**

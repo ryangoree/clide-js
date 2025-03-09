@@ -55,6 +55,23 @@ export type OptionPrimitiveType<T extends OptionType = OptionType> =
   OptionPrimitiveTypeMap[T];
 
 /**
+ * Get the argument type for an option considering the  number of arguments it
+ * accepts.
+ */
+export type OptionArgumentType<
+  T extends OptionType = OptionType,
+  TNargs extends number | undefined = undefined,
+> = TNargs extends number
+  ? TNargs extends 0 | 1
+    ? OptionPrimitiveType<T>
+    : OptionPrimitiveType<T> extends infer T extends OptionPrimitiveType
+      ? T extends any[]
+        ? T
+        : T[]
+      : never
+  : OptionPrimitiveType<T>;
+
+/**
  * The configuration interface for an option used to define how an option will
  * be parsed and validated.
  *
@@ -111,10 +128,10 @@ export interface OptionConfig<
  */
 export type OptionConfigPrimitiveType<T extends OptionConfig = OptionConfig> =
   T['required'] extends true
-    ? OptionPrimitiveType<T['type']>
-    : T['default'] extends MaybeReadonly<OptionPrimitiveType<T['type']>>
-      ? OptionPrimitiveType<T['type']>
-      : OptionPrimitiveType<T['type']> | undefined;
+    ? OptionArgumentType<T['type'], T['nargs']>
+    : T['default'] extends MaybeReadonly<OptionArgumentType<T['type']>>
+      ? OptionArgumentType<T['type'], T['nargs']>
+      : OptionArgumentType<T['type'], T['nargs']> | undefined;
 
 /**
  * Get a union of all aliases for an option.

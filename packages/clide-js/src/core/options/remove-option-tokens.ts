@@ -11,7 +11,7 @@ export function removeOptionTokens(
   commandString: string,
   values: OptionValues,
 ): string {
-  const optionTokens: string[] = [];
+  const optionTokens: (string | number | boolean)[] = [];
 
   for (const [name, value] of Object.entries(values)) {
     optionTokens.push(`${name.length === 1 ? '-' : '--'}${name}`);
