@@ -15,6 +15,47 @@ import {
 import { type CamelCase, camelCase } from 'src/utils/camel-case';
 
 /**
+ * An object that can be used to dynamically retrieve the values of command
+ * options, including aliases. Options can be retrieved by their original key,
+ * any of their aliases, or camelCased versions of either.
+ *
+ * @group Options
+ */
+export type OptionsGetter<TOptions extends OptionsConfig = OptionsConfig> = {
+  [K in keyof TOptions as OptionKey<K, OptionAlias<TOptions[K]>>]: OptionGetter<
+    OptionConfigPrimitiveType<TOptions[K]>
+  >;
+} & {
+  /**
+   * Get the values of the specified options. This is useful when you want to
+   * get the values of multiple options at once.
+   *
+   * @param optionNames - The names of the options to get.
+   *
+   * @returns An object with the values of the specified options keyed by both
+   * their original keys and camelCased keys.
+   */
+  get: <
+    K extends OptionKey<keyof TOptions, OptionAlias<TOptions[keyof TOptions]>>,
+  >(
+    ...optionNames: K[]
+  ) => Promise<{
+    [O in K as O | CamelCase<O>]: OptionConfigPrimitiveType<TOptions[K]>;
+  }>;
+  /**
+   * Direct access to the values of the options, keyed by their original keys,
+   * aliases, and camelCased versions of both. This is useful for checking
+   * option values without triggering any validation or prompting.
+   */
+  readonly values: {
+    [K in keyof TOptions as OptionKey<
+      K,
+      OptionAlias<TOptions[K]>
+    >]: OptionConfigPrimitiveType<TOptions[K]>;
+  };
+};
+
+/**
  * Configuration options for the {@linkcode createOptionsGetter} function.
  *
  * @group Options
@@ -129,44 +170,3 @@ export function createOptionsGetter<
 
   return getter as OptionsGetter<TOptionsConfig>;
 }
-
-/**
- * An object that can be used to dynamically retrieve the values of command
- * options, including aliases. Options can be retrieved by their original key,
- * any of their aliases, or camelCased versions of either.
- *
- * @group Options
- */
-export type OptionsGetter<TOptions extends OptionsConfig = OptionsConfig> = {
-  [K in keyof TOptions as OptionKey<K, OptionAlias<TOptions[K]>>]: OptionGetter<
-    OptionConfigPrimitiveType<TOptions[K]>
-  >;
-} & {
-  /**
-   * Get the values of the specified options. This is useful when you want to
-   * get the values of multiple options at once.
-   *
-   * @param optionNames - The names of the options to get.
-   *
-   * @returns An object with the values of the specified options keyed by both
-   * their original keys and camelCased keys.
-   */
-  get: <
-    K extends OptionKey<keyof TOptions, OptionAlias<TOptions[keyof TOptions]>>,
-  >(
-    ...optionNames: K[]
-  ) => Promise<{
-    [O in K as O | CamelCase<O>]: OptionConfigPrimitiveType<TOptions[K]>;
-  }>;
-  /**
-   * Direct access to the values of the options, keyed by their original keys,
-   * aliases, and camelCased versions of both. This is useful for checking
-   * option values without triggering any validation or prompting.
-   */
-  readonly values: {
-    [K in keyof TOptions as OptionKey<
-      K,
-      OptionAlias<TOptions[K]>
-    >]: OptionConfigPrimitiveType<TOptions[K]>;
-  };
-};
