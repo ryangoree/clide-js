@@ -266,8 +266,8 @@ export class State<
     // FIXME: If provided a value for an alias, but the command already has a
     // value for the original option key, the alias value is ignored.
     optionValues?: OptionValues<
-      Required<TCommand>['options'] extends OptionsConfig
-        ? Required<TCommand>['options']
+      TCommand['options'] extends OptionsConfig
+        ? TCommand['options']
         : OptionsConfig
     >;
     // TODO: strict type for paramValues

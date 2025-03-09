@@ -127,11 +127,13 @@ export interface OptionConfig<
  * Get the primitive type for an option considering it's config.
  */
 export type OptionConfigPrimitiveType<T extends OptionConfig = OptionConfig> =
-  T['required'] extends true
-    ? OptionArgumentType<T['type'], T['nargs']>
-    : T['default'] extends MaybeReadonly<OptionArgumentType<T['type']>>
+  T extends OptionConfig
+    ? T['required'] extends true
       ? OptionArgumentType<T['type'], T['nargs']>
-      : OptionArgumentType<T['type'], T['nargs']> | undefined;
+      : T['default'] extends MaybeReadonly<OptionArgumentType<T['type']>>
+        ? OptionArgumentType<T['type'], T['nargs']>
+        : OptionArgumentType<T['type'], T['nargs']> | undefined
+    : undefined;
 
 /**
  * Get a union of all aliases for an option.
