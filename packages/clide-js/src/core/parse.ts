@@ -112,6 +112,9 @@ export function parseCommand(
     values: options,
     config: optionsConfig,
     enabledValidations: {
+      // These validations will happen when the options are requested by a
+      // handler via the option getter.
+      type: false,
       required: false,
     },
   });
