@@ -171,32 +171,44 @@ export function validateOptionType({
 }) {
   if (value === undefined) return;
   const { choices, nargs, type } = config;
+  const additionalInfo: string[] = [];
   let isValid = true;
 
   if (nargs) {
     let values: any[];
-    if (type === 'array') {
-      values = typeof value === 'string' ? [value.split(',')] : [value];
-    } else {
-      values = Array.isArray(value)
-        ? value
-        : typeof value === 'string'
-          ? value.split(',')
-          : [value];
+    values = Array.isArray(value)
+      ? value
+      : typeof value === 'string'
+        ? value.split(',')
+        : [value];
+
+    if (values.length !== nargs) {
+      additionalInfo.push(
+        `Expected ${nargs} value${nargs === 1 ? '' : 's'}, received ${values.length}.`,
+      );
+      isValid = false;
     }
 
-    isValid =
-      values.length === nargs &&
-      values.every((v) => isValidValueType(v, config));
+    if (isValid) {
+      if (type === 'array') {
+        isValid = !!isValidValueType(value, config);
+      } else {
+        isValid = values.every((v) => isValidValueType(v, config));
+      }
+    }
   } else {
     isValid = !!isValidValueType(value, config);
   }
 
   if (!isValid && throws) {
-    const choicesString = choices ? ` (choices: ${choices.join(', ')})` : '';
-    throw new OptionsError(
-      `Invalid value for ${config.type} option "${name}": ${value}${choicesString}`,
-    );
+    if (choices) {
+      additionalInfo.push(`Choices: ${choices.join(', ')}`);
+    }
+    let errorString = `Invalid value for ${config.type} option "${name}": ${value}`;
+    if (additionalInfo.length) {
+      errorString += `\n\n  ${additionalInfo.join('\n  ')}\n`;
+    }
+    throw new OptionsError(errorString);
   }
 
   return isValid;
