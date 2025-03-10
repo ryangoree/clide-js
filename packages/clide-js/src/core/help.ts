@@ -1,12 +1,12 @@
 import fs from 'node:fs';
 import initCliui from 'cliui';
+import type { Context } from 'src/core/context';
+import type { OptionsConfig } from 'src/core/options/options';
+import type { ResolvedCommand } from 'src/core/resolve';
 import { getBin } from 'src/utils/argv';
 import { type Converted, convert } from 'src/utils/convert';
 import { parseFileName, removeFileExtension } from 'src/utils/filename';
 import { isDirectory } from 'src/utils/fs';
-import type { Context } from './context';
-import type { OptionsConfig } from './options/option';
-import type { ResolvedCommand } from './resolve';
 
 // The base indent for all rows
 const BASE_INDENT = 2;

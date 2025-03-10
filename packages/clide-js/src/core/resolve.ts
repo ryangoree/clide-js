@@ -2,11 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { type CommandModule, passThroughCommand } from 'src/core/command';
 import {
-  MissingDefaultExportError,
-  NotFoundError,
-  OptionsError,
+  ClideError,
+  type ClideErrorOptions,
   UsageError,
 } from 'src/core/errors';
+import { OptionsError } from 'src/core/options/validate-options';
 import { type ParseCommandFn, parseCommand } from 'src/core/parse';
 import {
   formatFileName,
@@ -17,21 +17,153 @@ import { isDirectory, isFile } from 'src/utils/fs';
 import { joinTokens, splitTokens } from 'src/utils/tokens';
 import type { MaybePromise } from 'src/utils/types';
 
+// Errors //
+
 /**
- * Options for the {@linkcode resolveCommand} function.
+ * An error thrown when attempting to resolve an empty command string.
+ * @group Errors
+ */
+export class CommandRequiredError extends UsageError {
+  constructor(options?: ClideErrorOptions) {
+    super('Command required.', {
+      name: 'CommandRequiredError',
+      ...options,
+    });
+  }
+}
+
+/**
+ * An error indicating a command is missing a default export.
+ * @group Errors
+ */
+export class MissingDefaultExportError extends ClideError {
+  constructor(
+    token: string | number,
+    path: string,
+    options?: ClideErrorOptions,
+  ) {
+    super(`Missing default export for command "${token}" at "${path}"`, {
+      name: 'MissingDefaultExportError',
+      ...options,
+    });
+  }
+}
+
+/**
+ * An error indicating a command is not found.
+ * @group Errors
+ */
+export class NotFoundError extends UsageError {
+  constructor(
+    token: string | number,
+    path: string,
+    options?: ClideErrorOptions,
+  ) {
+    super(
+      process.env.NODE_ENV === 'development'
+        ? // In development, show the full path to the command
+          `Unable to find command "${token}" in "${path.replace(/\/?$/, '/')}"`
+        : // In production, just show the command name
+          `Command "${token}" not found.`,
+      {
+        name: 'NotFoundError',
+        ...options,
+      },
+    );
+  }
+}
+
+/**
+ * An error indicating a required subcommand is missing.
+ * @group Errors
+ */
+export class SubcommandRequiredError extends UsageError {
+  constructor(commandString: string, options?: ClideErrorOptions) {
+    super(`Subcommand required for command "${commandString}".`, {
+      name: 'SubcommandRequiredError',
+      ...options,
+    });
+  }
+}
+
+// Types //
+
+/**
+ * A function to resolve a command based on the provided command string and
+ * directory path, returning the first matching command.
  * @group Resolve
  */
-export interface ResolveCommandOptions {
+export type ResolveCommandFn = (
+  options: ResolveCommandParams,
+) => MaybePromise<ResolvedCommand>;
+
+/**
+ * Params that were parsed from the command string.
+ * @group Resolve
+ */
+export type Params = Record<string, string | string[]>;
+
+/**
+ * Object containing details about the resolved command, the path to the command
+ * file, any parameters, and a function to resolve the next command, if any.
+ * @group Resolve
+ */
+export interface ResolvedCommand {
+  /**
+   * The command object associated with the resolved command.
+   */
+  command: CommandModule;
+  /**
+   * The path to the resolved command file.
+   */
+  commandPath: string;
+  /**
+   * The name of the resolved command.
+   */
+  commandName: string;
+  /**
+   * The command tokens that were resolved.
+   */
+  commandTokens: string[];
+  /**
+   * The part of the command string that has not yet been resolved.
+   */
+  remainingCommandString: string;
+  /**
+   * The path to the directory where the command's subcommands should live.
+   */
+  subcommandsDir: string;
+  /**
+   * A function to resolve the next command, if any, based on the remaining
+   * command string.
+   */
+  resolveNext?: () => Promise<ResolvedCommand>;
+  /**
+   * The params associated with the resolved command.
+   */
+  params?: Params;
+}
+
+// Functions + Function Param Types //
+
+interface BaseResolveCommandParams {
   /** The command string to resolve a command file for. */
   commandString: string;
-  /** The path to the directory containing the command files. */
-  commandsDir: string;
   /**
    * A function to parse the command string and options. Used to determine if
    * the command string contains any options and to remove them from the
    * remaining command string.
    */
   parseFn?: ParseCommandFn;
+}
+
+/**
+ * Params for the {@linkcode resolveCommand} function.
+ * @group Resolve
+ */
+export interface ResolveCommandParams extends BaseResolveCommandParams {
+  /** The path to the directory containing the command files. */
+  commandsDir: string;
 }
 
 /**
@@ -50,23 +182,22 @@ export interface ResolveCommandOptions {
  * The function provides detailed error feedback if the command can't be
  * resolved or if the found module doesn't export a default command.
  *
- * @param commandString - The command to resolve.
- * @param commandsDir - Path to the directory containing potential command
- * implementations.
- * @returns Object containing details about the resolved command, the path to
+ * @returns An object containing details about the resolved command, the path to
  * the command file, any parameters, and a function to resolve the next command,
  * if any.
+ *
  * @throws {UsageError | NotFoundError | MissingDefaultExportError} Throws an
  * error if command resolution fails due to missing tokens, command not found,
  * or missing default export.
+ *
  * @group Resolve
  */
 export async function resolveCommand({
   commandString,
   commandsDir,
   parseFn = parseCommand,
-}: ResolveCommandOptions): Promise<ResolvedCommand> {
-  if (!commandString.length) throw new UsageError('Command required.');
+}: ResolveCommandParams): Promise<ResolvedCommand> {
+  if (!commandString.length) throw new CommandRequiredError();
 
   const [commandName, ...remainingTokens] = splitTokens(commandString) as [
     string,
@@ -147,8 +278,85 @@ export async function resolveCommand({
     throw new NotFoundError(commandName, commandsDir);
   }
 
-  return prepareResolvedCommand(resolved, parseFn);
+  return prepareResolvedCommand({ commandString, resolved, parseFn });
 }
+
+/**
+ * Params for the {@linkcode prepareResolvedCommand} function.
+ * @group Resolve
+ */
+export interface PrepareResolvedCommandParams
+  extends Required<BaseResolveCommandParams> {
+  /** The resolved command to prepare. */
+  resolved: ResolvedCommand;
+}
+
+/**
+ * Prepares a resolved command by ensuring the remaining command string starts
+ * with a subcommand name, adding a `resolveNext` function if the command isn't
+ * the last one, and replacing the handler with a pass-through function if the
+ * command won't be executed.
+ *
+ * @returns The prepared resolved command.
+ *
+ * @group Resolve
+ */
+export async function prepareResolvedCommand({
+  commandString,
+  resolved,
+  parseFn,
+}: PrepareResolvedCommandParams) {
+  // isMiddleware could be undefined, so we need to check for false explicitly
+  const isMiddleware = resolved.command.isMiddleware !== false;
+
+  // Ensure the remaining command string starts with a subcommand name by
+  // removing any leading options. This will ensure they aren't treated as
+  // command names which would cause errors during resolution. Example: `--help
+  // foo` -> `foo`
+  if (resolved.remainingCommandString.length) {
+    // Parse the remaining command string to separate the tokens from the
+    // options.
+    const { tokens } = await parseFn(
+      resolved.remainingCommandString,
+      isMiddleware ? resolved.command.options || {} : {},
+    );
+
+    // If there are only options left, then empty the remaining command string.
+    if (!tokens.length) {
+      resolved.remainingCommandString = '';
+    } else {
+      // Otherwise, remove the leading options.
+      const indexOfNextCommand = resolved.remainingCommandString.indexOf(
+        tokens[0]!,
+      );
+      resolved.remainingCommandString =
+        resolved.remainingCommandString.slice(indexOfNextCommand);
+    }
+  }
+
+  // Add a resolveNext function if the command isn't the last one.
+  const isLast = !resolved.remainingCommandString.length;
+  if (!isLast) {
+    resolved.resolveNext = () =>
+      resolveCommand({
+        commandString: resolved.remainingCommandString,
+        commandsDir: resolved.subcommandsDir,
+        parseFn,
+      });
+  } else if (resolved.command.requiresSubcommand) {
+    throw new SubcommandRequiredError(commandString);
+  }
+
+  // Replace the handler if the command won't be executed.
+  const willExecute = isLast || isMiddleware;
+  if (!willExecute) {
+    resolved.command.handler = ({ data, next }) => next(data);
+  }
+
+  return resolved;
+}
+
+// Internal //
 
 /**
  * Attempts to load a command module by finding a param file name in the given
@@ -158,7 +366,7 @@ async function resolveParamCommand({
   commandString,
   commandsDir,
   parseFn = parseCommand,
-}: ResolveCommandOptions): Promise<ResolvedCommand | undefined> {
+}: ResolveCommandParams): Promise<ResolvedCommand | undefined> {
   if (!commandString.length) throw new UsageError('Command required.');
 
   const fileNames = await fs.promises.readdir(commandsDir);
@@ -245,122 +453,4 @@ async function resolveParamCommand({
   }
 
   return resolved;
-}
-
-/**
- * Prepares a resolved command by ensuring the remaining command string starts
- * with a subcommand name, adding a `resolveNext` function if the command isn't
- * the last one, and replacing the handler with a pass-through function if the
- * command won't be executed.
- * @param resolved - The resolved command to prepare.
- * @param parseFn - The function to parse the command string.
- * @returns The prepared resolved command.
- * @group Resolve
- */
-export async function prepareResolvedCommand(
-  resolved: ResolvedCommand,
-  parseFn: ParseCommandFn,
-) {
-  // isMiddleware could be undefined, so we need to check for false explicitly
-  const isMiddleware = resolved.command.isMiddleware !== false;
-
-  // Ensure the remaining command string starts with a subcommand name by
-  // removing any leading options. This will ensure they aren't treated as
-  // command names which would cause errors during resolution. Example: `--help
-  // foo` -> `foo`
-  if (resolved.remainingCommandString.length) {
-    // Parse the remaining command string to separate the tokens from the
-    // options.
-    const { tokens } = await parseFn(
-      resolved.remainingCommandString,
-      isMiddleware ? resolved.command.options || {} : {},
-    );
-
-    // If there are only options left, then empty the remaining command string.
-    if (!tokens.length) {
-      resolved.remainingCommandString = '';
-    } else {
-      // Otherwise, remove the leading options.
-      const indexOfNextCommand = resolved.remainingCommandString.indexOf(
-        tokens[0]!,
-      );
-      resolved.remainingCommandString =
-        resolved.remainingCommandString.slice(indexOfNextCommand);
-    }
-  }
-
-  // Add a resolveNext function if the command isn't the last one.
-  const isLast = !resolved.remainingCommandString.length;
-  if (!isLast) {
-    resolved.resolveNext = () =>
-      resolveCommand({
-        commandString: resolved.remainingCommandString,
-        commandsDir: resolved.subcommandsDir,
-        parseFn,
-      });
-  }
-
-  // Replace the handler if the command won't be executed.
-  const willExecute = isLast || isMiddleware;
-  if (!willExecute) {
-    resolved.command.handler = ({ data, next }) => next(data);
-  }
-
-  return resolved;
-}
-
-/**
- * A function to resolve a command based on the provided command string and
- * directory path, returning the first matching command.
- * @group Resolve
- */
-export type ResolveCommandFn = (
-  options: ResolveCommandOptions,
-) => MaybePromise<ResolvedCommand>;
-
-/**
- * Params that were parsed from the command string.
- * @group Resolve
- */
-export type Params = Record<string, string | string[]>;
-
-/**
- * Object containing details about the resolved command, the path to the command
- * file, any parameters, and a function to resolve the next command, if any.
- * @group Resolve
- */
-export interface ResolvedCommand {
-  /**
-   * The command object associated with the resolved command.
-   */
-  command: CommandModule;
-  /**
-   * The path to the resolved command file.
-   */
-  commandPath: string;
-  /**
-   * The name of the resolved command.
-   */
-  commandName: string;
-  /**
-   * The command tokens that were resolved.
-   */
-  commandTokens: string[];
-  /**
-   * The part of the command string that has not yet been resolved.
-   */
-  remainingCommandString: string;
-  /**
-   * The path to the directory where the command's subcommands should live.
-   */
-  subcommandsDir: string;
-  /**
-   * A function to resolve the next command, if any, based on the remaining
-   * command string.
-   */
-  resolveNext?: () => Promise<ResolvedCommand>;
-  /**
-   * The params associated with the resolved command.
-   */
-  params?: Params;
 }

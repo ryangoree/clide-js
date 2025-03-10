@@ -1,8 +1,10 @@
-import type { OptionValues, OptionsConfig } from 'src/core/options/option';
+import type { OptionValues, OptionsConfig } from 'src/core/options/options';
 import { validateOptionsConfig } from 'src/core/options/validate-option-config';
 import { validateOptions } from 'src/core/options/validate-options';
 import type { MaybePromise } from 'src/utils/types';
 import parse from 'yargs-parser';
+
+// Types //
 
 /**
  * Command tokens representing commands, subcommands, and/or params.
@@ -27,6 +29,8 @@ export type ParseCommandFn = (
   commandString: string,
   optionsConfig: OptionsConfig,
 ) => MaybePromise<ParsedCommand>;
+
+// Functions + Function Param Types //
 
 /**
  * Parse a command string into command tokens and options values.
@@ -111,11 +115,9 @@ export function parseCommand(
   validateOptions({
     values: options,
     config: optionsConfig,
-    enabledValidations: {
-      // These validations will happen when the options are requested by a
-      // handler via the option getter.
-      type: false,
-      required: false,
+    validations: {
+      conflicts: true,
+      requires: true,
     },
   });
 

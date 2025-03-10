@@ -1,5 +1,22 @@
-import { OptionsConfigError } from 'src/core/errors';
-import type { OptionsConfig } from './option';
+import { ClideError, type ClideErrorOptions } from 'src/core/errors';
+import type { OptionsConfig } from './options';
+
+// Errors //
+
+/**
+ * An error indicating the options config is invalid.
+ * @group Errors
+ */
+export class OptionsConfigError extends ClideError {
+  constructor(message: string, options?: ClideErrorOptions) {
+    super(message, {
+      name: 'OptionsConfigError',
+      ...options,
+    });
+  }
+}
+
+// Functions + Function Param Types //
 
 /**
  * @throws {OptionsConfigError} Throws an error if the options config is

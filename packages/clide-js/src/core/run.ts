@@ -1,19 +1,20 @@
 import path from 'node:path';
+import { ClientError } from 'src/core/client';
 import { hideBin } from 'src/utils/argv';
 import { getCallerPath } from 'src/utils/caller-path';
 import { isDirectory } from 'src/utils/fs';
 import { joinTokens } from 'src/utils/tokens';
 import { Context } from './context';
-import { ClideError, ClientError } from './errors';
+import { ClideError } from './errors';
 import { type HookPayload, HooksEmitter } from './hooks';
-import type { OptionsConfig } from './options/option';
+import type { OptionsConfig } from './options/options';
 import type { Plugin } from './plugin';
 
 /**
- * Options for the {@linkcode run} function.
+ * Params for the {@linkcode run} function.
  * @group Run
  */
-export interface RunOptions {
+export interface RunParams {
   /**
    * The command string or array to be parsed and executed. If not provided, it
    * defaults to system arguments.
@@ -25,7 +26,7 @@ export interface RunOptions {
   defaultCommand?: string | string[];
   /**
    * A directory path containing command modules.
-   * @default "<cwd>/commands" || "<caller-dir>/commands"
+   * @default `${process.cwd()}/commands` || `${__dirname}/commands`
    */
   commandsDir?: string;
   /**
@@ -122,7 +123,7 @@ export async function run({
   beforeEnd,
   onError,
   onExit,
-}: RunOptions = {}) {
+}: RunParams = {}) {
   // attempt to find commands directory
   if (!commandsDir) {
     // keep track of paths that were tried for the error message

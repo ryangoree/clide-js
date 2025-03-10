@@ -22,15 +22,15 @@ export interface ClideErrorOptions extends ErrorOptions {
  * class FooCliError extends ClideError {
  *   constructor(message: string, options?: ErrorOptions) {
  *     super(message, {
- *       ...options,
- *       prefix: "🚨 ",
+ *       prefix: "👺 ",
  *       name: "Foo CLI Error",
+ *       ...options,
  *     });
  *   }
  * }
  *
  * throw new FooCliError("Something went wrong");
- * // 🚨 Foo CLI Error: Something went wrong
+ * // 👺 Foo CLI Error: Something went wrong
  * //     at ...
  * ```
  *
@@ -115,86 +115,14 @@ export class ClideError extends Error {
 }
 
 /**
- * An error that has already been printed by the client.
- * @group Errors
- */
-export class ClientError extends ClideError {
-  constructor(message: string, options?: ClideErrorOptions) {
-    super(message, options);
-    this.name = 'Error';
-  }
-}
-
-/**
  * An error indicating the user has done something wrong.
  * @group Errors
  */
 export class UsageError extends ClideError {
-  constructor(error: any, options?: ClideErrorOptions) {
-    super(error, options);
-    this.name = 'UsageError';
-  }
-}
-
-/**
- * An error indicating the user has provided invalid options.
- * @group Errors
- */
-export class OptionsError extends UsageError {
-  constructor(message: string, options?: ClideErrorOptions) {
-    super(message, options);
-    this.name = 'OptionsError';
-  }
-}
-
-/**
- * An error indicating the options config is invalid.
- * @group Errors
- */
-export class OptionsConfigError extends ClideError {
-  constructor(message: string, options?: ClideErrorOptions) {
-    super(message, options);
-    this.name = 'OptionsConfigError';
-  }
-}
-
-/**
- * An error indicating a command is not found.
- * @group Errors
- */
-export class NotFoundError extends UsageError {
-  constructor(token: string | number, path: string) {
-    if (process.env.NODE_ENV === 'development') {
-      // In development, show the full path to the command
-      super(
-        `Unable to find command "${token}" in "${path.replace(/\/?$/, '/')}"`,
-      );
-    } else {
-      // In production, just show the command name
-      super(`Command "${token}" not found.`);
-    }
-    this.name = 'NotFoundError';
-  }
-}
-
-/**
- * An error indicating a command is missing a default export.
- * @group Errors
- */
-export class MissingDefaultExportError extends ClideError {
-  constructor(token: string | number, path: string) {
-    super(`Missing default export for command "${token}" at "${path}"`);
-    this.name = 'MissingDefaultExportError';
-  }
-}
-
-/**
- * An error indicating a required subcommand is missing.
- * @group Errors
- */
-export class RequiredSubcommandError extends UsageError {
-  constructor(commandString: string) {
-    super(`Subcommand required for command "${commandString}".`);
-    this.name = 'RequiredSubcommandError';
+  constructor(error: unknown, options?: ClideErrorOptions) {
+    super(error, {
+      name: 'UsageError',
+      ...options,
+    });
   }
 }

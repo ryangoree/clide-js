@@ -37,7 +37,8 @@
       },
       "suspicious": {
         "noExplicitAny": "info",
-        "noDoubleEquals": "warn"
+        "noDoubleEquals": "warn",
+        "noAssignInExpressions": "off"
       }
     },
     "ignore": ["./**/dist/**", "./**/node_modules/**"]

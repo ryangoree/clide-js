@@ -1,23 +1,21 @@
+import { Client } from 'src/core/client';
+import { ClideError } from 'src/core/errors';
+import { HooksEmitter } from 'src/core/hooks';
+import type { OptionValues, OptionsConfig } from 'src/core/options/options';
 import { type ParseCommandFn, parseCommand } from 'src/core/parse';
-import { Client } from './client';
-import { ClideError, RequiredSubcommandError } from './errors';
-import { HooksEmitter } from './hooks';
-import type { OptionValues, OptionsConfig } from './options/option';
-import type { Plugin, PluginInfo } from './plugin';
+import type { Plugin, PluginInfo } from 'src/core/plugin';
 import {
   type ResolveCommandFn,
   type ResolvedCommand,
   resolveCommand,
-} from './resolve';
+} from 'src/core/resolve';
 import { State } from './state';
 
 /**
- * Options for creating a new {@linkcode Context} instance.
+ * Params for creating a new {@linkcode Context} instance.
  * @group Context
  */
-export interface ContextOptions<
-  TOptions extends OptionsConfig = OptionsConfig,
-> {
+export interface ContextParams<TOptions extends OptionsConfig = OptionsConfig> {
   /** The command string to be executed */
   commandString: string;
   /** The path to the directory containing command modules */
@@ -124,7 +122,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
     options = {} as TOptions,
     resolveFn = resolveCommand,
     parseFn = parseCommand,
-  }: ContextOptions<TOptions>) {
+  }: ContextParams<TOptions>) {
     this.commandString = commandString;
     this.commandsDir = commandsDir;
     this.client = client;
@@ -148,7 +146,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
   /**
    * Create a new `Context` instance and automatically prep it for execution.
    */
-  static async prepare(options: ContextOptions) {
+  static async prepare(options: ContextParams) {
     const context = new Context(options);
     await context.prepare();
     return context;
@@ -442,20 +440,20 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
     });
 
     // Only resolve if the hook didn't skip
-    let lastResolved = this.#isResolved
+    let pendingCommand = this.#isResolved
       ? undefined
       : await this.resolveCommand();
 
     // Continue resolving until the last command is reached or the
     // `beforeResolveNext` hook skips
-    while (lastResolved && !this.#isResolved) {
+    while (pendingCommand && !this.#isResolved) {
       // Add the command's options to the context's options config
-      if (lastResolved.command.options) {
-        this.addOptions(lastResolved.command.options);
+      if (pendingCommand.command.options) {
+        this.addOptions(pendingCommand.command.options);
       }
 
       // Add the resolved command to the list of resolved commands
-      this.#resolvedCommands.push(lastResolved);
+      this.#resolvedCommands.push(pendingCommand);
 
       // TODO: Add init property to command module?
       // if (resolved.command.init) {
@@ -464,18 +462,15 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
 
       // If the command doesn't have a resolveNext function and doesn't require
       // a subcommand, then we're done resolving.
-      if (
-        !lastResolved.resolveNext &&
-        !lastResolved.command.requiresSubcommand
-      ) {
+      if (!pendingCommand.resolveNext) {
         this.#isResolved = true;
         break;
       }
 
       await this.hooks.call('beforeResolveNext', {
-        commandString: lastResolved.remainingCommandString,
-        commandsDir: lastResolved.subcommandsDir,
-        lastResolved,
+        commandString: pendingCommand.remainingCommandString,
+        commandsDir: pendingCommand.subcommandsDir,
+        lastResolved: pendingCommand,
         setResolveFn: (resolveFn) => {
           this.#resolveFn = resolveFn;
         },
@@ -497,9 +492,9 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
       });
 
       // Don't resolve if the hook skipped
-      lastResolved = this.#isResolved
+      pendingCommand = this.#isResolved
         ? undefined
-        : await lastResolved.resolveNext?.();
+        : await pendingCommand.resolveNext?.();
     }
 
     await this.hooks.call('afterResolve', {
@@ -512,15 +507,8 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
           }
           this.#resolvedCommands.push(resolved);
         }
-        lastResolved = resolvedCommands.at(-1);
       },
     });
-
-    // Throw an error if the last command requires a subcommand but none was
-    // provided.
-    if (lastResolved?.command.requiresSubcommand) {
-      await this.throw(new RequiredSubcommandError(this.commandString));
-    }
 
     // Mark the context as resolved
     this.#isResolved = true;

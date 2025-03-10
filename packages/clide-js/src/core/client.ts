@@ -1,5 +1,39 @@
 import prompts, { type PromptType, type PromptObject } from 'prompts';
-import { ClideError, ClientError } from './errors';
+import { ClideError, type ClideErrorOptions } from 'src/core/errors';
+
+/**
+ * An error that has already been printed by the client.
+ * @group Errors
+ */
+export class ClientError extends ClideError {
+  constructor(message: string, options?: ClideErrorOptions) {
+    super(message, {
+      name: 'Error',
+      ...options,
+    });
+  }
+}
+
+/**
+ * Ensures the type map is up-to-date. If any types are missing, a type error
+ * will be thrown.
+ */
+type PromptTypeMapDef<T extends Record<PromptType, unknown>> = T;
+
+type PromptTypeMap = PromptTypeMapDef<{
+  text: string;
+  password: string;
+  invisible: string;
+  number: number;
+  confirm: boolean;
+  list: string[];
+  toggle: boolean;
+  select: string;
+  multiselect: string[];
+  autocomplete: string;
+  date: Date;
+  autocompleteMultiselect: string[];
+}>;
 
 /**
  * A variation of {@linkcode PromptObject} with a few changes:
@@ -84,24 +118,3 @@ export class Client {
     return value;
   }
 }
-
-type PromptTypeMap = PromptTypeMapDef<{
-  text: string;
-  password: string;
-  invisible: string;
-  number: number;
-  confirm: boolean;
-  list: string[];
-  toggle: boolean;
-  select: string;
-  multiselect: string[];
-  autocomplete: string;
-  date: Date;
-  autocompleteMultiselect: string[];
-}>;
-
-/**
- * Ensures the type map is up-to-date. If any types are missing, a type error
- * will be thrown.
- */
-type PromptTypeMapDef<T extends Record<PromptType, unknown>> = T;

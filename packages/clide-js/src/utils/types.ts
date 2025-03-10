@@ -1,4 +1,4 @@
-export type AnyObject = Record<PropertyKey, any>;
+export type AnyObject<TValue = any> = Record<PropertyKey, TValue>;
 
 export type AnyFunction = (...args: any) => any;
 
@@ -25,6 +25,11 @@ export type Nothing = undefined | null;
  * ```
  */
 export type Eval<T> = { [K in keyof T]: T[K] } & unknown;
+
+/**
+ * Replace properties in `T` with properties in `U`.
+ */
+export type Replace<T, U> = Omit<T, keyof U> & U;
 
 /**
  * Get a union of all property keys on `T` that are functions
@@ -64,7 +69,7 @@ export type UnionKey<T> = T extends T ? keyof T : never;
  *
  * type OptionalFoobarKey = OptionalUnionKey<Foo | Bar>;
  * // => "b" | "c"
- * // "c" is included because it doesn't exist in Foo
+ * // "c" is included because it doesn't exist in Foo, therefore it's not guaranteed in the union
  * ```
  */
 export type OptionalUnionKey<T> = keyof {

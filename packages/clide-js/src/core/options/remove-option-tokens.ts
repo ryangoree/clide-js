@@ -1,4 +1,4 @@
-import type { OptionValues } from 'src/core/options/option';
+import type { OptionValues } from 'src/core/options/options';
 
 /**
  * Removes option tokens from a command string.

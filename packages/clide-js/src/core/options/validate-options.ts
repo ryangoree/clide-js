@@ -1,16 +1,83 @@
-import { OptionsError } from 'src/core/errors';
+import {
+  type ClideErrorOptions,
+  UsageError,
+} from 'src/core/errors';
 import {
   type OptionConfig,
   type OptionValues,
   type OptionsConfig,
   getOptionDisplayName,
   getOptionKeys,
-} from 'src/core/options/option';
+} from 'src/core/options/options';
 
-interface ValidationOptions {
+// Errors //
+
+/**
+ * An error indicating the user has provided invalid options.
+ * @group Errors
+ */
+export class OptionsError extends UsageError {
+  constructor(message: string, options?: ClideErrorOptions) {
+    super(message, {
+      name: 'OptionsError',
+      ...options,
+    });
+  }
+}
+
+/**
+ * An error indicating a required option is missing.
+ * @group Errors
+ */
+export class OptionRequiredError extends OptionsError {
+  constructor(optionName: string, options?: ClideErrorOptions) {
+    super(`Option "${optionName}" is required`, {
+      name: 'OptionRequiredError',
+      ...options,
+    });
+  }
+}
+
+/**
+ * An error indicating a provided option requires a missing option.
+ * @group Errors
+ */
+export class OptionRequiresError extends OptionsError {
+  constructor(
+    optionName: string,
+    requiresName: string,
+    options?: ClideErrorOptions,
+  ) {
+    super(`Option "${optionName}" requires option "${requiresName}"`, {
+      name: 'OptionRequiresError',
+      ...options,
+    });
+  }
+}
+
+/**
+ * An error indicating a provided option conflicts another provided option.
+ * @group Errors
+ */
+export class OptionConflictsError extends OptionsError {
+  constructor(
+    optionName: string,
+    conflictName: string,
+    options?: ClideErrorOptions,
+  ) {
+    super(`Option "${optionName}" conflicts with option "${conflictName}"`, {
+      name: 'OptionConflictsError',
+      ...options,
+    });
+  }
+}
+
+// Functions + Function Param Types //
+
+interface ValidateOptionsParams {
   values: OptionValues;
   config: OptionsConfig;
-  enabledValidations?: {
+  validations: {
     type?: boolean;
     required?: boolean;
     conflicts?: boolean;
@@ -32,14 +99,14 @@ interface ValidationOptions {
 export function validateOptions({
   config,
   values,
-  enabledValidations = {},
-}: ValidationOptions) {
+  validations,
+}: ValidateOptionsParams) {
   const {
-    type: validateType = true,
-    required: validateRequired = true,
-    conflicts: validateConflicts = true,
-    requires: validateRequires = true,
-  } = enabledValidations;
+    type: validateType = false,
+    required: validateRequired = false,
+    conflicts: validateConflicts = false,
+    requires: validateRequires = false,
+  } = validations;
 
   // Expand the config object to include all keys for each option
   const expandedConfig: OptionsConfig = {};
@@ -60,7 +127,7 @@ export function validateOptions({
     // Validate required
     if (validateRequired && optionConfig.required && !hasValue) {
       const optionName = getOptionDisplayName(configKey, optionConfig);
-      throw new OptionsError(`Option "${optionName}" is required`);
+      throw new OptionRequiredError(optionName);
     }
   }
 
@@ -106,9 +173,7 @@ export function validateOptions({
             dependency,
             expandedConfig[dependency],
           );
-          throw new OptionsError(
-            `Option "${valueKey}" requires option "${dependencyName}"`,
-          );
+          throw new OptionRequiresError(valueKey, dependencyName);
         }
       }
     }
@@ -126,8 +191,9 @@ export function validateOptions({
           const conflictingValueKey = allKeysForConflict.find(
             (key) => key in values,
           );
-          throw new OptionsError(
-            `Option "${valueKey}" conflicts with option "${conflictingValueKey}"`,
+          throw new OptionConflictsError(
+            valueKey,
+            conflictingValueKey || conflictingKey,
           );
         }
       }
@@ -169,7 +235,11 @@ export function validateOptionType({
    */
   throws?: boolean;
 }) {
-  if (value === undefined) return;
+  if (value === undefined) {
+    if (config.required && throws) throw new OptionRequiredError(name);
+    return;
+  }
+
   const { choices, nargs, type } = config;
   const additionalInfo: string[] = [];
   let isValid = true;
@@ -213,6 +283,8 @@ export function validateOptionType({
 
   return isValid;
 }
+
+// Internal //
 
 function isValidValueType(value: unknown, config: OptionConfig) {
   if (value === undefined) return;

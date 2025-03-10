@@ -1,6 +1,6 @@
+import type { OptionsConfig } from 'src/core/options/options';
+import type { State } from 'src/core/state';
 import type { MaybePromise } from 'src/utils/types';
-import type { OptionsConfig } from './options/option';
-import type { State } from './state';
 
 /**
  * A command module that can be executed by the CLI engine.

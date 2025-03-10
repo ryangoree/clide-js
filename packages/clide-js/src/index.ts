@@ -10,8 +10,8 @@ export * from './core/resolve';
 export * from './core/run';
 export * from './core/state';
 
-export * from './core/options/option';
-export * from './core/options/option-getter';
+export * from './core/options/options';
+export * from './core/options/option-prompt';
 export * from './core/options/options-getter';
 export * from './core/options/remove-option-tokens';
 export * from './core/options/validate-option-config';

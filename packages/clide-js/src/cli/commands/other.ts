@@ -5,10 +5,12 @@ export default command({
     i: {
       alias: ['input'],
       type: 'string',
-      required: true,
+      // required: true,
     },
   },
   handler: async ({ next, options }) => {
+    const fromGet = await options.get('input', 'i');
+    console.log('opts from get:', fromGet);
     const input = await options.input();
     console.log(`other input: ${input}`);
     next(input);

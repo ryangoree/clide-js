@@ -1,14 +1,30 @@
 import type { CommandModule } from 'src/core/command';
 import type { Context } from 'src/core/context';
 import { ClideError } from 'src/core/errors';
-import type { OptionValues, OptionsConfig } from 'src/core/options/option';
+import type { OptionValues, OptionsConfig } from 'src/core/options/options';
 import {
   type OptionsGetter,
   createOptionsGetter,
 } from 'src/core/options/options-getter';
 import type { Params, ResolvedCommand } from 'src/core/resolve';
 
-interface StateOptions<TData = unknown> {
+// Types //
+
+/**
+ * A partial state object containing only the properties that can be modified
+ * during a state transition, used to pass state changes to hooks.
+ * @group State
+ */
+export interface NextState {
+  i?: number;
+  data?: unknown;
+  params?: Params;
+  options?: OptionValues;
+}
+
+// Functions/Classes + Function/Class Param Types //
+
+interface StateParams<TData = unknown> {
   /** The context for the command. */
   context: Context;
   /** The initial data for the steps. */
@@ -73,7 +89,7 @@ export class State<
     commands,
     options = context.options,
     optionValues = context.parsedOptions,
-  }: StateOptions<TData>) {
+  }: StateParams<TData>) {
     this.#context = context;
     this.#data = initialData as TData;
     this.#commands = commands || context.resolvedCommands;
@@ -174,7 +190,7 @@ export class State<
     if (nextCommand) {
       // If there is a next command, increment the step index and call the
       // command handler.
-      await this.applyState({
+      await this.#applyState({
         data: _data,
         i: nextIndex,
         // Merge params from previous steps with params from the next command.
@@ -194,7 +210,7 @@ export class State<
       }
     } else {
       // If there is no next command, end the steps.
-      await this.applyState({
+      await this.#applyState({
         data: _data,
       });
 
@@ -240,7 +256,7 @@ export class State<
     //   );
     // }
 
-    await this.applyState({
+    await this.#applyState({
       data: _data,
       i: this.commands.length - 1,
     });
@@ -263,8 +279,6 @@ export class State<
   }: {
     commands: (TCommand | ResolvedCommand)[];
     initialData?: unknown;
-    // FIXME: If provided a value for an alias, but the command already has a
-    // value for the original option key, the alias value is ignored.
     optionValues?: OptionValues<
       TCommand['options'] extends OptionsConfig
         ? TCommand['options']
@@ -306,11 +320,15 @@ export class State<
         ...this.context.options,
         ...resolvedCommandsOptions,
       },
-      optionValues: {
-        ...this.options.values,
-        ...optionValues,
-      },
+      optionValues: this.options.values,
     });
+
+    // Override options with the provided values
+    if (optionValues) {
+      for (const [key, value] of Object.entries(optionValues)) {
+        state.options.set(key, value);
+      }
+    }
 
     await state.start(initialData);
     return state.data;
@@ -321,7 +339,7 @@ export class State<
    * @param nextState The next state values to set.
    */
   // Should be called every state change.
-  private async applyState(nextState: Partial<NextState>) {
+  async #applyState(nextState: Partial<NextState>) {
     let _changes = nextState;
 
     // pre hook
@@ -365,18 +383,6 @@ export class State<
       changes: _changes,
     });
   }
-}
-
-/**
- * A partial state object containing only the properties that can be modified
- * during a state transition, used to pass state changes to hooks.
- * @group State
- */
-export interface NextState {
-  i?: number;
-  data?: unknown;
-  params?: Params;
-  options?: OptionValues;
 }
 
 // export interface EndOptions {

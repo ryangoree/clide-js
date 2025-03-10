@@ -1,18 +1,45 @@
-import { Client } from 'src/core/client';
+import { Client, type PromptOptions } from 'src/core/client';
+import { optionPrompt } from 'src/core/options/option-prompt';
 import {
+  type ExpandedOptionsConfig,
   type OptionAlias,
+  type OptionConfig,
   type OptionConfigPrimitiveType,
   type OptionKey,
   type OptionType,
   type OptionValues,
   type OptionsConfig,
   getOptionKeys,
-} from 'src/core/options/option';
-import {
-  type OptionGetter,
-  createOptionGetter,
-} from 'src/core/options/option-getter';
+  getOptionTypeFromValue,
+} from 'src/core/options/options';
+import { validateOptionType } from 'src/core/options/validate-options';
 import { type CamelCase, camelCase } from 'src/utils/camel-case';
+import type { AnyObject, MaybePromise } from 'src/utils/types';
+
+// Types //
+
+/**
+ * Configuration options for the {@linkcode OptionGetter} function.
+ * @Group Options
+ */
+interface OptionGetterParams<T> {
+  /**
+   * The prompt to show the user if no value is provided (optional).
+   */
+  prompt?: string | PromptOptions;
+  /**
+   * The validation function (optional).
+   */
+  validate?: (value: T) => MaybePromise<boolean>;
+}
+
+/**
+ * A function to dynamically retrieve the value of a command option.
+ * @group Options
+ */
+export type OptionGetter<T> = (
+  getterOptions?: OptionGetterParams<T>,
+) => Promise<T>;
 
 /**
  * An object that can be used to dynamically retrieve the values of command
@@ -22,8 +49,8 @@ import { type CamelCase, camelCase } from 'src/utils/camel-case';
  * @group Options
  */
 export type OptionsGetter<TOptions extends OptionsConfig = OptionsConfig> = {
-  [K in keyof TOptions as OptionKey<K, OptionAlias<TOptions[K]>>]: OptionGetter<
-    OptionConfigPrimitiveType<TOptions[K]>
+  [K in keyof ExpandedOptionsConfig<TOptions>]: OptionGetter<
+    OptionConfigPrimitiveType<ExpandedOptionsConfig<TOptions>[K]>
   >;
 } & {
   /**
@@ -35,13 +62,33 @@ export type OptionsGetter<TOptions extends OptionsConfig = OptionsConfig> = {
    * @returns An object with the values of the specified options keyed by both
    * their original keys and camelCased keys.
    */
-  get: <
-    K extends OptionKey<keyof TOptions, OptionAlias<TOptions[keyof TOptions]>>,
-  >(
+  get: <K extends keyof ExpandedOptionsConfig<TOptions>>(
     ...optionNames: K[]
   ) => Promise<{
-    [O in K as O | CamelCase<O>]: OptionConfigPrimitiveType<TOptions[K]>;
+    [O in K as O | CamelCase<O>]: OptionConfigPrimitiveType<
+      ExpandedOptionsConfig<TOptions>[K]
+    >;
   }>;
+
+  /**
+   * Get the values of the specified options. This is useful when you want to
+   * get the values of multiple options at once.
+   *
+   * @param optionNames - The names of the options to get.
+   *
+   * @returns An object with the values of the specified options keyed by both
+   * their original keys and camelCased keys.
+   */
+  set: <
+    K extends keyof ExpandedOptionsConfig<TOptions>,
+    V extends
+      | OptionConfigPrimitiveType<ExpandedOptionsConfig<TOptions>[K]>
+      | undefined,
+  >(
+    optionNames: K,
+    value: V,
+  ) => Promise<void>;
+
   /**
    * Direct access to the values of the options, keyed by their original keys,
    * aliases, and camelCased versions of both. This is useful for checking
@@ -121,13 +168,13 @@ export function createOptionsGetter<
   TOptionsConfig,
   TOptionValues
 >): OptionsGetter<TOptionsConfig> {
-  // create a new getter object with the values
-  const getter = {
-    values: { ...optionValues },
+  const expandedConfig: AnyObject<OptionConfig> = {};
 
-    // getter for all option values
-    get: async (...keys: string[]) => {
-      const result: Record<string, unknown> = {};
+  const getter = {
+    values: {},
+
+    get: async (...keys) => {
+      const result: AnyObject = {};
       for (const key of keys) {
         const value = await getter[key]?.();
         result[key] = value;
@@ -135,7 +182,17 @@ export function createOptionsGetter<
       }
       return result;
     },
-  } as unknown as OptionsGetter;
+
+    // setter for option values
+    set: async (optionName, value) => {
+      const config = expandedConfig[optionName] || {
+        type: getOptionTypeFromValue(value),
+      };
+      const optionKeys = getOptionKeys(optionName, config);
+      for (const key of optionKeys) getter.values[key] = value;
+      return value;
+    },
+  } as OptionsGetter;
 
   // iterate over all keys in the options config
   for (const configKey in optionsConfig) {
@@ -145,26 +202,38 @@ export function createOptionsGetter<
 
     // loop through all keys for the option to set values and create getters
     for (const key of optionKeys) {
-      getter.values[key] = valueKey
-        ? optionValues[valueKey]
-        : (config.default as OptionConfigPrimitiveType | undefined);
+      // Add the key to the expanded config
+      expandedConfig[key] = {
+        ...config,
+        alias: config.alias?.length ? [...config.alias, configKey] : undefined,
+      } as OptionConfig;
 
-      const getterFn = createOptionGetter({
-        name: key,
-        config,
-        client,
-        value: valueKey ? optionValues[valueKey] : undefined,
-        onPromptCancel,
-      });
+      // Add the key to the values if any of it's aliases are already set
+      if (valueKey) {
+        getter.values[key] = optionValues[valueKey];
+      }
 
-      // wrap the getter function to update the values object
-      const wrappedGetterFn = async (...args: Parameters<typeof getterFn>) => {
-        const value = await getterFn(...args);
-        for (const key of optionKeys) getter.values[key] = value;
+      // Create a getter for the key
+      getter[key] = async (params) => {
+        let value = getter.values[key];
+
+        // Don't prompt if the value is already set
+        if (value !== undefined) return value;
+
+        value = await optionPrompt({
+          name: key,
+          config,
+          client,
+          onCancel: onPromptCancel,
+          ...params,
+        });
+
+        // Validate and set the value to avoid prompting again
+        validateOptionType({ config, name: key, value });
+        getter.set(key, value);
+
         return value;
       };
-
-      getter[key] = wrappedGetterFn;
     }
   }
 

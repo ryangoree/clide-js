@@ -1,7 +1,12 @@
-import { OptionsConfigError, OptionsError } from 'src/core/errors';
 import { createOptionsGetter } from 'src/core/options/options-getter';
-import { validateOptionsConfig } from 'src/core/options/validate-option-config';
-import { validateOptions } from 'src/core/options/validate-options';
+import {
+  OptionsConfigError,
+  validateOptionsConfig,
+} from 'src/core/options/validate-option-config';
+import {
+  OptionsError,
+  validateOptions,
+} from 'src/core/options/validate-options';
 import { describe, expect, it } from 'vitest';
 
 describe('options', () => {
@@ -122,6 +127,9 @@ describe('options', () => {
               type: 'string', // <-- should be a string
             },
           },
+          validations: {
+            type: true,
+          },
         });
       }).toThrowError(OptionsError);
 
@@ -134,6 +142,9 @@ describe('options', () => {
             foo: {
               type: 'number', // <-- should be a number
             },
+          },
+          validations: {
+            type: true,
           },
         });
       }).toThrowError(OptionsError);
@@ -148,6 +159,9 @@ describe('options', () => {
               type: 'boolean', // <-- should be a boolean
             },
           },
+          validations: {
+            type: true,
+          },
         });
       }).toThrowError(OptionsError);
 
@@ -160,6 +174,9 @@ describe('options', () => {
             foo: {
               type: 'array', // <-- should be an array of strings
             },
+          },
+          validations: {
+            type: true,
           },
         });
       }).toThrowError(OptionsError);
@@ -174,6 +191,9 @@ describe('options', () => {
               type: 'string',
               required: true, // <-- required value
             },
+          },
+          validations: {
+            required: true,
           },
         });
       }).toThrowError(OptionsError);
@@ -195,6 +215,9 @@ describe('options', () => {
               type: 'string',
             },
           },
+          validations: {
+            conflicts: true,
+          },
         });
       }).toThrowError(OptionsError);
 
@@ -213,6 +236,9 @@ describe('options', () => {
               type: 'string',
               alias: ['B'],
             },
+          },
+          validations: {
+            conflicts: true,
           },
         });
       }).toThrowError(OptionsError);
@@ -233,6 +259,9 @@ describe('options', () => {
               alias: ['B'],
             },
           },
+          validations: {
+            conflicts: true,
+          },
         });
       }).toThrowError(OptionsError);
     });
@@ -252,6 +281,9 @@ describe('options', () => {
               type: 'string',
             },
           },
+          validations: {
+            requires: true,
+          },
         });
       }).toThrowError(OptionsError);
 
@@ -269,6 +301,9 @@ describe('options', () => {
               type: 'string',
               alias: ['B'],
             },
+          },
+          validations: {
+            requires: true,
           },
         });
       }).toThrowError(OptionsError);
