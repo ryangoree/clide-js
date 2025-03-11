@@ -2,14 +2,12 @@ import {
   Client,
   type PromptParams,
   type PromptPrimitiveType,
-} from "src/core/client";
+} from 'src/core/client';
 import {
-  optionPrompt,
   type OptionPromptType,
-} from "src/core/options/option-prompt";
+  optionPrompt,
+} from 'src/core/options/option-prompt';
 import {
-  getOptionKeys,
-  getOptionTypeFromValue,
   type ExpandedOptionsConfig,
   type OptionAlias,
   type OptionConfig,
@@ -18,10 +16,12 @@ import {
   type OptionType,
   type OptionValues,
   type OptionsConfig,
-} from "src/core/options/options";
-import { validateOptionType } from "src/core/options/validate-options";
-import { camelCase, type CamelCase } from "src/utils/camel-case";
-import type { AnyObject, MaybePromise } from "src/utils/types";
+  getOptionKeys,
+  getOptionTypeFromValue,
+} from 'src/core/options/options';
+import { validateOptionType } from 'src/core/options/validate-options';
+import { type CamelCase, camelCase } from 'src/utils/camel-case';
+import type { AnyObject, MaybePromise } from 'src/utils/types';
 
 // Types //
 
@@ -33,7 +33,7 @@ type OptionGetterParams<T extends OptionConfig> = {
   /**
    * The prompt to show the user if no value is provided (optional).
    */
-  prompt?: string | Omit<PromptParams<OptionPromptType<T["type"]>>, "validate">;
+  prompt?: string | Omit<PromptParams<OptionPromptType<T['type']>>, 'validate'>;
   /**
    * The validation function (optional).
    */
@@ -205,7 +205,7 @@ export function createOptionsGetter<
   for (const configKey in optionsConfig) {
     const config = optionsConfig[configKey];
     const optionKeys = getOptionKeys(configKey, config);
-    const valueKey = optionKeys.find((key) => key in optionValues);
+    const valueKey = optionKeys.find((key) => optionValues[key] !== undefined);
 
     // loop through all keys for the option to set values and create getters
     for (const key of optionKeys) {
@@ -236,7 +236,7 @@ export function createOptionsGetter<
             client,
             onCancel: onPromptCancel,
             validate,
-            ...(prompt && typeof prompt === "object"
+            ...(prompt && typeof prompt === 'object'
               ? prompt
               : {
                   message: prompt || `Enter ${key}`,
