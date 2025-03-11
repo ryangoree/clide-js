@@ -95,8 +95,10 @@ export function parseCommand(
   const { _, ...options } = parse(commandString, {
     ...parseOptions,
     configuration: {
+      'duplicate-arguments-array': false,
       'unknown-options-as-args': true,
       'parse-numbers': false,
+      'strip-aliased': true,
     },
   });
 
@@ -111,6 +113,13 @@ export function parseCommand(
     }
     return true;
   });
+
+  // Split array options by commas
+  for (const [key, value] of Object.entries(options)) {
+    if (Array.isArray(value)) {
+      options[key] = value.flatMap((v) => v.split(',')).filter(Boolean);
+    }
+  }
 
   validateOptions({
     values: options,
