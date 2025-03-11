@@ -6,15 +6,17 @@
   "license": "MIT",
   "bin": "dist/cli.js",
   "type": "module",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "NODE_ENV=development tsx src/cli.ts",
     "prod": "node dist/cli.js",
     "build": "rimraf dist && tsc"
   },
   "dependencies": {
-    "clide-js": "*",
-    "clide-plugin-command-menu": "*"
+    "clide-js": "0.2.14-next.0",
+    "clide-plugin-command-menu": "0.1.2-next.0"
   },
   "devDependencies": {
     "@tsconfig/node-lts": "^22.0.1",

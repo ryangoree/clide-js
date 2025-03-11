@@ -1,5 +1,13 @@
 # clide-js
 
+## 0.2.14-next.0
+
+### Patch Changes
+
+- c9ba861: Added option config validation to the default parse fn (`parseCommand`)
+- 348946e: Patched command preparation to ensure it uses the configured `parseFn`
+- a491340: Fixed inferred option type for options with `nargs` params, and fixed validation for `conflicts`, `requires`, and `nargs`.
+
 ## 0.2.13
 
 ### Patch Changes

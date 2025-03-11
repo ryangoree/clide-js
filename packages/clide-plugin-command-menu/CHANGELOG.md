@@ -1,5 +1,14 @@
 # clide-plugin-command-menu
 
+## 0.1.2-next.0
+
+### Patch Changes
+
+- Updated dependencies [c9ba861]
+- Updated dependencies [348946e]
+- Updated dependencies [a491340]
+  - clide-js@0.2.14-next.0
+
 ## 0.1.1
 
 ### Patch Changes

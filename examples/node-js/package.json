@@ -9,9 +9,11 @@
     "dev": "NODE_ENV=development node cli.js",
     "prod": "node cli.js"
   },
-  "files": ["cli"],
+  "files": [
+    "cli"
+  ],
   "dependencies": {
-    "clide-js": "*",
-    "clide-plugin-command-menu": "*"
+    "clide-js": "0.2.14-next.0",
+    "clide-plugin-command-menu": "0.1.2-next.0"
   }
 }
