@@ -203,26 +203,26 @@ export type OptionKey<
 > = TKey | TAlias | CamelCase<TKey | TAlias>;
 
 /**
- * An expanded {@linkcode OptionsConfig} in which each option's config
+ * An expanded {@linkcode OptionsConfig} in which each option's config is
  * accessible by any of its keys or aliases.
  *
  * @group Options
  */
-export type ExpandedOptionsConfig<T extends OptionsConfig> =
-  Merge<T> extends infer TMerged extends OptionsConfig
-    ? {
-        [K in keyof TMerged as OptionKey<K, OptionAlias<TMerged[K]>>]: Eval<
-          Replace<
-            TMerged[K],
-            TMerged[K]['alias'] extends string[]
-              ? {
-                  alias: [...TMerged[K]['alias'], `${K & string}`];
-                }
-              : {}
+export type ExpandedOptionsConfig<T extends OptionsConfig> = T extends T
+  ? {
+      [K in keyof T as OptionKey<K, OptionAlias<T[K]>>]: // Replace<
+      T[K] extends { alias: string[] }
+        ? Eval<
+            Replace<
+              T[K],
+              {
+                alias: [...T[K]['alias'], `${K & string}`];
+              }
+            >
           >
-        >;
-      }
-    : Record<string, OptionConfig>;
+        : T[K];
+    }
+  : Record<string, OptionConfig>;
 
 /**
  * The values for each option.
