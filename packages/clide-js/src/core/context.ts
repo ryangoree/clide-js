@@ -7,9 +7,10 @@ import type { Plugin, PluginInfo } from 'src/core/plugin';
 import {
   type ResolveCommandFn,
   type ResolvedCommand,
+  SubcommandRequiredError,
   resolveCommand,
 } from 'src/core/resolve';
-import { State } from './state';
+import { State } from 'src/core/state';
 
 /**
  * Params for creating a new {@linkcode Context} instance.
@@ -462,7 +463,10 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
 
       // If the command doesn't have a resolveNext function and doesn't require
       // a subcommand, then we're done resolving.
-      if (!pendingCommand.resolveNext) {
+      if (
+        !pendingCommand.resolveNext &&
+        !pendingCommand.command.requiresSubcommand
+      ) {
         this.#isResolved = true;
         break;
       }
@@ -509,6 +513,12 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
         }
       },
     });
+
+    // Throw an error if the last command requires a subcommand but none was
+    // provided.
+    if (pendingCommand?.command.requiresSubcommand) {
+      await this.throw(new SubcommandRequiredError(this.commandString));
+    }
 
     // Mark the context as resolved
     this.#isResolved = true;

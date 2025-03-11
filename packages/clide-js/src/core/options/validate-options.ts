@@ -1,7 +1,4 @@
-import {
-  type ClideErrorOptions,
-  UsageError,
-} from 'src/core/errors';
+import { type ClideErrorOptions, UsageError } from 'src/core/errors';
 import {
   type OptionConfig,
   type OptionValues,

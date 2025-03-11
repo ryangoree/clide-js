@@ -1,5 +1,5 @@
 import { ClideError, type ClideErrorOptions } from 'src/core/errors';
-import type { OptionsConfig } from './options';
+import type { OptionsConfig } from 'src/core/options/options';
 
 // Errors //
 

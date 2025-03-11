@@ -1,62 +1,89 @@
-import { Client, type PromptOptions } from 'src/core/client';
+import type { PromptType } from 'prompts';
+import {
+  Client,
+  type PromptParams,
+  type PromptPrimitiveType,
+} from 'src/core/client';
 import type {
+  OptionArgumentType,
   OptionConfig,
   OptionConfigPrimitiveType,
-  OptionPrimitiveType,
   OptionType,
 } from 'src/core/options/options';
 import { validateOptionType } from 'src/core/options/validate-options';
-import type { MaybePromise, MaybeReadonly } from 'src/utils/types';
+import type {
+  KeyMap,
+  MaybePromise,
+  MaybeReadonly,
+  Replace,
+} from 'src/utils/types';
 
-interface OptionPromptParams<
-  TConfig extends OptionConfig = OptionConfig,
-  TValue = MaybeReadonly<OptionPrimitiveType<TConfig['type']>> | undefined,
-> {
-  /**
-   * The name of the option.
-   */
-  name: string;
-  /**
-   * The option config.
-   */
-  config?: TConfig;
-  /**
-   * The client to use for prompting.
-   */
-  client?: Client;
-  /**
-   * The prompt to show the user if no value is provided (optional).
-   */
-  prompt?: string | PromptOptions;
-  /**
-   * The validation function (optional).
-   */
-  validate?: (value: TValue) => MaybePromise<boolean>;
-  /**
-   * A function to call when the user cancels a prompt. By default, this will
-   * exit the process.
-   */
-  onCancel?: () => void;
-}
+// Types //
+
+type OptionPromptTypeMap = KeyMap<
+  OptionType,
+  {
+    array: 'autocompleteMultiselect' | 'list' | 'multiselect';
+    boolean: 'confirm' | 'toggle';
+    number: 'number';
+    secret: 'invisible' | 'password';
+    string:
+      | 'autocomplete'
+      | 'date'
+      | 'invisible'
+      | 'password'
+      | 'select'
+      | 'text';
+  },
+  PromptType
+>;
+
+export type OptionPromptType<T extends OptionType> = OptionPromptTypeMap[T];
+
+// Functions + Function Param Types //
+
+export type OptionPromptParams<T extends OptionConfig = OptionConfig> = Replace<
+  PromptParams,
+  {
+    /**
+     * The name of the option.
+     */
+    name: string;
+    /**
+     * The option config.
+     */
+    config?: T;
+    /**
+     * The client to use for prompting.
+     */
+    client?: Client;
+    /**
+     * The prompt to show the user if no value is provided (optional).
+     */
+    // prompt?: string | PromptParams;
+    /**
+     * The validation function (optional).
+     */
+    validate?: (value?: PromptPrimitiveType) => MaybePromise<boolean>;
+    /**
+     * A function to call when the user cancels a prompt. By default, this will
+     * exit the process.
+     */
+    onCancel?: () => void;
+  }
+>;
 
 /**
- * Creates an `OptionGetter` function to dynamically retrieve the value of a
- * command option. The getter function accepts an optional `OptionGetterOptions`
- * object, which can be used to prompt the user when no value is provided and/or
- * validate the value.
- *
- * @param getOptions - The options to create the getter.
- *
- * @returns The getter function for the provided option.
+ * Prompt the user for an option value based on the option's configuration.
  *
  * @example
- * const fooGetter = createOptionGetter({
+ * ```ts
+ * const fooValue = await optionPrompt({
  *   name: 'foo',
  *   option: {
  *     type: 'string',
  *     default: 'default foo',
  *   },
- *   value: 'foo value',
  *   client: new Client(),
  * });
  * const val = fooGetter({ prompt: { message: 'Enter foo' } }); // 'foo value'
@@ -67,15 +94,16 @@ interface OptionPromptParams<
  */
 export async function optionPrompt<
   TConfig extends OptionConfig = OptionConfig,
-  TValue = MaybeReadonly<OptionConfigPrimitiveType<TConfig>> | undefined,
+  TValue = MaybeReadonly<OptionConfigPrimitiveType<TConfig>> | undefined
 >({
   name,
   config,
   client = new Client(),
   onCancel,
-  prompt,
   validate,
-}: OptionPromptParams<TConfig, TValue>): Promise<TValue> {
+  onState,
+  ...params
+}: OptionPromptParams<TConfig>): Promise<TValue> {
   // Assign a default validate function if the option is required and no
   // validate function is provided
   if (config?.required && !validate) {
@@ -88,8 +116,7 @@ export async function optionPrompt<
       });
   }
 
-  // Prompt for the option value if not provided and a prompt is provided
-  let type: PromptOptions['type'];
+  let type: PromptParams['type'];
 
   // Determine prompt type based on option type
   switch (config?.type) {
@@ -110,38 +137,32 @@ export async function optionPrompt<
       break;
   }
 
-  const promptOptionOverrides =
-    typeof prompt === 'string'
-      ? { message: prompt }
-      : prompt || { message: `Enter ${name}` };
-
-  const promptOptions: PromptOptions = {
+  const promptOptions: PromptParams = {
     type,
     choices: config?.choices?.map((choice) => ({
       title: choice,
       value: choice,
     })),
     validate: validate
-      ? (_value) => {
+      ? (value) => {
           // prompts won't always pass the initial value to the validate
           // function, so we need to check for an empty string and use the
           // default value if provided.
           //
           // see: https://github.com/terkelg/prompts/issues/410
-          let value = _value;
           if (value === '' && config?.default !== undefined) {
             value = config?.default;
           }
-          const preppedValue = prepValueForValidation(value, config?.type);
-          return validate?.(preppedValue as TValue);
+          const preppedValue = prepareValue(value, config);
+          return validate(preppedValue);
         }
       : undefined,
 
     // options passed to the getter take precedence over the config
-    ...promptOptionOverrides,
+    ...params,
 
     onState: (state, ...rest) => {
-      promptOptionOverrides.onState?.(state, ...rest);
+      onState?.(state, ...rest);
       if (state.aborted || state.exited) {
         onCancel?.();
       }
@@ -195,7 +216,7 @@ export async function optionPrompt<
 
         const defaultChoice = promptOptions.choices?.findIndex(
           (choice) =>
-            choice.title === defaultValue || choice.value === defaultValue,
+            choice.title === defaultValue || choice.value === defaultValue
         );
         if (defaultChoice > -1) {
           promptOptions.initial = defaultChoice;
@@ -212,30 +233,29 @@ export async function optionPrompt<
     }
   }
 
-  let value = (await client.prompt(promptOptions)) as TValue;
-
-  // If no value, use the default
-  if (value === undefined) {
-    value = config?.default as TValue;
-  }
-
-  return value;
+  let value = await client.prompt(promptOptions);
+  return prepareValue(value, config) as TValue;
 }
 
 // Internal //
 
-function prepValueForValidation<TOptionConfig extends OptionType = OptionType>(
+function prepareValue(
   value: unknown,
-  optionType?: TOptionConfig,
-): OptionPrimitiveType<TOptionConfig> {
-  switch (optionType) {
-    case 'array':
-      if (typeof value === 'string') {
-        return value.split(',') as OptionPrimitiveType<TOptionConfig>;
-      }
-      return value as OptionPrimitiveType<TOptionConfig>;
+  config?: OptionConfig
+): OptionArgumentType | undefined {
+  // Treat empty strings as undefined
+  if (isEmpty(value)) value = config?.default;
+  if (isEmpty(value)) return undefined;
 
-    default:
-      return value as OptionPrimitiveType<TOptionConfig>;
+  // Split string values into arrays for array options
+  const { type, nargs = 1 } = config || {};
+  if (typeof value === 'string' && (type === 'array' || nargs > 1)) {
+    return value.split(',');
   }
+
+  return value as OptionArgumentType;
+}
+
+function isEmpty(value: unknown): boolean {
+  return value === undefined || value === '';
 }

@@ -15,9 +15,9 @@
  *
  * @internal
  */
-export function convert<T, TOriginal, TNew>(
+export function convert<T, TOriginal extends T | ValueOf<T>, TNew>(
   value: T,
-  predicateFn: (value: any) => value is TOriginal,
+  predicateFn: (value: T | ValueOf<T>) => value is TOriginal,
   converterFn: (value: TOriginal) => TNew,
 ): Converted<T, TOriginal, TNew> {
   // If the value itself should be converted, convert it
@@ -46,13 +46,47 @@ export function convert<T, TOriginal, TNew>(
 }
 
 /**
- * The converted type of `T` where all instances of `TOriginal` are replaced
- * with `TNew`.
+ * The converted type of {@linkcode T} where all instances of
+ * {@linkcode TOriginal} are replaced with {@linkcode TNew}.
  */
 export type Converted<T, TOriginal, TNew> = T extends TOriginal
   ? TNew
-  : T extends Array<infer U>
-    ? Converted<U, TOriginal, TNew>[]
-    : T extends object
-      ? { [K in keyof T]: Converted<T[K], TOriginal, TNew> }
-      : T;
+  : // Maps
+    T extends Map<infer K, infer V>
+    ? Map<K, Converted<V, TOriginal, TNew>>
+    : // Sets
+      T extends Set<infer U>
+      ? Set<Converted<U, TOriginal, TNew>>
+      : // Promises
+        T extends Promise<infer U>
+        ? Promise<Converted<U, TOriginal, TNew>>
+        : // Objects & Arrays
+          T extends object
+          ? { [K in keyof T]: Converted<T[K], TOriginal, TNew> }
+          : T;
+// export type Converted<T, TOriginal, TNew> = T extends TOriginal
+//   ? TNew
+//   : T extends Array<infer U>
+//     ? Converted<U, TOriginal, TNew>[]
+//     : T extends object
+//       ? { [K in keyof T]: Converted<T[K], TOriginal, TNew> }
+//       : T;
+
+export type ValueOf<T> = T extends T
+  ? // Maps
+    T extends Map<unknown, infer V>
+    ? T | ValueOf<V>
+    : // Sets
+      T extends Set<infer U>
+      ? T | ValueOf<U>
+      : // Arrays
+        T extends readonly (infer U)[]
+        ? T | ValueOf<U>
+        : // Promises
+          T extends Promise<infer U>
+          ? T | ValueOf<U>
+          : // Objects
+            T extends object
+            ? T | ValueOf<T[keyof T]>
+            : T
+  : never;

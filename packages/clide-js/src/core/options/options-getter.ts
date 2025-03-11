@@ -1,6 +1,15 @@
-import { Client, type PromptOptions } from 'src/core/client';
-import { optionPrompt } from 'src/core/options/option-prompt';
 import {
+  Client,
+  type PromptParams,
+  type PromptPrimitiveType,
+} from "src/core/client";
+import {
+  optionPrompt,
+  type OptionPromptType,
+} from "src/core/options/option-prompt";
+import {
+  getOptionKeys,
+  getOptionTypeFromValue,
   type ExpandedOptionsConfig,
   type OptionAlias,
   type OptionConfig,
@@ -9,12 +18,10 @@ import {
   type OptionType,
   type OptionValues,
   type OptionsConfig,
-  getOptionKeys,
-  getOptionTypeFromValue,
-} from 'src/core/options/options';
-import { validateOptionType } from 'src/core/options/validate-options';
-import { type CamelCase, camelCase } from 'src/utils/camel-case';
-import type { AnyObject, MaybePromise } from 'src/utils/types';
+} from "src/core/options/options";
+import { validateOptionType } from "src/core/options/validate-options";
+import { camelCase, type CamelCase } from "src/utils/camel-case";
+import type { AnyObject, MaybePromise } from "src/utils/types";
 
 // Types //
 
@@ -22,24 +29,24 @@ import type { AnyObject, MaybePromise } from 'src/utils/types';
  * Configuration options for the {@linkcode OptionGetter} function.
  * @Group Options
  */
-interface OptionGetterParams<T> {
+type OptionGetterParams<T extends OptionConfig> = {
   /**
    * The prompt to show the user if no value is provided (optional).
    */
-  prompt?: string | PromptOptions;
+  prompt?: string | Omit<PromptParams<OptionPromptType<T["type"]>>, "validate">;
   /**
    * The validation function (optional).
    */
-  validate?: (value: T) => MaybePromise<boolean>;
-}
+  validate?: (value?: PromptPrimitiveType) => MaybePromise<boolean>;
+};
 
 /**
  * A function to dynamically retrieve the value of a command option.
  * @group Options
  */
-export type OptionGetter<T> = (
-  getterOptions?: OptionGetterParams<T>,
-) => Promise<T>;
+export type OptionGetter<T extends OptionConfig> = <V extends T>(
+  getterOptions?: OptionGetterParams<V>,
+) => Promise<OptionConfigPrimitiveType<V>>;
 
 /**
  * An object that can be used to dynamically retrieve the values of command
@@ -50,7 +57,7 @@ export type OptionGetter<T> = (
  */
 export type OptionsGetter<TOptions extends OptionsConfig = OptionsConfig> = {
   [K in keyof ExpandedOptionsConfig<TOptions>]: OptionGetter<
-    OptionConfigPrimitiveType<ExpandedOptionsConfig<TOptions>[K]>
+    ExpandedOptionsConfig<TOptions>[K]
   >;
 } & {
   /**
@@ -214,28 +221,36 @@ export function createOptionsGetter<
       }
 
       // Create a getter for the key
-      getter[key] = async (params) => {
+      getter[key] = async (params = {}) => {
+        const { prompt, validate } = params;
         let value = getter.values[key];
 
-        // Don't prompt if the value is already set
+        // Return cached value if it exists
         if (value !== undefined) return value;
 
-        value = await optionPrompt({
-          name: key,
-          config,
-          client,
-          onCancel: onPromptCancel,
-          ...params,
-        });
+        // Prompt for the value if required or a prompt is provided.
+        if (config.required || params?.prompt) {
+          value = await optionPrompt({
+            name: key,
+            config,
+            client,
+            onCancel: onPromptCancel,
+            validate,
+            ...(prompt && typeof prompt === "object"
+              ? prompt
+              : {
+                  message: prompt || `Enter ${key}`,
+                }),
+          });
+        }
 
         // Validate and set the value to avoid prompting again
         validateOptionType({ config, name: key, value });
         getter.set(key, value);
-
-        return value;
+        return value as any;
       };
     }
   }
 
-  return getter as OptionsGetter<TOptionsConfig>;
+  return getter as unknown as OptionsGetter<TOptionsConfig>;
 }

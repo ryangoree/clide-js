@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import { readdirSync } from 'node:fs';
 import initCliui from 'cliui';
 import type { Context } from 'src/core/context';
 import type { OptionsConfig } from 'src/core/options/options';
@@ -207,10 +207,11 @@ export async function getHelp({
   // Convert cliui rows to strings
   const rowStrings = convert(
     rows,
-    (value): value is { text: string } =>
-      typeof value === 'object' && 'text' in value,
+    (value): value is Column => typeof value === 'object' && 'text' in value,
     (value) => value.text,
   );
+
+  rowStrings.subcommands;
 
   const helpText = cliui.toString();
   cliui.resetOutput();
@@ -219,7 +220,7 @@ export async function getHelp({
     // filter out empty strings
     ...convert(
       rowStrings,
-      (value): value is string[] =>
+      (value): value is [string, string][] =>
         Array.isArray(value) && value.every((v) => typeof v === 'string'),
       (value) => value.filter(Boolean),
     ),
@@ -354,7 +355,7 @@ async function commandRows({
   };
 
   const subcommandsDir = command?.subcommandsDir || commandsDir;
-  const subcommandFileNames = await fs.promises.readdir(subcommandsDir);
+  const subcommandFileNames = readdirSync(subcommandsDir);
   const subcommandNames = Array.from(
     // remove file extensions, duplicates, and 'index'
     new Set<string>(

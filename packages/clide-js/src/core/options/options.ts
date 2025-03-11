@@ -4,15 +4,6 @@ import type { Eval, MaybeReadonly, Merge, Replace } from 'src/utils/types';
 // Types //
 
 /**
- * A key for an option, including the option key, aliases, and camelCased
- * versions of each.
- */
-export type OptionKey<
-  TKey extends PropertyKey = string,
-  TAlias extends string = string,
-> = TKey | TAlias | CamelCase<TKey | TAlias>;
-
-/**
  * The primitive types for each option type.
  *
  * This is used to map each option type to its corresponding primitive type.
@@ -67,7 +58,7 @@ export type OptionArgumentType<
   ? TNargs extends 0 | 1
     ? OptionPrimitiveType<T>
     : OptionPrimitiveType<T> extends infer T extends OptionPrimitiveType
-      ? T extends any[]
+      ? T extends readonly any[]
         ? T
         : T[]
       : never
@@ -106,6 +97,8 @@ export interface OptionConfig<
    * The default value to use. This will be the initial value that the getter
    * prompt will show (optional).
    */
+  // FIXME: This should be OptionConfigPrimitiveType, but referencing `this` in
+  // the getter causes excessively deep type recursion.
   default?: MaybeReadonly<OptionPrimitiveType<T>>;
   /**
    * Whether the option is required. If `true`, the getter will throw an error
@@ -168,6 +161,15 @@ export type OptionsConfig<
   TKey extends string = string,
   TType extends OptionType = OptionType,
 > = Record<TKey, OptionConfig<TType, TKey>>;
+
+/**
+ * A key for an option, including the option key, aliases, and camelCased
+ * versions of each.
+ */
+export type OptionKey<
+  TKey extends PropertyKey = string,
+  TAlias extends string = string,
+> = TKey | TAlias | CamelCase<TKey | TAlias>;
 
 /**
  * An expanded {@linkcode OptionsConfig} in which each option's config

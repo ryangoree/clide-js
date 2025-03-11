@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import { readdirSync } from 'node:fs';
 import path from 'node:path';
 import { type CommandModule, passThroughCommand } from 'src/core/command';
 import {
@@ -60,7 +60,7 @@ export class NotFoundError extends UsageError {
     options?: ClideErrorOptions,
   ) {
     super(
-      process.env.NODE_ENV === 'development'
+      ['development', 'test'].includes(process.env.NODE_ENV || '')
         ? // In development, show the full path to the command
           `Unable to find command "${token}" in "${path.replace(/\/?$/, '/')}"`
         : // In production, just show the command name
@@ -146,24 +146,21 @@ export interface ResolvedCommand {
 
 // Functions + Function Param Types //
 
-interface BaseResolveCommandParams {
+/**
+ * Params for the {@linkcode resolveCommand} function.
+ * @group Resolve
+ */
+export interface ResolveCommandParams {
   /** The command string to resolve a command file for. */
   commandString: string;
+  /** The path to the directory containing the command files. */
+  commandsDir: string;
   /**
    * A function to parse the command string and options. Used to determine if
    * the command string contains any options and to remove them from the
    * remaining command string.
    */
   parseFn?: ParseCommandFn;
-}
-
-/**
- * Params for the {@linkcode resolveCommand} function.
- * @group Resolve
- */
-export interface ResolveCommandParams extends BaseResolveCommandParams {
-  /** The path to the directory containing the command files. */
-  commandsDir: string;
 }
 
 /**
@@ -278,17 +275,7 @@ export async function resolveCommand({
     throw new NotFoundError(commandName, commandsDir);
   }
 
-  return prepareResolvedCommand({ commandString, resolved, parseFn });
-}
-
-/**
- * Params for the {@linkcode prepareResolvedCommand} function.
- * @group Resolve
- */
-export interface PrepareResolvedCommandParams
-  extends Required<BaseResolveCommandParams> {
-  /** The resolved command to prepare. */
-  resolved: ResolvedCommand;
+  return prepareResolvedCommand(resolved, parseFn);
 }
 
 /**
@@ -301,11 +288,10 @@ export interface PrepareResolvedCommandParams
  *
  * @group Resolve
  */
-export async function prepareResolvedCommand({
-  commandString,
-  resolved,
-  parseFn,
-}: PrepareResolvedCommandParams) {
+export async function prepareResolvedCommand(
+  resolved: ResolvedCommand,
+  parseFn: ParseCommandFn,
+) {
   // isMiddleware could be undefined, so we need to check for false explicitly
   const isMiddleware = resolved.command.isMiddleware !== false;
 
@@ -343,8 +329,6 @@ export async function prepareResolvedCommand({
         commandsDir: resolved.subcommandsDir,
         parseFn,
       });
-  } else if (resolved.command.requiresSubcommand) {
-    throw new SubcommandRequiredError(commandString);
   }
 
   // Replace the handler if the command won't be executed.
@@ -369,7 +353,7 @@ async function resolveParamCommand({
 }: ResolveCommandParams): Promise<ResolvedCommand | undefined> {
   if (!commandString.length) throw new UsageError('Command required.');
 
-  const fileNames = await fs.promises.readdir(commandsDir);
+  const fileNames = readdirSync(commandsDir);
   let tokens = splitTokens(commandString) as [string, ...string[]];
   let resolved: ResolvedCommand | undefined;
 
@@ -430,25 +414,23 @@ async function resolveParamCommand({
     } catch (err) {
       // If the file exists but couldn't be loaded for some other reason,
       // forward the error to avoid masking module errors.
-      if (isFile(commandPath)) throw err;
-
-      // If the command file doesn't exist, assume the path is a directory and
-      // treat it as a pass-through command. This is safe to assume since the
-      // paths are derived from readdir so we know they exist.
-      resolved = {
-        command: passThroughCommand,
-        commandName,
-        commandPath,
-        commandTokens: [commandToken],
-        params: {
-          [paramName]: commandToken,
-        },
-        remainingCommandString,
-        subcommandsDir,
-      };
-
-      // match found, stop searching
-      break;
+      // if (isFile(commandPath)) throw err;
+      // // If the command file doesn't exist, assume the path is a directory and
+      // // treat it as a pass-through command. This is safe to assume since the
+      // // paths are derived from readdir so we know they exist.
+      // resolved = {
+      //   command: passThroughCommand,
+      //   commandName,
+      //   commandPath,
+      //   commandTokens: [commandToken],
+      //   params: {
+      //     [paramName]: commandToken,
+      //   },
+      //   remainingCommandString,
+      //   subcommandsDir,
+      // };
+      // // match found, stop searching
+      // break;
     }
   }
 

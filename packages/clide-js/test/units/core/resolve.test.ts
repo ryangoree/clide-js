@@ -20,7 +20,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 describe('resolve', () => {
   beforeEach(async () => {
     vi.restoreAllMocks();
-    unmockAllCommandModules();
+    await unmockAllCommandModules();
   });
 
   it('resolves commands using the file system', async () => {
@@ -35,7 +35,7 @@ describe('resolve', () => {
         handler: () => {},
       },
     };
-    mockCommandModules(commandModules);
+    await mockCommandModules(commandModules);
 
     const commandString = 'foo bar baz';
     const commandsDir = 'commands';
@@ -87,7 +87,7 @@ describe('resolve', () => {
         handler: () => {},
       },
     };
-    mockCommandModules(commandModules);
+    await mockCommandModules(commandModules);
 
     const commandString = 'do re mi';
     const commandsDir = 'commands';

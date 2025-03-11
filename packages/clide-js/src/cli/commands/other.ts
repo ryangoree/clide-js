@@ -12,7 +12,7 @@ export default command({
     const fromGet = await options.get('input', 'i');
     console.log('opts from get:', fromGet);
     const input = await options.input();
-    console.log(`other input: ${input}`);
+    console.log(`other input: ${input} (${typeof input})`);
     next(input);
   },
 });

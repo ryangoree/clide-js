@@ -21,12 +21,12 @@ const __dirname = path.dirname(new URL(import.meta.url).pathname);
 describe('run', () => {
   beforeEach(async () => {
     vi.restoreAllMocks();
-    unmockAllCommandModules();
+    await unmockAllCommandModules();
   });
 
   it('defaults to the "<pwd>/commands" directory', async () => {
     const commandPath = path.resolve('commands/foo');
-    const { mock } = mockCommandModule(commandPath);
+    const { mock } = await mockCommandModule(commandPath);
 
     await run({
       command: 'foo',
@@ -38,7 +38,7 @@ describe('run', () => {
 
   it('falls back to the "<caller-dir>/commands" directory', async () => {
     const commandPath = path.join(__dirname, 'commands/foo');
-    const { mock } = mockCommandModule(commandPath);
+    const { mock } = await mockCommandModule(commandPath);
 
     await run({
       command: 'foo',
@@ -52,7 +52,7 @@ describe('run', () => {
     const commandsDir = 'custom-commands';
 
     // Mock the command module in the custom commands dir
-    const { mock } = mockCommandModule(`${commandsDir}/foo`);
+    const { mock } = await mockCommandModule(`${commandsDir}/foo`);
 
     // Run with the custom commands dir
     await run({
@@ -65,7 +65,7 @@ describe('run', () => {
   });
 
   it('initializes plugins with the correct context', async () => {
-    mockCommandModule('commands/foo');
+    await mockCommandModule('commands/foo');
 
     // Run
     await run({
@@ -89,7 +89,7 @@ describe('run', () => {
 
   it('passes data through the command chain', async () => {
     // Mock a few command modules
-    mockCommandModules({
+    await mockCommandModules({
       'commands/foo': {
         handler: ({ next, data }) => next(data),
       },
@@ -118,7 +118,7 @@ describe('run', () => {
     const dataFromBar = 'data from bar';
 
     // Mock a few command modules
-    mockCommandModules({
+    await mockCommandModules({
       'commands/foo': {
         handler: ({ next }) => next('foo'),
       },
@@ -140,7 +140,7 @@ describe('run', () => {
 
   it('ends the command chain when "end()" is called', async () => {
     const dataFromBar = 'data from bar';
-    mockCommandModules({
+    await mockCommandModules({
       'commands/foo': {
         handler: ({ next }) => next('foo'),
       },
@@ -165,7 +165,7 @@ describe('run', () => {
 
   it('handles commands that call an action without awaiting', async () => {
     const endData = 'end data';
-    mockCommandModules({
+    await mockCommandModules({
       'commands/foo': {
         // Not awaited
         handler: ({ next }) => {
@@ -197,7 +197,7 @@ describe('run', () => {
 
   it("handles commands that don't call an action", async () => {
     const endData = 'end data';
-    mockCommandModules({
+    await mockCommandModules({
       'commands/foo': {
         // No action
         handler: () => {},
@@ -227,7 +227,7 @@ describe('run', () => {
 
   describe('lifecycle', () => {
     it('calls beforeParse hook with the correct payload', async () => {
-      mockCommandModule('commands/foo');
+      await mockCommandModule('commands/foo');
 
       // Setup mock hook
       const mockHook = vi.fn(() => {});
@@ -251,7 +251,7 @@ describe('run', () => {
     });
 
     it('calls afterParse hook with the correct payload', async () => {
-      mockCommandModule('commands/foo');
+      await mockCommandModule('commands/foo');
 
       // Setup mock hook
       const mockHook = vi.fn(() => {});
@@ -272,7 +272,7 @@ describe('run', () => {
     });
 
     it('calls beforeResolve hook with the correct payload', async () => {
-      mockCommandModule('commands/foo');
+      await mockCommandModule('commands/foo');
 
       // Setup mock hook
       const mockHook = vi.fn(() => {});
@@ -297,7 +297,7 @@ describe('run', () => {
     });
 
     it('calls afterResolve hook with the correct payload', async () => {
-      mockCommandModule('commands/foo');
+      await mockCommandModule('commands/foo');
 
       // Setup mock hook
       const mockHook = vi.fn(() => {});
@@ -318,7 +318,7 @@ describe('run', () => {
     });
 
     it('calls beforeExecute hook with the correct payload', async () => {
-      mockCommandModule('commands/foo');
+      await mockCommandModule('commands/foo');
 
       // Setup mock hook
       const mockHook = vi.fn(() => {});
@@ -341,7 +341,7 @@ describe('run', () => {
     });
 
     it('calls afterExecute hook with the correct payload', async () => {
-      mockCommandModule('commands/foo');
+      await mockCommandModule('commands/foo');
 
       // Setup mock hook
       const mockHook = vi.fn(() => {});
@@ -362,7 +362,7 @@ describe('run', () => {
     });
 
     it('calls beforeStateChange hook with the correct payload', async () => {
-      mockCommandModule('commands/foo');
+      await mockCommandModule('commands/foo');
 
       // Setup mock hook
       const mockHook = vi.fn(() => {});
@@ -395,7 +395,7 @@ describe('run', () => {
     });
 
     it('calls afterStateChange hook with the correct payload', async () => {
-      mockCommandModule('commands/foo');
+      await mockCommandModule('commands/foo');
 
       // Setup mock hook
       const mockHook = vi.fn(() => {});
@@ -424,7 +424,7 @@ describe('run', () => {
     });
 
     it('calls beforeNext hook with the correct payload', async () => {
-      mockCommandModules({
+      await mockCommandModules({
         'commands/foo': {
           handler: ({ next }) => next(),
         },
@@ -454,7 +454,7 @@ describe('run', () => {
     });
 
     it('calls beforeEnd hook with the correct payload', async () => {
-      mockCommandModule('commands/foo', {
+      await mockCommandModule('commands/foo', {
         handler: ({ end }) => end(),
       });
 
@@ -478,7 +478,7 @@ describe('run', () => {
 
     describe('error hook', () => {
       it('is called with the correct payload', async () => {
-        mockCommandModule('commands/foo', {
+        await mockCommandModule('commands/foo', {
           handler: () => {
             throw new ClideError('test');
           },
@@ -507,7 +507,7 @@ describe('run', () => {
         const originalError = new Error('original error');
         const pluginError = new Error('plugin error');
 
-        mockCommandModule('commands/foo', {
+        await mockCommandModule('commands/foo', {
           handler: () => {
             throw originalError;
           },
@@ -544,7 +544,7 @@ describe('run', () => {
       it('can ignore the error', async () => {
         const originalError = new Error('original error');
 
-        mockCommandModule('commands/foo', {
+        await mockCommandModule('commands/foo', {
           handler: () => {
             throw originalError;
           },
@@ -576,7 +576,7 @@ describe('run', () => {
     describe('exit hook', () => {
       const data = 'test data';
       it('can cancel the exit', async () => {
-        mockCommandModules({
+        await mockCommandModules({
           'commands/foo': {
             handler: ({ context }) => {
               context.exit();
@@ -607,7 +607,7 @@ describe('run', () => {
       it('is called with the correct payload', async () => {
         const code = 1;
         const message = 'test';
-        mockCommandModule('commands/foo', {
+        await mockCommandModule('commands/foo', {
           handler: ({ context }) => {
             context.exit(code, message);
           },
@@ -644,7 +644,7 @@ describe('run', () => {
           .spyOn(process, 'exit')
           .mockImplementation((() => {}) as any);
 
-        mockCommandModule('commands/foo', {
+        await mockCommandModule('commands/foo', {
           handler: ({ context }) => {
             context.exit(originalCode);
           },
@@ -666,7 +666,7 @@ describe('run', () => {
         const originalMessage = 'original message';
         const hookMessage = 'hook message';
 
-        mockCommandModule('commands/foo', {
+        await mockCommandModule('commands/foo', {
           handler: ({ context }) => {
             context.exit(1, originalMessage);
           },

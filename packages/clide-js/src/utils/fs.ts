@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import { statSync } from 'node:fs';
 import { removeFileExtension } from 'src/utils/filename';
 
 /**
@@ -7,7 +7,7 @@ import { removeFileExtension } from 'src/utils/filename';
  */
 export function isDirectory(path: string): boolean {
   try {
-    return fs.statSync(path).isDirectory();
+    return statSync(path).isDirectory();
   } catch {
     return false;
   }
@@ -26,7 +26,7 @@ export function isFile(
   fallbackExtensions: string[] = ['.js', '.cjs', '.mjs', '.ts', '.cts', '.mts'],
 ): boolean {
   try {
-    return fs.statSync(path).isFile();
+    return statSync(path).isFile();
   } catch (err) {
     // Forward any error that isn't a module not found error
     if (!isModuleNotFoundError(err)) throw err;
@@ -34,7 +34,7 @@ export function isFile(
     // Check if the path with any of the fallback extensions is a file
     for (const ext of fallbackExtensions) {
       try {
-        return fs.statSync(`${removeFileExtension(path)}${ext}`).isFile();
+        return statSync(`${removeFileExtension(path)}${ext}`).isFile();
       } catch (err) {
         // Forward any error that isn't a module not found error
         if (!isModuleNotFoundError(err)) throw err;

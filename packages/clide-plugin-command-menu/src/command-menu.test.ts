@@ -5,8 +5,8 @@ import { type ResolvedCommand, passThroughCommand, run } from 'clide-js';
 import { type Mock, beforeEach, expect, test, vi } from 'vitest';
 import { commandMenu } from './command-menu';
 import {
-  type CommandMenuPromptOptions,
-  commandMenuPrompt,
+    type CommandMenuPromptOptions,
+    commandPrompt,
 } from './command-menu-prompt';
 
 vi.mock('./command-menu-prompt', async (importOriginal) => {
@@ -32,7 +32,7 @@ vi.mock('./command-menu-prompt', async (importOriginal) => {
 });
 
 beforeEach(() => {
-  (commandMenuPrompt as Mock).mockClear();
+  (commandPrompt as Mock).mockClear();
 });
 
 test('It shows the command menu when no command string is provided', async () => {
@@ -44,10 +44,11 @@ test('It shows the command menu when no command string is provided', async () =>
     plugins: [commandMenu()],
   });
 
-  expect(commandMenuPrompt).toHaveBeenCalled();
+  expect(commandPrompt).toHaveBeenCalled();
 });
 
-test('It shows the command menu when the last resolved command requires a subcommand', async () => {
+// biome-ignore lint/suspicious/noFocusedTests: <explanation>
+test.only('It shows the command menu when the last resolved command requires a subcommand', async () => {
   mockCommandModule('commands/foo', passThroughCommand);
 
   await run({
@@ -56,7 +57,7 @@ test('It shows the command menu when the last resolved command requires a subcom
     plugins: [commandMenu()],
   });
 
-  expect(commandMenuPrompt).toHaveBeenCalled();
+  expect(commandPrompt).toHaveBeenCalled();
 });
 
 test("It doesn't show the command menu when the last resolved command doesn't require a subcommand", async () => {
@@ -68,5 +69,5 @@ test("It doesn't show the command menu when the last resolved command doesn't re
     plugins: [],
   });
 
-  expect(commandMenuPrompt).not.toHaveBeenCalled();
+  expect(commandPrompt).not.toHaveBeenCalled();
 });

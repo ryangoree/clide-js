@@ -22,11 +22,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 describe('plugin: help', () => {
   beforeEach(async () => {
     vi.restoreAllMocks();
-    unmockAllCommandModules();
+    await unmockAllCommandModules();
   });
 
   it('adds "help" and "h" options', async () => {
-    mockCommandModule('commands/foo');
+    await mockCommandModule('commands/foo');
     await run({
       command: 'foo',
       commandsDir: 'commands',
@@ -72,7 +72,7 @@ describe('plugin: help', () => {
   });
 
   it('shows help on UsageError and returns the error', async () => {
-    mockCommandModule('commands/foo', {
+    await mockCommandModule('commands/foo', {
       handler: () => {
         throw new UsageError('test');
       },

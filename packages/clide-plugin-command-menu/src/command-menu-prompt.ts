@@ -43,7 +43,7 @@ export interface CommandMenuPromptOptions extends CommandMenuOptions {
   onCancel?: () => void;
 }
 
-export async function commandMenuPrompt(
+export async function commandPrompt(
   options: CommandMenuPromptOptions,
 ): Promise<ResolvedCommand[]> {
   const {
@@ -127,7 +127,7 @@ export async function commandMenuPrompt(
 
   if (filename === backChoice.value) {
     const lastCommand = selectionHistory.pop()!;
-    return await commandMenuPrompt({
+    return await commandPrompt({
       ...options,
       title: undefined,
       commandsDir: path.dirname(lastCommand.commandPath),
@@ -168,7 +168,7 @@ export async function commandMenuPrompt(
   selectionHistory.push(resolved);
 
   if (resolved.command.requiresSubcommand) {
-    return await commandMenuPrompt({
+    return await commandPrompt({
       ...options,
       title: undefined,
       commandsDir: resolved.subcommandsDir,

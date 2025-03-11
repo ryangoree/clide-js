@@ -1,5 +1,5 @@
 import type { OptionValues, Plugin } from 'clide-js';
-import { commandMenuPrompt } from './command-menu-prompt.js';
+import { commandPrompt } from './command-menu-prompt.js';
 
 export interface CommandMenuOptions {
   /**
@@ -95,7 +95,7 @@ export function commandMenu({
           }
 
           if (!commandString.length) {
-            const selectedCommands = await commandMenuPrompt({
+            const selectedCommands = await commandPrompt({
               title,
               titleColors,
               message,
@@ -127,7 +127,7 @@ export function commandMenu({
           const lastResolved = resolvedCommands[resolvedCommands.length - 1];
 
           if (lastResolved?.command.requiresSubcommand) {
-            const selectedSubcommands = await commandMenuPrompt({
+            const selectedSubcommands = await commandPrompt({
               title,
               titleColors,
               commandsDir: lastResolved.subcommandsDir,

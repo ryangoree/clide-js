@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import type { Client } from 'src/core/client';
 import type { HookPayload } from 'src/core/hooks';
@@ -120,8 +120,8 @@ export function logger({
   // if a logFile is provided, ensure the directory exists.
   if (logFile) {
     const dir = path.dirname(logFile);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+    if (!existsSync(dir)) {
+      mkdirSync(dir, { recursive: true });
     }
   }
 
@@ -236,5 +236,5 @@ function logToFile(logFile: string, message: string, ...data: any[]) {
       typeof value === 'object' ? JSON.stringify(value, null, 2) : value,
     )
     .join(' ');
-  fs.appendFileSync(logFile, `${message}: ${stringData}\n`);
+  appendFileSync(logFile, `${message}: ${stringData}\n`);
 }

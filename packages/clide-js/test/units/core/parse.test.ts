@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 describe('parse', () => {
   beforeEach(async () => {
     vi.restoreAllMocks();
-    unmockAllCommandModules();
+    await unmockAllCommandModules();
   });
 
   it('parses basic command tokens and options', async () => {
