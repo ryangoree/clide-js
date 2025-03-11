@@ -1,5 +1,11 @@
 import { type CamelCase, camelCase } from 'src/utils/camel-case';
-import type { Eval, MaybeReadonly, Merge, Replace } from 'src/utils/types';
+import type {
+  Eval,
+  KeyWithMatchingValue,
+  MaybeReadonly,
+  Merge,
+  Replace,
+} from 'src/utils/types';
 
 // Types //
 
@@ -40,6 +46,20 @@ type _OptionPrimitiveTypeMap = {
 export type OptionType = keyof OptionPrimitiveTypeMap;
 
 /**
+ * A custom option type that extends the base option types.
+ *
+ * @group Options
+ */
+export type CustomOptionType<T extends OptionType> =
+  | T
+  | KeyWithMatchingValue<OptionPrimitiveTypeMap, T>;
+
+export type BuiltInOptionType<T extends OptionType = OptionType> =
+  T extends keyof _OptionPrimitiveTypeMap
+    ? T
+    : KeyWithMatchingValue<OptionPrimitiveTypeMap, T, _OptionPrimitiveTypeMap>;
+
+/**
  * Get the primitive type for an option type.
  *
  * @group Options
@@ -70,53 +90,62 @@ export type OptionArgumentType<
  *
  * @group Options
  */
-export interface OptionConfig<
+export type OptionConfig<
   T extends OptionType = OptionType,
   TAlias extends string = string,
-> {
-  /** One or more aliases for the option (optional). */
-  alias?: MaybeReadonly<TAlias[]>;
-  /** The type of the option. */
-  type: T;
-  /**
-   * The valid choices for the option (optional). If provided, the getter
-   * will validate the value against the choices and, unless otherwise
-   * specified, will use the choices when prompting.
-   */
-  choices?: string[];
-  /**
-   * Whether the option is a string (optional, inferred from `type`). Useful
-   * for array options to specify the type of the array values.
-   */
-  string?: boolean;
-  /** The number of arguments the option accepts (optional). */
-  nargs?: number;
-  /** The description of the option (optional, has default based on `name`). */
-  description?: string;
-  /**
-   * The default value to use. This will be the initial value that the getter
-   * prompt will show (optional).
-   */
-  // FIXME: This should be OptionConfigPrimitiveType, but referencing `this` in
-  // the getter causes excessively deep type recursion.
-  default?: MaybeReadonly<OptionPrimitiveType<T>>;
-  /**
-   * Whether the option is required. If `true`, the getter will throw an error
-   * if no value is provided (optional).
-   */
-  required?: boolean;
-  /** Other options that are required for this option to be used (optional). */
-  requires?: MaybeReadonly<string[]>;
-  /** Other options that are mutually exclusive with this option (optional). */
-  conflicts?: MaybeReadonly<string[]>;
+> = T extends T
+  ? {
+      /** One or more aliases for the option (optional). */
+      alias?: MaybeReadonly<TAlias[]>;
+      /**
+       * The custom type registered with {@linkcode OptionPrimitiveTypeMap}.
+       */
+      type: BuiltInOptionType<T>;
+      /** The custom type of the option. */
+      customType?: CustomOptionType<T>;
+      /**
+       * The valid choices for the option (optional). If provided, the getter
+       * will validate the value against the choices and, unless otherwise
+       * specified, will use the choices when prompting.
+       */
+      choices?: string[];
+      /**
+       * Whether the option is a string (optional, inferred from `type`). Useful
+       * for array options to specify the type of the array values.
+       */
+      string?: boolean;
+      /** The number of arguments the option accepts (optional). */
+      nargs?: number;
+      /** The description of the option (optional, has default based on `name`). */
+      description?: string;
+      /**
+       * The default value to use. This will be the initial value that the getter
+       * prompt will show (optional).
+       */
+      // FIXME: This should be OptionConfigPrimitiveType, but referencing `this` in
+      // the getter causes excessively deep type recursion.
+      default?: MaybeReadonly<OptionPrimitiveType<T>>;
+      /**
+       * Whether the option is required. If `true`, the getter will throw an error
+       * if no value is provided (optional).
+       */
+      required?: boolean;
+      /** Other options that are required for this option to be used (optional). */
+      requires?: MaybeReadonly<string[]>;
+      /** Other options that are mutually exclusive with this option (optional). */
+      conflicts?: MaybeReadonly<string[]>;
 
-  /** The autocomplete function (optional). */
-  // TODO: Not implemented yet
-  // autoComplete?: (input: string) => MaybePromise<string[]>;
-  // autoComplete?: [
-  //   // potential values, engine will manage matching
-  // ]
-}
+      /** The autocomplete function (optional). */
+      // TODO: Not implemented yet
+      // autoComplete?: (input: string) => MaybePromise<string[]>;
+      // autoComplete?: [
+      //   // potential values, engine will manage matching
+      // ]
+    }
+  : never;
+
+export type OptionConfigType<T extends OptionConfig> =
+  T['customType'] extends OptionType ? T['customType'] : T['type'];
 
 /**
  * Get the primitive type for an option considering it's config.
@@ -125,17 +154,19 @@ export type OptionConfigPrimitiveType<T extends OptionConfig = OptionConfig> =
   T extends OptionConfig
     ? T['required'] extends true
       ? OptionArgumentType<
-          T['type'],
+          OptionConfigType<T>,
           'nargs' extends keyof T ? T['nargs'] : undefined
         >
-      : T['default'] extends MaybeReadonly<OptionArgumentType<T['type']>>
+      : T['default'] extends MaybeReadonly<
+            OptionArgumentType<OptionConfigType<T>>
+          >
         ? OptionArgumentType<
-            T['type'],
+            OptionConfigType<T>,
             'nargs' extends keyof T ? T['nargs'] : undefined
           >
         :
             | OptionArgumentType<
-                T['type'],
+                OptionConfigType<T>,
                 'nargs' extends keyof T ? T['nargs'] : undefined
               >
             | undefined
