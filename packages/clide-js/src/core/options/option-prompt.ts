@@ -20,7 +20,7 @@ import type {
 
 // Types //
 
-type OptionPromptTypeMap = KeyMap<
+export type OptionPromptTypeMap = KeyMap<
   OptionType,
   {
     array: 'autocompleteMultiselect' | 'list' | 'multiselect';

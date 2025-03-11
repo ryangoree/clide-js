@@ -1,6 +1,6 @@
-import prompts, { type PromptObject, type PromptType } from "prompts";
-import { ClideError, type ClideErrorOptions } from "src/core/errors";
-import type { KeyMap, Replace } from "src/utils/types";
+import prompts, { type PromptObject, type PromptType } from 'prompts';
+import { ClideError, type ClideErrorOptions } from 'src/core/errors';
+import type { KeyMap, Replace } from 'src/utils/types';
 
 // Errors //
 
@@ -11,7 +11,7 @@ import type { KeyMap, Replace } from "src/utils/types";
 export class ClientError extends ClideError {
   constructor(message: string, options?: ClideErrorOptions) {
     super(message, {
-      name: "Error",
+      name: 'Error',
       ...options,
     });
   }
@@ -19,7 +19,7 @@ export class ClientError extends ClideError {
 
 // Types //
 
-type PromptTypeMap = KeyMap<
+export type PromptTypeMap = KeyMap<
   PromptType,
   {
     autocomplete: string;
@@ -57,11 +57,11 @@ export type PromptPrimitiveType<T extends PromptType = PromptType> =
  * @group Client
  */
 export type PromptParams<T extends PromptType = PromptType> = Replace<
-  Omit<PromptObject, "name" | "separator">,
+  Omit<PromptObject, 'name' | 'separator'>,
   {
     // make the message property required since prompts throws an error if it's
     // not defined.
-    message: NonNullable<prompts.PromptObject["message"]>;
+    message: NonNullable<prompts.PromptObject['message']>;
     // make the type property optional since we'll default to 'text'
     type?: T;
   }
@@ -93,7 +93,7 @@ export class Client {
     const clientError = new ClientError(error);
     console.error(
       `\n${
-        process.env.NODE_ENV === "development"
+        process.env.NODE_ENV === 'development'
           ? clientError.stack
           : `${ClideError.prefix}Error: ${clientError.message}`
       }`,
@@ -120,12 +120,12 @@ export class Client {
     prompt: PromptParams<T>,
   ): Promise<PromptPrimitiveType<T>> {
     const { value } = await prompts({
-      type: "text",
-      active: "yes",
-      inactive: "no",
+      type: 'text',
+      active: 'yes',
+      inactive: 'no',
       ...prompt,
-      name: "value",
-      separator: ",",
+      name: 'value',
+      separator: ',',
     });
     return value;
   }

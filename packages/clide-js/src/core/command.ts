@@ -73,7 +73,12 @@ export function command<
     Object.assign(mod, passThroughCommand);
   }
 
-  return mod;
+  type Mod = typeof mod;
+  return mod as Mod & {
+    handler: Mod['handler'] extends CommandHandler
+      ? Mod['handler']
+      : CommandHandler;
+  };
 }
 
 /**

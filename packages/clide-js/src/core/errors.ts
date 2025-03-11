@@ -66,6 +66,7 @@ export class ClideError extends Error {
       stackTarget = new Error();
       Error.captureStackTrace?.(stackTarget, new.target);
     }
+    const targetStack = stackTarget.stack;
 
     let customName: string | undefined;
     if (error?.name && error.name !== 'Error') {
@@ -86,18 +87,21 @@ export class ClideError extends Error {
           stack += ` [${customName}]`;
         }
 
+        const messageLines = this.message?.split('\n');
         if (this.message) {
-          stack += `: ${this.message.replaceAll('\n', '\n  ')}`;
+          stack += `: ${messageLines.join('\n  ')}`;
         }
 
-        if (stackTarget.stack) {
-          const stackLines = stackTarget.stack
-            .replace(this.message, '')
-            .split('\n')
-            .slice(1)
-            .join('\n');
-          if (stackLines) {
-            stack += `\n${stackLines}`;
+        if (targetStack) {
+          let stackLines = targetStack.split('\n').slice(1);
+          if (this.message) {
+            stackLines = stackLines.filter(
+              (line) => !this.message.includes(line.trim()),
+            );
+          }
+          const stackTrace = stackLines.join('\n');
+          if (stackTrace) {
+            stack += `\n${stackTrace}`;
           }
         }
 
