@@ -238,7 +238,7 @@ export function validateOptionType({
   }
 
   const { choices, nargs, type } = config;
-  const additionalInfo: string[] = [];
+  const details: string[] = [`Type: ${config.type}`];
   let isValid = true;
 
   if (nargs) {
@@ -250,7 +250,7 @@ export function validateOptionType({
         : [value];
 
     if (values.length !== nargs) {
-      additionalInfo.push(
+      details.push(
         `Expected ${nargs} value${nargs === 1 ? '' : 's'}, received ${values.length}.`,
       );
       isValid = false;
@@ -269,11 +269,12 @@ export function validateOptionType({
 
   if (!isValid && throws) {
     if (choices) {
-      additionalInfo.push(`Choices: ${choices.join(', ')}`);
+      details.push(`Choices: ${choices.join(', ')}`);
     }
-    let errorString = `Invalid value for ${config.type} option "${name}": ${value}`;
-    if (additionalInfo.length) {
-      errorString += `\n\n  ${additionalInfo.join('\n  ')}\n`;
+    const typeString = Array.isArray(value) ? 'array' : typeof value;
+    let errorString = `Invalid value for ${config.type} option "${name}": ${value} (type: ${typeString})`;
+    if (details.length) {
+      errorString += `\n\n${details.join('\n')}\n`;
     }
     throw new OptionsError(errorString);
   }
