@@ -94,7 +94,7 @@ export type OptionPromptParams<T extends OptionConfig = OptionConfig> = Replace<
  */
 export async function optionPrompt<
   TConfig extends OptionConfig = OptionConfig,
-  TValue = MaybeReadonly<OptionConfigPrimitiveType<TConfig>> | undefined
+  TValue = MaybeReadonly<OptionConfigPrimitiveType<TConfig>> | undefined,
 >({
   name,
   config,
@@ -216,7 +216,7 @@ export async function optionPrompt<
 
         const defaultChoice = promptOptions.choices?.findIndex(
           (choice) =>
-            choice.title === defaultValue || choice.value === defaultValue
+            choice.title === defaultValue || choice.value === defaultValue,
         );
         if (defaultChoice > -1) {
           promptOptions.initial = defaultChoice;
@@ -233,7 +233,7 @@ export async function optionPrompt<
     }
   }
 
-  let value = await client.prompt(promptOptions);
+  const value = await client.prompt(promptOptions);
   return prepareValue(value, config) as TValue;
 }
 
@@ -241,7 +241,7 @@ export async function optionPrompt<
 
 function prepareValue(
   value: unknown,
-  config?: OptionConfig
+  config?: OptionConfig,
 ): OptionArgumentType | undefined {
   // Treat empty strings as undefined
   if (isEmpty(value)) value = config?.default;

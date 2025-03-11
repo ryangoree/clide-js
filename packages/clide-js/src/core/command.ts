@@ -60,7 +60,7 @@ export function command<
   options = {} as TOptions,
   handler,
   description = '',
-}: CommandModule<TData, TOptions>) {
+}: Partial<CommandModule<TData, TOptions>>) {
   const mod = {
     requiresSubcommand,
     isMiddleware,
