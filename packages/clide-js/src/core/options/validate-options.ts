@@ -232,26 +232,26 @@ export function validateOptionType({
    */
   throws?: boolean;
 }) {
+  const { choices, nargs, type, required } = config;
+
   if (value === undefined) {
-    if (config.required && throws) throw new OptionRequiredError(name);
+    if (required && throws) throw new OptionRequiredError(name);
     return;
   }
-
-  const { choices, nargs, type } = config;
-  const details: string[] = [`Type: ${config.type}`];
+  const details: string[] = [];
   let isValid = true;
 
   if (nargs) {
-    let values: any[];
-    values = Array.isArray(value)
+    // let value: any[];
+    value = Array.isArray(value)
       ? value
       : typeof value === 'string'
         ? value.split(',')
         : [value];
 
-    if (values.length !== nargs) {
+    if ((value as any[]).length !== nargs) {
       details.push(
-        `Expected ${nargs} value${nargs === 1 ? '' : 's'}, received ${values.length}.`,
+        `Expected ${nargs} value${nargs === 1 ? '' : 's'}, received ${(value as any[]).length}.`,
       );
       isValid = false;
     }
@@ -260,7 +260,7 @@ export function validateOptionType({
       if (type === 'array') {
         isValid = !!isValidValueType(value, config);
       } else {
-        isValid = values.every((v) => isValidValueType(v, config));
+        isValid = (value as any[]).every((v) => isValidValueType(v, config));
       }
     }
   } else {
@@ -271,11 +271,17 @@ export function validateOptionType({
     if (choices) {
       details.push(`Choices: ${choices.join(', ')}`);
     }
-    const typeString = Array.isArray(value) ? 'array' : typeof value;
-    let errorString = `Invalid value for ${config.type} option "${name}": ${value} (type: ${typeString})`;
+
+    let errorString = `Invalid value for ${type} option "${name}": ${value}`;
+
     if (details.length) {
       errorString += `\n\n${details.join('\n')}\n`;
     }
+
+    const optionTypeString =
+      !nargs || nargs < 2 ? type : `${new Array(nargs).fill(type).join(', ')}`;
+    errorString += `Type: ${optionTypeString}\n`;
+
     throw new OptionsError(errorString);
   }
 
@@ -286,9 +292,9 @@ export function validateOptionType({
 
 function isValidValueType(value: unknown, config: OptionConfig) {
   if (value === undefined) return;
-  const { choices } = config;
+  const { choices, type } = config;
 
-  switch (config.type) {
+  switch (type) {
     case 'number':
       return typeof value === 'number' && !Number.isNaN(value);
 

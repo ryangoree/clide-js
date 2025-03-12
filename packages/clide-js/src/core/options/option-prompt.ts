@@ -256,6 +256,6 @@ function prepareValue(
   return value as OptionArgumentType;
 }
 
-function isEmpty(value: unknown): boolean {
+function isEmpty(value: unknown) {
   return value === undefined || value === '';
 }

@@ -136,8 +136,6 @@ describe('parse', () => {
       options: {
         a: 'aval',
         b: 'bval',
-        alpha: 'aval',
-        beta: 'bval',
       },
     } as ParsedCommand);
   });

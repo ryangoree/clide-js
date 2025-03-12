@@ -54,6 +54,12 @@ export type CustomOptionType<T extends OptionType> =
   | T
   | KeyWithMatchingValue<OptionPrimitiveTypeMap, T>;
 
+/**
+ * Get a union of built-in option types with the same primitive type as the
+ * given option type.
+ *
+ * @group Options
+ */
 export type BuiltInOptionType<T extends OptionType = OptionType> =
   T extends keyof _OptionPrimitiveTypeMap
     ? T
@@ -95,8 +101,6 @@ export type OptionConfig<
   TAlias extends string = string,
 > = T extends T
   ? {
-      /** One or more aliases for the option (optional). */
-      alias?: MaybeReadonly<TAlias[]>;
       /**
        * The custom type registered with {@linkcode OptionPrimitiveTypeMap}.
        */
@@ -116,15 +120,17 @@ export type OptionConfig<
       string?: boolean;
       /** The number of arguments the option accepts (optional). */
       nargs?: number;
-      /** The description of the option (optional, has default based on `name`). */
-      description?: string;
       /**
        * The default value to use. This will be the initial value that the getter
        * prompt will show (optional).
        */
-      // FIXME: This should be OptionConfigPrimitiveType, but referencing `this` in
-      // the getter causes excessively deep type recursion.
-      default?: MaybeReadonly<OptionPrimitiveType<T>>;
+      default?: OptionPrimitiveType<T> extends (infer T)[]
+        ? T
+        : OptionPrimitiveType<T>;
+      /** One or more aliases for the option (optional). */
+      alias?: MaybeReadonly<TAlias[]>;
+      /** The description of the option (optional, has default based on `name`). */
+      description?: string;
       /**
        * Whether the option is required. If `true`, the getter will throw an error
        * if no value is provided (optional).
