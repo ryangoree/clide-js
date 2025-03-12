@@ -8,6 +8,8 @@
     "clide-plugin-command-menu": "0.1.1"
   },
   "changesets": [
+    "crazy-loops-turn",
+    "eager-nails-battle",
     "evil-badgers-unite",
     "gold-chefs-create",
     "short-ants-lie"

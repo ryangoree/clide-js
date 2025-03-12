@@ -13,7 +13,7 @@
     "cli"
   ],
   "dependencies": {
-    "clide-js": "0.2.14-next.0",
+    "clide-js": "0.2.14-next.1",
     "clide-plugin-command-menu": "0.1.2-next.0"
   }
 }
