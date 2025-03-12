@@ -38,7 +38,8 @@
       "suspicious": {
         "noExplicitAny": "info",
         "noDoubleEquals": "warn",
-        "noAssignInExpressions": "off"
+        "noAssignInExpressions": "off",
+        "noEmptyInterface": "off"
       }
     },
     "ignore": ["./**/dist/**", "./**/node_modules/**"]

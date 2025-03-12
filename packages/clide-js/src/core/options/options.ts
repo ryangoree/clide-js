@@ -9,34 +9,39 @@ import type {
 
 // Types //
 
-/**
- * The primitive types for each option type.
- *
- * This is used to map each option type to its corresponding primitive type.
- * Using [`declaration merging`](https://www.typescriptlang.org/docs/handbook/declaration-merging.html),
- * the types can be altered to make types more specific or extended for custom
- * option types.
- *
- * @example
- * ```ts
- * declare module 'clide-js' {
- *   interface OptionPrimitiveTypeMap {
- *     number: 0 | 1;
- *     custom: CustomType;
- *   }
- * }
- * ```
- *
- * @group Options
- */
-export interface OptionPrimitiveTypeMap extends _OptionPrimitiveTypeMap {}
-type _OptionPrimitiveTypeMap = {
+type OptionBaseTypeMap = {
   string: string;
   secret: string;
   number: number;
   boolean: boolean;
   array: string[];
 };
+
+/**
+ * The primitive types for {@linkcode OptionConfig.customType custom option} types.
+ *
+ * This is used to map each custom option type to its corresponding primitive
+ * type. Use [`declaration
+ * merging`](https://www.typescriptlang.org/docs/handbook/declaration-merging.html),
+ * to extend this interface with your custom types.
+ *
+ * @example
+ * ```ts
+ * declare module 'clide-js' {
+ *   interface OptionCustomTypeMap {
+ *     hex: `0x${string}`;
+ *     hexArray: `0x${string}`[];
+ *   }
+ * }
+ * ```
+ *
+ * @group Options
+ */
+export interface OptionCustomTypeMap {}
+
+export interface OptionPrimitiveTypeMap
+  extends OptionBaseTypeMap,
+    OptionCustomTypeMap {}
 
 /**
  * The possible types for an option.
@@ -46,32 +51,32 @@ type _OptionPrimitiveTypeMap = {
 export type OptionType = keyof OptionPrimitiveTypeMap;
 
 /**
- * A custom option type that extends the base option types.
- *
- * @group Options
- */
-export type CustomOptionType<T extends OptionType> =
-  | T
-  | KeyWithMatchingValue<OptionPrimitiveTypeMap, T>;
-
-/**
- * Get a union of built-in option types with the same primitive type as the
- * given option type.
- *
- * @group Options
- */
-export type BuiltInOptionType<T extends OptionType = OptionType> =
-  T extends keyof _OptionPrimitiveTypeMap
-    ? T
-    : KeyWithMatchingValue<OptionPrimitiveTypeMap, T, _OptionPrimitiveTypeMap>;
-
-/**
  * Get the primitive type for an option type.
  *
  * @group Options
  */
 export type OptionPrimitiveType<T extends OptionType = OptionType> =
   OptionPrimitiveTypeMap[T];
+
+/**
+ * Get a union of base option types with the same primitive type as the given
+ * option type.
+ *
+ * @group Options
+ */
+export type OptionBaseType<T extends OptionType = OptionType> =
+  T extends keyof OptionBaseTypeMap
+    ? T
+    : KeyWithMatchingValue<OptionPrimitiveTypeMap, T, OptionBaseTypeMap>;
+
+/**
+ * A custom option type that extends the base option types.
+ *
+ * @group Options
+ */
+export type OptionCustomType<T extends OptionType> =
+  | T
+  | KeyWithMatchingValue<OptionPrimitiveTypeMap, T>;
 
 /**
  * Get the argument type for an option considering the  number of arguments it
@@ -104,9 +109,9 @@ export type OptionConfig<
       /**
        * The custom type registered with {@linkcode OptionPrimitiveTypeMap}.
        */
-      type: BuiltInOptionType<T>;
+      type: OptionBaseType<T>;
       /** The custom type of the option. */
-      customType?: CustomOptionType<T>;
+      customType?: OptionCustomType<T>;
       /**
        * The valid choices for the option (optional). If provided, the getter
        * will validate the value against the choices and, unless otherwise
