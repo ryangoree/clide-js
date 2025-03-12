@@ -15,6 +15,7 @@ import {
   type OptionsConfig,
   getOptionKeys,
   getOptionTypeFromValue,
+  normalizeOptionValue,
 } from 'src/core/options/options';
 import { validateOptionType } from 'src/core/options/validate-options';
 import { type CamelCase, camelCase } from 'src/utils/camel-case';
@@ -224,6 +225,8 @@ export function createOptionsGetter<
         // Return cached value if it exists
         if (value !== undefined) return value;
 
+        console.log('value', value);
+
         // Prompt for the value if required or a prompt is provided.
         if (config.required || params?.prompt) {
           value = await optionPrompt({
@@ -238,6 +241,8 @@ export function createOptionsGetter<
                   message: prompt || `Enter ${key}`,
                 }),
           });
+        } else {
+          value = normalizeOptionValue(value, config);
         }
 
         // Validate and set the value to avoid prompting again

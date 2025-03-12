@@ -123,15 +123,6 @@ export type OptionConfig<
        * for array options to specify the type of the array values.
        */
       string?: boolean;
-      /** The number of arguments the option accepts (optional). */
-      nargs?: number;
-      /**
-       * The default value to use. This will be the initial value that the getter
-       * prompt will show (optional).
-       */
-      default?: OptionPrimitiveType<T> extends (infer T)[]
-        ? T
-        : OptionPrimitiveType<T>;
       /** One or more aliases for the option (optional). */
       alias?: MaybeReadonly<TAlias[]>;
       /** The description of the option (optional, has default based on `name`). */
@@ -152,7 +143,30 @@ export type OptionConfig<
       // autoComplete?: [
       //   // potential values, engine will manage matching
       // ]
-    }
+    } & (
+      | {
+          /** The number of arguments the option accepts (optional). */
+          nargs?: undefined;
+          /**
+           * The default value to use. This will be the initial value that the getter
+           * prompt will show (optional).
+           */
+          default?: OptionPrimitiveType<T> | string;
+        }
+      | {
+          /** The number of arguments the option accepts (optional). */
+          nargs: number;
+          /**
+           * The default value to use. This will be the initial value that the getter
+           * prompt will show (optional).
+           */
+          default?:
+            | (OptionPrimitiveType<T> extends (infer T)[]
+                ? T[]
+                : OptionPrimitiveType<T>[])
+            | string;
+        }
+    )
   : never;
 
 export type OptionConfigType<T extends OptionConfig> =
@@ -331,4 +345,74 @@ export function getOptionDisplayName(
 ) {
   if (configKey.length > 1) return configKey;
   return config?.alias?.find((alias) => alias.length > 1) || configKey;
+}
+
+/**
+ * Normalizes a value for an option based on the option's configuration:
+ * - Coerce empty strings to `undefined`.
+ * - Split string values into arrays for array options and trim whitespace.
+ * - Parse numbers and booleans.
+ *
+ * @param value - The value to prepare.
+ * @param config - The option configuration for the value.
+ *
+ * @returns - The prepared value.
+ *
+ * @group Options
+ */
+export function normalizeOptionValue(
+  value: unknown,
+  config?: OptionConfig,
+): OptionArgumentType | undefined {
+  // Treat empty strings as undefined
+  if (isEmpty(value)) value = config?.default;
+  if (isEmpty(value)) return undefined;
+
+  console.log(value, config?.type);
+
+  const nargs = config?.nargs ?? 1;
+  if (config?.type === 'array' || nargs > 1) {
+    // Split string values into arrays for array options
+    if (typeof value === 'string') {
+      return value
+        .split(',')
+        .map((v) => transformScalar(v, config?.type)) as OptionArgumentType;
+    }
+
+    // Map array values to their prepared values
+    if (Array.isArray(value)) {
+      return value.map((v) =>
+        transformScalar(v, config?.type),
+      ) as OptionArgumentType;
+    }
+  }
+
+  return transformScalar(value, config?.type);
+}
+
+// Internal //
+
+type OptionScalarType = OptionPrimitiveType extends infer T
+  ? T extends any[]
+    ? T[number]
+    : T
+  : never;
+
+function transformScalar(
+  value: unknown,
+  type?: OptionType,
+): OptionScalarType | undefined {
+  if (isEmpty(value)) return undefined;
+  switch (type) {
+    case 'number':
+      return Number(value);
+    case 'boolean':
+      return value === 'true' || value === true;
+    default:
+      return String(value).trim();
+  }
+}
+
+function isEmpty(value: unknown) {
+  return value === undefined || value === '';
 }

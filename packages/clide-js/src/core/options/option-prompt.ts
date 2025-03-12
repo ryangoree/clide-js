@@ -4,11 +4,11 @@ import {
   type PromptParams,
   type PromptPrimitiveType,
 } from 'src/core/client';
-import type {
-  OptionArgumentType,
-  OptionConfig,
-  OptionConfigPrimitiveType,
-  OptionType,
+import {
+  type OptionConfig,
+  type OptionConfigPrimitiveType,
+  type OptionType,
+  normalizeOptionValue,
 } from 'src/core/options/options';
 import { validateOptionType } from 'src/core/options/validate-options';
 import type {
@@ -154,7 +154,7 @@ export async function optionPrompt<
           if (value === '' && config?.default !== undefined) {
             value = config?.default;
           }
-          const preppedValue = prepareValue(value, config);
+          const preppedValue = normalizeOptionValue(value, config);
           return validate(preppedValue);
         }
       : undefined,
@@ -235,28 +235,5 @@ export async function optionPrompt<
   }
 
   const value = await client.prompt(promptOptions);
-  return prepareValue(value, config) as TValue;
-}
-
-// Internal //
-
-function prepareValue(
-  value: unknown,
-  config?: OptionConfig,
-): OptionArgumentType | undefined {
-  // Treat empty strings as undefined
-  if (isEmpty(value)) value = config?.default;
-  if (isEmpty(value)) return undefined;
-
-  // Split string values into arrays for array options
-  const { type, nargs = 1 } = config || {};
-  if (typeof value === 'string' && (type === 'array' || nargs > 1)) {
-    return value.split(',');
-  }
-
-  return value as OptionArgumentType;
-}
-
-function isEmpty(value: unknown) {
-  return value === undefined || value === '';
+  return normalizeOptionValue(value, config) as TValue;
 }
