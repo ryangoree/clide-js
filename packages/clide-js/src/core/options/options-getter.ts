@@ -1,9 +1,6 @@
+import { Client, type PromptParams } from 'src/core/client';
 import {
-  Client,
-  type PromptParams,
-  type PromptPrimitiveType,
-} from 'src/core/client';
-import {
+  type OptionPromptParams,
   type OptionPromptType,
   optionPrompt,
 } from 'src/core/options/option-prompt';
@@ -21,7 +18,7 @@ import {
 } from 'src/core/options/options';
 import { validateOptionType } from 'src/core/options/validate-options';
 import { type CamelCase, camelCase } from 'src/utils/camel-case';
-import type { AnyObject, MaybePromise } from 'src/utils/types';
+import type { AnyObject } from 'src/utils/types';
 
 // Types //
 
@@ -29,15 +26,14 @@ import type { AnyObject, MaybePromise } from 'src/utils/types';
  * Configuration options for the {@linkcode OptionGetter} function.
  * @Group Options
  */
-type OptionGetterParams<T extends OptionConfig> = {
+type OptionGetterParams<T extends OptionConfig> = Pick<
+  OptionPromptParams<T>,
+  'validate'
+> & {
   /**
    * The prompt to show the user if no value is provided (optional).
    */
   prompt?: string | Omit<PromptParams<OptionPromptType<T['type']>>, 'validate'>;
-  /**
-   * The validation function (optional).
-   */
-  validate?: (value?: PromptPrimitiveType) => MaybePromise<boolean>;
 };
 
 /**
@@ -231,12 +227,12 @@ export function createOptionsGetter<
         // Prompt for the value if required or a prompt is provided.
         if (config.required || params?.prompt) {
           value = await optionPrompt({
-            name: key,
-            config,
             client,
+            config,
+            name: key,
             onCancel: onPromptCancel,
             validate,
-            ...(prompt && typeof prompt === 'object'
+            ...(typeof prompt === 'object'
               ? prompt
               : {
                   message: prompt || `Enter ${key}`,

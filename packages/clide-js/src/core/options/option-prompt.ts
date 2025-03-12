@@ -58,13 +58,14 @@ export type OptionPromptParams<T extends OptionConfig = OptionConfig> = Replace<
      */
     client?: Client;
     /**
-     * The prompt to show the user if no value is provided (optional).
-     */
-    // prompt?: string | PromptParams;
-    /**
      * The validation function (optional).
+     *
+     * @param value The value to validate.
+     *
+     * @returns `true` if the value is valid, `false` or an error message if the
+     * value is invalid.
      */
-    validate?: (value?: PromptPrimitiveType) => MaybePromise<boolean>;
+    validate?: (value?: PromptPrimitiveType) => MaybePromise<boolean | string>;
     /**
      * A function to call when the user cancels a prompt. By default, this will
      * exit the process.
