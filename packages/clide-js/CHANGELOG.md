@@ -1,5 +1,11 @@
 # clide-js
 
+## 0.2.14-next.3
+
+### Patch Changes
+
+- 99a9162: Fixed default values for unprompted options.
+
 ## 0.2.14-next.2
 
 ### Patch Changes
