@@ -1,5 +1,11 @@
 # clide-js
 
+## 0.2.14-next.4
+
+### Patch Changes
+
+- f3dd64b: Remove console.logs
+
 ## 0.2.14-next.3
 
 ### Patch Changes
