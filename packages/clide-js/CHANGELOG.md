@@ -1,5 +1,12 @@
 # clide-js
 
+## 0.2.14-next.2
+
+### Patch Changes
+
+- 0739f47: Added a separate `OptionCustomTypeMap` interface to be the main register for custom option types rather than merging them directly into `OptionPrimitiveTypeMap` which could lead to some cryptic type errors if `skipLibCheck` is turned off.
+- 8b35a08: Added support for showing custom error messages in the options getter by returning a string in the `validate` function.
+
 ## 0.2.14-next.1
 
 ### Patch Changes
