@@ -145,14 +145,14 @@ export async function optionPrompt<
       value: choice,
     })),
     validate: validate
-      ? (value) => {
+      ? function (this: PromptParams, value) {
           // prompts won't always pass the initial value to the validate
           // function, so we need to check for an empty string and use the
           // default value if provided.
           //
           // see: https://github.com/terkelg/prompts/issues/410
-          if (value === '' && config?.default !== undefined) {
-            value = config?.default;
+          if (value === '' && this?.initial !== undefined) {
+            value = this?.initial;
           }
           const preppedValue = normalizeOptionValue(value, config);
           return validate(preppedValue);
