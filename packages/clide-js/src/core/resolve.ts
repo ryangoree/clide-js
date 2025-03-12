@@ -144,7 +144,7 @@ export interface ResolvedCommand {
   params?: Params;
 }
 
-// Functions + Function Param Types //
+// Functions + Function Types //
 
 /**
  * Params for the {@linkcode resolveCommand} function.
@@ -278,68 +278,6 @@ export async function resolveCommand({
   return prepareResolvedCommand(resolved, parseFn);
 }
 
-/**
- * Prepares a resolved command by ensuring the remaining command string starts
- * with a subcommand name, adding a `resolveNext` function if the command isn't
- * the last one, and replacing the handler with a pass-through function if the
- * command won't be executed.
- *
- * @returns The prepared resolved command.
- *
- * @group Resolve
- */
-export async function prepareResolvedCommand(
-  resolved: ResolvedCommand,
-  parseFn: ParseCommandFn,
-) {
-  // isMiddleware could be undefined, so we need to check for false explicitly
-  const isMiddleware = resolved.command.isMiddleware !== false;
-
-  // Ensure the remaining command string starts with a subcommand name by
-  // removing any leading options. This will ensure they aren't treated as
-  // command names which would cause errors during resolution. Example: `--help
-  // foo` -> `foo`
-  if (resolved.remainingCommandString.length) {
-    // Parse the remaining command string to separate the tokens from the
-    // options.
-    const { tokens } = await parseFn(
-      resolved.remainingCommandString,
-      isMiddleware ? resolved.command.options || {} : {},
-    );
-
-    // If there are only options left, then empty the remaining command string.
-    if (!tokens.length) {
-      resolved.remainingCommandString = '';
-    } else {
-      // Otherwise, remove the leading options.
-      const indexOfNextCommand = resolved.remainingCommandString.indexOf(
-        tokens[0]!,
-      );
-      resolved.remainingCommandString =
-        resolved.remainingCommandString.slice(indexOfNextCommand);
-    }
-  }
-
-  // Add a resolveNext function if the command isn't the last one.
-  const isLast = !resolved.remainingCommandString.length;
-  if (!isLast) {
-    resolved.resolveNext = () =>
-      resolveCommand({
-        commandString: resolved.remainingCommandString,
-        commandsDir: resolved.subcommandsDir,
-        parseFn,
-      });
-  }
-
-  // Replace the handler if the command won't be executed.
-  const willExecute = isLast || isMiddleware;
-  if (!willExecute) {
-    resolved.command.handler = ({ data, next }) => next(data);
-  }
-
-  return resolved;
-}
-
 // Internal //
 
 /**
@@ -432,6 +370,68 @@ async function resolveParamCommand({
       // // match found, stop searching
       // break;
     }
+  }
+
+  return resolved;
+}
+
+/**
+ * Prepares a resolved command by ensuring the remaining command string starts
+ * with a subcommand name, adding a `resolveNext` function if the command isn't
+ * the last one, and replacing the handler with a pass-through function if the
+ * command won't be executed.
+ *
+ * @returns The prepared resolved command.
+ *
+ * @group Resolve
+ */
+export async function prepareResolvedCommand(
+  resolved: ResolvedCommand,
+  parseFn: ParseCommandFn,
+) {
+  // isMiddleware could be undefined, so we need to check for false explicitly
+  const isMiddleware = resolved.command.isMiddleware !== false;
+
+  // Ensure the remaining command string starts with a subcommand name by
+  // removing any leading options. This will ensure they aren't treated as
+  // command names which would cause errors during resolution. Example: `--help
+  // foo` -> `foo`
+  if (resolved.remainingCommandString.length) {
+    // Parse the remaining command string to separate the tokens from the
+    // options.
+    const { tokens } = await parseFn(
+      resolved.remainingCommandString,
+      isMiddleware ? resolved.command.options || {} : {},
+    );
+
+    // If there are only options left, then empty the remaining command string.
+    if (!tokens.length) {
+      resolved.remainingCommandString = '';
+    } else {
+      // Otherwise, remove the leading options.
+      const indexOfNextCommand = resolved.remainingCommandString.indexOf(
+        tokens[0]!,
+      );
+      resolved.remainingCommandString =
+        resolved.remainingCommandString.slice(indexOfNextCommand);
+    }
+  }
+
+  // Add a resolveNext function if the command isn't the last one.
+  const isLast = !resolved.remainingCommandString.length;
+  if (!isLast) {
+    resolved.resolveNext = () =>
+      resolveCommand({
+        commandString: resolved.remainingCommandString,
+        commandsDir: resolved.subcommandsDir,
+        parseFn,
+      });
+  }
+
+  // Replace the handler if the command won't be executed.
+  const willExecute = isLast || isMiddleware;
+  if (!willExecute) {
+    resolved.command.handler = ({ data, next }) => next(data);
   }
 
   return resolved;

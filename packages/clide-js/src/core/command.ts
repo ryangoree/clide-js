@@ -2,6 +2,21 @@ import type { OptionsConfig } from 'src/core/options/options';
 import type { State } from 'src/core/state';
 import type { MaybePromise } from 'src/utils/types';
 
+// Types //
+
+/**
+ * A command handler function that receives the current state and performs some
+ * action.
+ * @typeParam TData - Optional type for data specific to this command.
+ * @typeParam TOptions - The `OptionsConfig` type for the command.
+ * @param state - The current state of the CLI engine.
+ * @group Command
+ */
+export type CommandHandler<
+  TData = unknown,
+  TOptions extends OptionsConfig = OptionsConfig,
+> = (state: Readonly<State<TData, TOptions>>) => MaybePromise<unknown>;
+
 /**
  * A command module that can be executed by the CLI engine.
  * @typeParam TData - Optional type for data specific to this command.
@@ -36,6 +51,8 @@ export type CommandModule<
    */
   handler: CommandHandler<TData, TOptions>;
 };
+
+// Functions + Function Types //
 
 /**
  * Factory function to create a Command object with strong typing. This is used
@@ -80,19 +97,6 @@ export function command<
       : CommandHandler;
   };
 }
-
-/**
- * A command handler function that receives the current state and performs some
- * action.
- * @typeParam TData - Optional type for data specific to this command.
- * @typeParam TOptions - The `OptionsConfig` type for the command.
- * @param state - The current state of the CLI engine.
- * @group Command
- */
-export type CommandHandler<
-  TData = unknown,
-  TOptions extends OptionsConfig = OptionsConfig,
-> = (state: Readonly<State<TData, TOptions>>) => MaybePromise<unknown>;
 
 /**
  * A command handler that simply passes the data to the next command in the

@@ -44,7 +44,7 @@ export type PromptTypeMap = KeyMap<
 export type PromptPrimitiveType<T extends PromptType = PromptType> =
   PromptTypeMap[T];
 
-// Functions + Function Param Types //
+// Functions + Function Types //
 
 /**
  * A variation of {@linkcode PromptObject} with a few changes:

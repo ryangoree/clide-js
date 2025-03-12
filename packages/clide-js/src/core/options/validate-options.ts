@@ -69,7 +69,7 @@ export class OptionConflictsError extends OptionsError {
   }
 }
 
-// Functions + Function Param Types //
+// Functions + Function Types //
 
 interface ValidateOptionsParams {
   values: OptionValues;

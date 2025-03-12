@@ -30,7 +30,7 @@ export type ParseCommandFn = (
   optionsConfig: OptionsConfig,
 ) => MaybePromise<ParsedCommand>;
 
-// Functions + Function Param Types //
+// Functions + Function Types //
 
 /**
  * Parse a command string into command tokens and options values.

@@ -40,7 +40,7 @@ export type OptionPromptTypeMap = KeyMap<
 
 export type OptionPromptType<T extends OptionType> = OptionPromptTypeMap[T];
 
-// Functions + Function Param Types //
+// Functions + Function Types //
 
 export type OptionPromptParams<T extends OptionConfig = OptionConfig> = Replace<
   PromptParams,

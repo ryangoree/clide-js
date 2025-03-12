@@ -370,22 +370,22 @@ export function normalizeOptionValue(
 
   const nargs = config?.nargs ?? 1;
   if (config?.type === 'array' || nargs > 1) {
-    // Split string values into arrays for array options
+    // Split string values into normalized arrays for array options
     if (typeof value === 'string') {
-      return value
+      value = value
         .split(',')
-        .map((v) => transformScalar(v, config?.type)) as OptionArgumentType;
+        .map((v) => normalizeScalar(v, config?.type)) as OptionArgumentType;
     }
 
-    // Map array values to their prepared values
+    // Map array values to their normalized values
     if (Array.isArray(value)) {
       return value.map((v) =>
-        transformScalar(v, config?.type),
+        normalizeScalar(v, config?.type),
       ) as OptionArgumentType;
     }
   }
 
-  return transformScalar(value, config?.type);
+  return normalizeScalar(value, config?.type);
 }
 
 // Internal //
@@ -396,7 +396,7 @@ type OptionScalarType = OptionPrimitiveType extends infer T
     : T
   : never;
 
-function transformScalar(
+function normalizeScalar(
   value: unknown,
   type?: OptionType,
 ): OptionScalarType | undefined {

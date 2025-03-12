@@ -22,7 +22,7 @@ export interface NextState {
   options?: OptionValues;
 }
 
-// Functions/Classes + Function/Class Param Types //
+// Classes + Class Types //
 
 interface StateParams<TData = unknown> {
   /** The context for the command. */

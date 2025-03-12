@@ -16,7 +16,7 @@ export class OptionsConfigError extends ClideError {
   }
 }
 
-// Functions + Function Param Types //
+// Functions + Function Types //
 
 /**
  * @throws {OptionsConfigError} Throws an error if the options config is
