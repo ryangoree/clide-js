@@ -1,5 +1,11 @@
 # clide-js
 
+## 0.2.14-next.5
+
+### Patch Changes
+
+- 1ec4ab8: Patched option prompt to ensure provided `initial` values are used by default.
+
 ## 0.2.14-next.4
 
 ### Patch Changes
