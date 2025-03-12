@@ -368,8 +368,6 @@ export function normalizeOptionValue(
   if (isEmpty(value)) value = config?.default;
   if (isEmpty(value)) return undefined;
 
-  console.log(value, config?.type);
-
   const nargs = config?.nargs ?? 1;
   if (config?.type === 'array' || nargs > 1) {
     // Split string values into arrays for array options

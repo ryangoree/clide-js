@@ -225,8 +225,6 @@ export function createOptionsGetter<
         // Return cached value if it exists
         if (value !== undefined) return value;
 
-        console.log('value', value);
-
         // Prompt for the value if required or a prompt is provided.
         if (config.required || params?.prompt) {
           value = await optionPrompt({
