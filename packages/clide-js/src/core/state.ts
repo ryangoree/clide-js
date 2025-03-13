@@ -68,7 +68,7 @@ export class State<
    */
   #actionCallCount = 0;
   #context: Context;
-  #data: TData;
+  #data: unknown;
   #i = -1;
   #commands: ResolvedCommand[];
   #options: OptionsGetter;
@@ -121,7 +121,7 @@ export class State<
   }
   /** The current data. */
   get data() {
-    return this.#data;
+    return this.#data as TData;
   }
   /** The current params, including params from previous steps. */
   get params() {
@@ -169,7 +169,7 @@ export class State<
    * return the data.
    * @param data The data to pass to the next step or return.
    */
-  readonly next = async (data?: unknown): Promise<void> => {
+  readonly next = async (data?: unknown): Promise<unknown> => {
     this.#actionCallCount++;
     let _data = data;
     const nextIndex = this.i + 1;
@@ -217,6 +217,8 @@ export class State<
       // Resolve the promise to return the data to callers of `start()`.
       this.#resolvePromise?.();
     }
+
+    return this.#data;
   };
 
   /**
@@ -226,7 +228,7 @@ export class State<
   readonly end = async (
     data?: unknown,
     // endOptions: EndOptions = {},
-  ): Promise<void> => {
+  ): Promise<unknown> => {
     this.#actionCallCount++;
     let _data = data;
 
@@ -265,6 +267,8 @@ export class State<
     if (this.#resolvePromise) {
       this.#resolvePromise();
     }
+
+    return this.#data;
   };
 
   /**
