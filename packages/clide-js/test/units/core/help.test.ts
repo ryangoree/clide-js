@@ -11,12 +11,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 describe('help', () => {
   beforeEach(async () => {
     vi.restoreAllMocks();
-    await unmockAllCommandModules();
+    unmockAllCommandModules();
   });
 
   it('generates help for a command', async () => {
     // A bare-bones command module
-    await mockCommandModule('commands/foo', {
+    mockCommandModule('commands/foo', {
       handler: () => {},
     });
 
@@ -32,10 +32,10 @@ describe('help', () => {
       usage: expect.any(String),
     } as Help);
 
-    await unmockAllCommandModules();
+    unmockAllCommandModules();
 
     // A full command module
-    await mockCommandModule('commands/foo', {
+    mockCommandModule('commands/foo', {
       description: 'hello from foo',
       isMiddleware: true,
       requiresSubcommand: false,

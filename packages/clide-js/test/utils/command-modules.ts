@@ -1,4 +1,9 @@
 import path from 'node:path';
+import type { CommandModule } from 'src/core/command';
+import { parseCommand } from 'src/core/parse';
+import { NotFoundError } from 'src/core/resolve';
+import type { State } from 'src/core/state';
+import { formatFileName } from 'src/utils/filename';
 import { type Mock, vi } from 'vitest';
 
 const mockCommandDirs = new Map<string, Set<string>>();
@@ -9,6 +14,16 @@ vi.mock('node:fs', async (importOriginal) => {
     ...fs,
     promises: {
       ...fs.promises,
+      // Mock fs.readdir to return the command names for command directories
+      readdir: vi.fn(async (path, opts) => {
+        return fs.promises.readdir(path, opts).catch(() => {
+          // If the path is a command directory, return the command names
+          if (mockCommandDirs.has(path.toString())) {
+            return Promise.resolve([...mockCommandDirs.get(path.toString())!]);
+          }
+        });
+      }),
+
       // Mock fs.stat to return isDirector()y = true for command directories
       stat: vi.fn(async (path, options) => {
         return fs.promises.stat(path, options).catch(() => {
@@ -21,16 +36,6 @@ vi.mock('node:fs', async (importOriginal) => {
 
           // Otherwise, reject
           return Promise.reject();
-        });
-      }),
-
-      // Mock fs.readdir to return the command names for command directories
-      readdir: vi.fn(async (path, opts) => {
-        return fs.promises.readdir(path, opts).catch(() => {
-          // If the path is a command directory, return the command names
-          if (mockCommandDirs.has(path.toString())) {
-            return Promise.resolve([...mockCommandDirs.get(path.toString())!]);
-          }
         });
       }),
     },
@@ -65,18 +70,14 @@ vi.mock('node:fs', async (importOriginal) => {
   return mod;
 });
 
-import type { CommandModule } from 'src/core/command';
-import type { State } from 'src/core/state';
-
 /**
  * Unmock all command modules that have been mocked. Making them throw a
  * NotFoundError when imported.
  */
-export async function unmockAllCommandModules() {
+export function unmockAllCommandModules() {
   for (const [commandDir, commandNames] of mockCommandDirs.entries()) {
     for (const commandName of commandNames) {
-      const { NotFoundError } = await import('src/core/resolve');
-      await vi.doMock(path.join(commandDir, commandName), () => {
+      vi.doMock(path.join(commandDir, commandName), () => {
         const mod = {
           handler: vi.fn(() => {
             throw new NotFoundError(commandName, commandDir);
@@ -95,19 +96,18 @@ export async function unmockAllCommandModules() {
  *
  * @example
  * ```ts
- * await mockCommandModule('commands/foo/bar', {
+ * mockCommandModule('commands/foo/bar', {
  *  handler: ({ result, data }) => result(data),
  * });
  * ```
  */
-export async function mockCommandModule<T extends CommandModule | undefined>(
+export function mockCommandModule<T extends CommandModule | undefined>(
   commandPath: string,
   commandModule?: T,
-): Promise<{
+): {
   mock: undefined extends T ? MockCommandModule : T;
-  unmock: () => Promise<void>;
-}> {
-  const { formatFileName } = await import('src/utils/filename');
+  unmock: () => void;
+} {
   const formattedFilePath = formatFileName(commandPath);
   const commandDir = path.dirname(commandPath);
   const commandName = path.basename(commandPath);
@@ -132,7 +132,7 @@ export async function mockCommandModule<T extends CommandModule | undefined>(
 
   return {
     mock: mock as any,
-    unmock: async () => {
+    unmock: () => {
       return vi.doUnmock(formattedFilePath);
     },
   };
@@ -151,19 +151,18 @@ export async function mockCommandModule<T extends CommandModule | undefined>(
  *   },
  * });
  */
-export async function mockCommandModules<
+export function mockCommandModules<
   TModules extends Record<string, CommandModule>,
 >(commandModules: TModules) {
-  const results = await Promise.all(
-    Object.entries(commandModules).map(async ([commandPath, commandModule]) =>
+  const results = Object.entries(commandModules).map(
+    ([commandPath, commandModule]) =>
       mockCommandModule(commandPath, commandModule),
-    ),
   );
 
   return {
     mocks: commandModules,
-    unmock: async () => {
-      for (const { unmock } of results) await unmock();
+    unmock: () => {
+      for (const { unmock } of results) unmock();
     },
   };
 }
@@ -172,11 +171,10 @@ export async function mockCommandModules<
  * Mock the command modules for the given command string so that they can be
  * imported and resolved during testing.
  */
-export async function mockCommandStringModules<TCommandString extends string>(
+export function mockCommandStringModules<TCommandString extends string>(
   commandString: TCommandString,
   commandsDir: string,
 ) {
-  const { parseCommand } = await import('src/core/parse');
   const mocks: Record<string, MockCommandModule> = {};
   const unMockFns: (() => void)[] = [];
   const { tokens } = parseCommand(commandString, {});
@@ -185,7 +183,7 @@ export async function mockCommandStringModules<TCommandString extends string>(
   // mock each command in the command string
   for (const token of tokens) {
     commandPath = path.join(commandPath, token);
-    const { mock, unmock } = await mockCommandModule(commandPath, {
+    const { mock, unmock } = mockCommandModule(commandPath, {
       handler: vi.fn(({ next, data }) => next(data)),
     });
     mocks[token] = mock;
@@ -194,8 +192,8 @@ export async function mockCommandStringModules<TCommandString extends string>(
 
   return {
     mocks: mocks as CommandMap<TCommandString, MockCommandModule>,
-    unmock: async () => {
-      for (const unmock of unMockFns) await unmock();
+    unmock: () => {
+      for (const unmock of unMockFns) unmock();
     },
   };
 }

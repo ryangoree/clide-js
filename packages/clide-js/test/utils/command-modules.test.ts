@@ -25,7 +25,7 @@ describe('mockCommandModule', () => {
   it('Mocks and unmocks single command modules', async () => {
     const [path] = Object.entries(modules)[0]!;
 
-    const { mock, unmock } = await mockCommandModule(path);
+    const { mock, unmock } = mockCommandModule(path);
     expect(mock).toMatchObject({
       handler: expect.any(Function),
     });
@@ -36,14 +36,14 @@ describe('mockCommandModule', () => {
     const imported = await import(path);
     expect(imported.handler).toEqual(expect.any(Function));
 
-    await unmock();
+    unmock();
     await expect(import(path)).rejects.toThrow();
   });
 
   it('Uses the provided module', async () => {
     const [path, module] = Object.entries(modules)[0]!;
 
-    const { mock } = await mockCommandModule(path, {
+    const { mock } = mockCommandModule(path, {
       handler: module.handler,
     });
     expect(mock.handler).toBe(module.handler);
@@ -52,7 +52,7 @@ describe('mockCommandModule', () => {
 
 describe('mockCommandModules', () => {
   it('Mocks and unmocks multiple command modules', async () => {
-    const { mocks, unmock } = await mockCommandModules(modules);
+    const { mocks, unmock } = mockCommandModules(modules);
 
     expect(mocks).toEqual(modules);
 
@@ -61,7 +61,7 @@ describe('mockCommandModules', () => {
       expect(imported.handler).toBe(module.handler);
     }
 
-    await unmock();
+    unmock();
     for (const path of Object.keys(modules)) {
       await expect(import(path)).rejects.toThrow();
     }
@@ -70,7 +70,7 @@ describe('mockCommandModules', () => {
 
 describe('mockCommandStringModules', () => {
   test('Mocks and unmocks command string modules', async () => {
-    const { mocks, unmock } = await mockCommandStringModules(
+    const { mocks, unmock } = mockCommandStringModules(
       'foo bar baz',
       'commands',
     );
@@ -86,14 +86,14 @@ describe('mockCommandStringModules', () => {
       expect(imported.handler).toEqual(expect.any(Function));
     }
 
-    await unmock();
+    unmock();
     for (const path of Object.keys(modules)) {
       await expect(import(path)).rejects.toThrow();
     }
   });
 
   it('Ignores options', async () => {
-    const { mocks } = await mockCommandStringModules(
+    const { mocks } = mockCommandStringModules(
       'foo --bar baz',
       'commands',
     );

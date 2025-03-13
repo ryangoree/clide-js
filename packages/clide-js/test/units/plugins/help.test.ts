@@ -1,7 +1,7 @@
 // Must be imported first
 import {
-  mockCommandModule,
-  unmockAllCommandModules,
+    mockCommandModule,
+    unmockAllCommandModules,
 } from 'test/utils/command-modules';
 
 vi.mock('src/core/client');
@@ -22,11 +22,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 describe('plugin: help', () => {
   beforeEach(async () => {
     vi.restoreAllMocks();
-    await unmockAllCommandModules();
+    unmockAllCommandModules();
   });
 
   it('adds "help" and "h" options', async () => {
-    await mockCommandModule('commands/foo');
+    mockCommandModule('commands/foo');
     await run({
       command: 'foo',
       commandsDir: 'commands',
@@ -72,7 +72,7 @@ describe('plugin: help', () => {
   });
 
   it('shows help on UsageError and returns the error', async () => {
-    await mockCommandModule('commands/foo', {
+    mockCommandModule('commands/foo', {
       handler: () => {
         throw new UsageError('test');
       },
