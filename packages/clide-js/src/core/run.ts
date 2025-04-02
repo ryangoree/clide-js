@@ -135,18 +135,19 @@ export async function run({
 
     // if "<cwd>/commands" doesn't exist, try "<caller-dir>/commands"
     if (!isDirectory(defaultCommandsDir)) {
-      triedPaths.push(path.resolve(defaultCommandsDir));
+      triedPaths.push(defaultCommandsDir);
       const callerDirPath = path.dirname(getCallerPath() || '');
       defaultCommandsDir = path.join(callerDirPath, defaultCommandsDirName);
     }
 
     // if neither "<cwd>/commands" nor "<caller-dir>/commands" exist, throw
     if (!isDirectory(defaultCommandsDir)) {
-      throw new ClideError(`Unable to find commands directory
-  Tried:
-    - ${triedPaths.join('\n    - ')}  
-    - ${path.resolve(defaultCommandsDir)}
-  `);
+      triedPaths.push(defaultCommandsDir);
+      throw new ClideError(
+        `Unable to find commands directory. Specify the path to the directory containing command modules using the "commandsDir" option or create the directory at one of the following locations:
+  - ${triedPaths.join('\n  - ')}
+  `,
+      );
     }
 
     commandsDir = defaultCommandsDir;
