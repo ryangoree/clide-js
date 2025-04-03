@@ -99,9 +99,10 @@ export function commandMenu({
               title,
               titleColors,
               message,
-              commandsDir,
               showDescriptions,
               maxDescriptionLength,
+              client: context.client,
+              commandsDir,
               resolveFn: ({ commandString, commandsDir }) =>
                 context.resolveCommand(commandString, commandsDir),
               onCancel: async () => {

@@ -6,7 +6,7 @@ import { isDirectory } from 'src/utils/fs';
 import { joinTokens } from 'src/utils/tokens';
 import { Context } from './context';
 import { ClideError } from './errors';
-import { type HookPayload, HooksEmitter } from './hooks';
+import { type HookPayload, HookRegistry } from './hooks';
 import type { OptionsConfig } from './options/options';
 import type { Plugin } from './plugin';
 
@@ -161,8 +161,8 @@ export async function run({
     commandString = joinTokens(defaultCommand);
   }
 
-  // create hooks emitter
-  const hooks = new HooksEmitter();
+  // create hook registry
+  const hooks = new HookRegistry();
 
   // register hooks
   if (beforeResolve) hooks.on('beforeResolve', beforeResolve);

@@ -1,9 +1,9 @@
-import { HooksEmitter } from 'src/core/hooks';
+import { HookRegistry } from 'src/core/hooks';
 import { describe, expect, it, vi } from 'vitest';
 
-describe('hooks emitter', () => {
+describe('hook registry', () => {
   it('calls registered hooks', async () => {
-    const hooks = new HooksEmitter();
+    const hooks = new HookRegistry();
     const hook = vi.fn();
 
     hooks.on('test', hook);
@@ -13,7 +13,7 @@ describe('hooks emitter', () => {
   });
 
   it('calls registered hooks in order', async () => {
-    const hooks = new HooksEmitter();
+    const hooks = new HookRegistry();
 
     let data = '';
 
@@ -30,7 +30,7 @@ describe('hooks emitter', () => {
   });
 
   it("doesn't call unregistered hooks", async () => {
-    const hooks = new HooksEmitter();
+    const hooks = new HookRegistry();
     const hook = vi.fn();
 
     hooks.on('test', hook);
@@ -43,7 +43,7 @@ describe('hooks emitter', () => {
   });
 
   it('calls once hooks only once', async () => {
-    const hooks = new HooksEmitter();
+    const hooks = new HookRegistry();
     const hook = vi.fn();
 
     hooks.once('test', hook);

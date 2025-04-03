@@ -1,6 +1,6 @@
 import { Client } from 'src/core/client';
 import { ClideError } from 'src/core/errors';
-import { HooksEmitter } from 'src/core/hooks';
+import { HookRegistry } from 'src/core/hooks';
 import type { OptionValues, OptionsConfig } from 'src/core/options/options';
 import { type ParseCommandFn, parseCommand } from 'src/core/parse';
 import type { Plugin, PluginInfo } from 'src/core/plugin';
@@ -24,7 +24,7 @@ export interface ContextParams<TOptions extends OptionsConfig = OptionsConfig> {
   /** The standard streams client */
   client?: Client;
   /** The hooks emitter */
-  hooks?: HooksEmitter;
+  hooks?: HookRegistry;
   /** A list of plugins to load */
   plugins?: Plugin[];
   /** The options config for the command */
@@ -36,7 +36,7 @@ export interface ContextParams<TOptions extends OptionsConfig = OptionsConfig> {
 }
 
 /**
- * The command lifecycle manager.
+ * The context for a command execution.
  *
  * The `Context` serves as the orchestrator for the entire command lifecycle. It
  * is responsible for initializing the CLI environment, resolving commands,
@@ -89,7 +89,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
   /** The standard streams client. */
   readonly client: Client;
   /** The hooks emitter. */
-  readonly hooks: HooksEmitter;
+  readonly hooks: HookRegistry;
   /**
    * Metadata about the plugins that will be used during preparation and
    * execution.
@@ -117,7 +117,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
   constructor({
     commandString,
     commandsDir,
-    hooks = new HooksEmitter(),
+    hooks = new HookRegistry(),
     client = new Client(),
     plugins = [],
     options = {} as TOptions,
@@ -227,8 +227,8 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
   };
 
   /**
-   * Resolve a command string into a list of imported command modules using the
-   * configured `resolveFn` and `parseFn`.
+   * Resolve a command string into an imported command module and possible
+   * `resolveNext` function using the configured `resolveFn` and `parseFn`.
    *
    * This function has no side effects and is simply a wrapper around the
    * configured `resolveFn` and `parseFn`.

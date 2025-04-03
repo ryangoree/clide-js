@@ -114,8 +114,7 @@ export function logger({
   logFile,
   enabled = true,
 }: LoggerOptions = {}): Plugin<LoggerMeta> {
-  // Coerce the prefix to a function.
-  const prefixFn = typeof prefix === 'function' ? prefix : () => prefix;
+  const getPrefix = typeof prefix === 'function' ? prefix : () => prefix;
 
   // if a logFile is provided, ensure the directory exists.
   if (logFile) {
@@ -127,7 +126,7 @@ export function logger({
 
   // Create a function to centralize the logging logic.
   function log(client: Client, message: string, ...data: any[]) {
-    const prefixedMessage = `${prefixFn()}${message}`;
+    const prefixedMessage = `${getPrefix()}${message}`;
     if (logFile) {
       logToFile(logFile, prefixedMessage, ...data);
     } else {

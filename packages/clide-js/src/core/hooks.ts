@@ -283,86 +283,94 @@ export interface ClideHooks {
 }
 
 /**
- * A registry for managing and executing lifecycle hooks. Handlers are executed
+ * A registry for managing and executing hook handlers. Handlers are executed
  * sequentially in registration order.
+ * @typeParam THooks - An object that maps hook names to their corresponding
+ * handler function types. The handler function type should accept a single
+ * payload argument.
  *
- * While built-in hooks are defined in {@linkcode ClideHooks}, custom hooks can
- * be registered using any string as the hook name.
+ * @example
+ * ```ts
+ * const hooks = new HookRegistry<{
+ *   beforeRun: (payload: { command: string }) => void;
+ * }>();
  *
- * @template T - The hooks configuration object
+ * hooks.on('beforeRun', ({ command }) => {
+ *   console.log('Running command:', command);
+ * });
+ *
+ * hooks.call('beforeRun', { command: 'foo bar' }); // -> 'Running command: foo bar'
+ * ```
  */
-export class HooksEmitter<T extends AnyObject = ClideHooks> {
-  private handlers: {
-    [K in HookName<T>]?: HookHandler<K, T>[];
+export class HookRegistry<THooks extends AnyObject = ClideHooks> {
+  #handlers: {
+    [K in HookName<THooks>]?: HookHandler<K, THooks>[];
   } = {};
 
   /**
    * Register a handler for a hook.
-   * @param hook - The hook to handle
-   * @param handler - Function to execute when the hook is called
+   * @param hook - The hook to handle.
+   * @param handler - The function to execute when the hook is called.
    */
-  on<THook extends HookName<T>>(
+  on<THook extends HookName<THooks>>(
     hook: THook,
-    handler: HookHandler<THook, T>,
+    handler: HookHandler<THook, THooks>,
   ): void {
-    this.handlers[hook] ??= [];
-    this.handlers[hook].push(handler);
+    this.#handlers[hook] ||= [];
+    this.#handlers[hook].push(handler);
   }
 
   /**
    * Remove a previously registered handler.
-   * @param hook - The hook to remove the handler from
-   * @param handler - The handler to remove
-   * @returns true if the handler was found and removed
+   * @param hook - The hook to remove the handler from.
+   * @param handler - The handler function to remove.
+   * @returns A boolean indicating whether the handler was found and removed.
    */
-  off<THook extends HookName<T>>(
+  off<THook extends HookName<THooks>>(
     hook: THook,
-    handler: HookHandler<THook, T>,
+    handler: HookHandler<THook, THooks>,
   ): boolean {
-    const handlers = this.handlers[hook];
-    if (!handlers) return false;
-
     let didRemove = false;
-    if (handlers) {
-      this.handlers[hook] = handlers.filter((existing) => {
-        if (existing === handler) {
-          didRemove = true;
-          return false;
-        }
-        return true;
-      });
-    }
+    const handlers = this.#handlers[hook];
+    if (!handlers) return didRemove;
+    this.#handlers[hook] = handlers.filter((existing) => {
+      if (existing === handler) {
+        didRemove = true;
+        return false;
+      }
+      return true;
+    });
 
     return didRemove;
   }
 
   /**
-   * Register a one-time handler that removes itself after execution.
-   * @param hook - The hook to handle once
-   * @param handler - Function to execute once when the hook is called
+   * Register a one-time handler that removes itself on execution.
+   * @param hook - The hook to handle once.
+   * @param handler - The function to execute once when the hook is called.
    */
-  once<THook extends HookName<T>>(
+  once<THook extends HookName<THooks>>(
     hook: THook,
-    handler: HookHandler<THook, T>,
+    handler: HookHandler<THook, THooks>,
   ): void {
     const wrapped = (...args: unknown[]) => {
-      this.off(hook, wrapped as HookHandler<THook, T>);
+      this.off(hook, wrapped as HookHandler<THook, THooks>);
       handler(...args);
     };
-    this.on(hook, wrapped as HookHandler<THook, T>);
+    this.on(hook, wrapped as HookHandler<THook, THooks>);
   }
 
   /**
-   * Call all handlers registered for a hook. Handlers are called sequentially
-   * in registration order.
-   * @param hook - The hook to call
-   * @param args - Arguments to pass to each handler
+   * Call all handlers registered for a hook.
+   * Handlers are called sequentially in registration order.
+   * @param hook - The hook to call.
+   * @param args - The args to pass to each handler.
    */
-  async call<THook extends HookName<T>>(
+  async call<THook extends HookName<THooks>>(
     hook: THook,
-    ...args: Parameters<HookHandler<THook, T>>
+    ...args: Parameters<HookHandler<THook, THooks>>
   ): Promise<void> {
-    const handlers = this.handlers[hook];
+    const handlers = this.#handlers[hook];
     if (!handlers) return;
     for (const handler of handlers) {
       await handler(...args);
