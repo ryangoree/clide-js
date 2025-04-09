@@ -4,6 +4,28 @@ import type { Client } from 'src/core/client';
 import type { HookPayload } from 'src/core/hooks';
 import type { Plugin } from 'src/core/plugin';
 
+export interface LoggerMeta {
+  /**
+   * Whether the logger is enabled.
+   */
+  readonly enabled: boolean;
+}
+
+export interface LoggerHooks {
+  /**
+   * Turns the logger on.
+   */
+  enableLogger: () => void;
+  /**
+   * Turns the logger off.
+   */
+  disableLogger: () => void;
+  /**
+   * Toggles the logger on or off.
+   */
+  toggleLogger: () => void;
+}
+
 interface LoggerOptions {
   /**
    * The prefix to use for log messages. Can be a string or a function that
@@ -201,28 +223,6 @@ export function logger({
       return true;
     },
   };
-}
-
-export interface LoggerMeta {
-  /**
-   * Whether the logger is enabled.
-   */
-  readonly enabled: boolean;
-}
-
-export interface LoggerHooks {
-  /**
-   * Turns the logger on.
-   */
-  enableLogger: () => void;
-  /**
-   * Turns the logger off.
-   */
-  disableLogger: () => void;
-  /**
-   * Toggles the logger on or off.
-   */
-  toggleLogger: () => void;
 }
 
 function defaultPrefix() {

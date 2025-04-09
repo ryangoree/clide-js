@@ -87,9 +87,8 @@ export class ClideError extends Error {
           stack += ` [${customName}]`;
         }
 
-        const messageLines = this.message?.split('\n');
         if (this.message) {
-          stack += `: ${messageLines.join('\n  ')}`;
+          stack += `: ${this.message}`.replaceAll('\n', '\n  ');
         }
 
         if (targetStack) {
@@ -99,9 +98,8 @@ export class ClideError extends Error {
               (line) => !this.message.includes(line.trim()),
             );
           }
-          const stackTrace = stackLines.join('\n');
-          if (stackTrace) {
-            stack += `\n${stackTrace}`;
+          if (stackLines.length) {
+            stack += `\n${stackLines.join('\n')}`;
           }
         }
 

@@ -1,19 +1,25 @@
+export type JoinableTokens = string | string[] | JoinableTokens[];
+
 /**
- * Joins an array of command tokens into a single string.
+ * Joins multiple command tokens into a single string.
  */
-export function joinTokens(tokens: string | string[]): string {
-  if (typeof tokens === 'string') return tokens;
-  return (
-    tokens
-      // If the token contains spaces, wrap it in quotes
-      .map((token) => (token.includes(' ') ? `"${token}"` : token))
-      .join(' ')
-  );
+export function joinTokens(...tokens: JoinableTokens[]): string {
+  return tokens
+    .map((token) =>
+      typeof token === 'string'
+        ? // If the token contains spaces, wrap it in quotes
+          token.includes(' ')
+          ? `"${token}"`
+          : token
+        : joinTokens(...token),
+    )
+    .join(' ');
 }
 
 /**
  * Splits a command string into an array of tokens.
  */
+// TODO: Add tests
 export function splitTokens(commandString: string): string[] {
   const tokens: string[] = [];
   let inQuotes = false;

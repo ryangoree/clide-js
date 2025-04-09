@@ -46,6 +46,11 @@ export interface RunParams {
    */
   beforeResolve?: (payload: HookPayload<'beforeResolve'>) => void;
   /**
+   * A hook that runs before attempting to locate and import each subcommand
+   * module.
+   */
+  beforeResolveNext?: (payload: HookPayload<'beforeResolveNext'>) => void;
+  /**
    * A hook that runs after importing command modules.
    */
   afterResolve?: (payload: HookPayload<'afterResolve'>) => void;
@@ -63,18 +68,26 @@ export interface RunParams {
    */
   beforeExecute?: (payload: HookPayload<'beforeExecute'>) => void;
   /**
-   * A hook that runs once all commands have been called or when `context.end()`
-   * is called.
-   */
-  afterExecute?: (payload: HookPayload<'afterExecute'>) => void;
-  /**
    * A hook that runs before executing the `context.next()` function.
    */
   beforeNext?: (payload: HookPayload<'beforeNext'>) => void;
   /**
+   * A hook that runs before each state update during command execution.
+   */
+  beforeStateChange?: (payload: HookPayload<'beforeStateChange'>) => void;
+  /**
+   * A hook that runs after each state update during command execution.
+   */
+  afterStateChange?: (payload: HookPayload<'afterStateChange'>) => void;
+  /**
    * A hook that runs before executing the `context.end()` function.
    */
   beforeEnd?: (payload: HookPayload<'beforeEnd'>) => void;
+  /**
+   * A hook that runs once all commands have been called or when `context.end()`
+   * is called.
+   */
+  afterExecute?: (payload: HookPayload<'afterExecute'>) => void;
   /**
    * A hook that runs whenever an error is thrown.
    */
@@ -114,13 +127,16 @@ export async function run({
   options,
   plugins,
   beforeResolve,
+  beforeResolveNext,
   afterResolve,
   beforeParse,
   afterParse,
   beforeExecute,
-  afterExecute,
   beforeNext,
+  beforeStateChange,
+  afterStateChange,
   beforeEnd,
+  afterExecute,
   onError,
   onExit,
 }: RunParams = {}) {
@@ -153,12 +169,9 @@ export async function run({
     commandsDir = defaultCommandsDir;
   }
 
-  // coerce command to string
   let commandString = joinTokens(command);
-
-  // use default command if no command is provided
-  if (!commandString && defaultCommand) {
-    commandString = joinTokens(defaultCommand);
+  if ((!commandString || commandString.startsWith('-')) && defaultCommand) {
+    commandString = joinTokens(defaultCommand, command);
   }
 
   // create hook registry
@@ -166,13 +179,16 @@ export async function run({
 
   // register hooks
   if (beforeResolve) hooks.on('beforeResolve', beforeResolve);
+  if (beforeResolveNext) hooks.on('beforeResolveNext', beforeResolveNext);
   if (afterResolve) hooks.on('afterResolve', afterResolve);
   if (beforeParse) hooks.on('beforeParse', beforeParse);
   if (afterParse) hooks.on('afterParse', afterParse);
   if (beforeExecute) hooks.on('beforeExecute', beforeExecute);
-  if (afterExecute) hooks.on('afterExecute', afterExecute);
   if (beforeNext) hooks.on('beforeNext', beforeNext);
+  if (beforeStateChange) hooks.on('beforeStateChange', beforeStateChange);
+  if (afterStateChange) hooks.on('afterStateChange', afterStateChange);
   if (beforeEnd) hooks.on('beforeEnd', beforeEnd);
+  if (afterExecute) hooks.on('afterExecute', afterExecute);
   if (onError) hooks.on('error', onError);
   if (onExit) hooks.on('exit', onExit);
 

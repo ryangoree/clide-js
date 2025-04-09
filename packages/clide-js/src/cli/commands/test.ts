@@ -2,18 +2,14 @@ import { command } from 'src/core/command';
 
 export default command({
   options: {
-    a: {
+    name: {
       required: true,
-      type: 'number',
+      type: 'string',
     },
   },
   handler: async ({ options }) => {
-    const a = await options.a({
-      prompt: {
-        message: 'Enter a',
-        initial: 100,
-      },
-    });
-    console.log(`Hello, ${a}!`);
+    const name = await options.name();
+
+    console.log(`Hello, ${name}!`);
   },
 });

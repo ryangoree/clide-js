@@ -228,15 +228,16 @@ export type OptionKey<
 > = TKey | TAlias | CamelCase<TKey | TAlias>;
 
 /**
- * An expanded {@linkcode OptionsConfig} in which each option's config is
- * accessible by any of its keys or aliases.
+ * An expanded {@linkcode OptionsConfig} that keys each option config by all of
+ * it's keys and aliases.
  *
  * @group Options
  */
 export type ExpandedOptionsConfig<T extends OptionsConfig> = T extends T
   ? {
-      [K in keyof T as OptionKey<K, OptionAlias<T[K]>>]: // Replace<
-      T[K] extends { alias: string[] }
+      [K in keyof T as OptionKey<K, OptionAlias<T[K]>>]: T[K] extends {
+        alias: string[];
+      }
         ? Eval<
             Replace<
               T[K],

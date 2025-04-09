@@ -73,19 +73,6 @@ export class NotFoundError extends UsageError {
   }
 }
 
-/**
- * An error indicating a required subcommand is missing.
- * @group Errors
- */
-export class SubcommandRequiredError extends UsageError {
-  constructor(commandString: string, options?: ClideErrorOptions) {
-    super(`Subcommand required for command "${commandString}".`, {
-      name: 'SubcommandRequiredError',
-      ...options,
-    });
-  }
-}
-
 // Types //
 
 /**
@@ -137,7 +124,7 @@ export interface ResolvedCommand {
    * A function to resolve the next command, if any, based on the remaining
    * command string.
    */
-  resolveNext?: () => Promise<ResolvedCommand>;
+  resolveNext?: () => MaybePromise<ResolvedCommand>;
   /**
    * The params associated with the resolved command.
    */
@@ -275,7 +262,77 @@ export async function resolveCommand({
     throw new NotFoundError(commandName, commandsDir);
   }
 
-  return prepareResolvedCommand(resolved, parseFn);
+  return prepareResolvedCommand({ resolved, parseFn });
+}
+
+interface PrepareResolvedCommandParams {
+  resolved: ResolvedCommand;
+  /**
+   * A function to parse the command string and options. Used to determine if
+   * the command string contains any options and to remove them from the
+   * remaining command string.
+   */
+  parseFn?: ParseCommandFn;
+}
+
+/**
+ * Prepares a resolved command by:
+ * - Ensuring the remaining command string starts with a subcommand name.
+ * - Adding a `resolveNext` function if the command isn't the last one.
+ * - Replacing the handler with a pass-through function if the command won't be
+ *   executed.
+ *
+ * @returns The prepared resolved command.
+ *
+ * @group Resolve
+ */
+export async function prepareResolvedCommand({
+  resolved,
+  parseFn = parseCommand,
+}: PrepareResolvedCommandParams) {
+  const isMiddleware = resolved.command.isMiddleware ?? true;
+
+  // Ensure the remaining command string starts with a subcommand name by
+  // removing any leading options. This will ensure they aren't treated as
+  // command names which would cause errors during resolution. Example: `--help
+  // foo` -> `foo`
+  if (resolved.remainingCommandString.length) {
+    // Parse the remaining command string to separate the tokens from the
+    // options.
+    const { tokens } = await parseFn(
+      resolved.remainingCommandString,
+      isMiddleware ? resolved.command.options || {} : {},
+    );
+
+    // If there are only options left, then empty the remaining command string.
+    if (!tokens.length) {
+      resolved.remainingCommandString = '';
+    } else {
+      // Otherwise, remove the leading options.
+      const indexOfNextCommand = resolved.remainingCommandString.indexOf(
+        tokens[0]!,
+      );
+      resolved.remainingCommandString =
+        resolved.remainingCommandString.slice(indexOfNextCommand);
+    }
+  }
+
+  // Add a resolveNext function if the command isn't the last one.
+  if (resolved.remainingCommandString) {
+    resolved.resolveNext = () =>
+      resolveCommand({
+        commandString: resolved.remainingCommandString,
+        commandsDir: resolved.subcommandsDir,
+        parseFn,
+      });
+  }
+
+  // Replace the handler if the command won't be executed.
+  if (!isMiddleware && resolved.resolveNext) {
+    resolved.command.handler = ({ data, next }) => next(data);
+  }
+
+  return resolved;
 }
 
 // Internal //
@@ -346,92 +403,28 @@ async function resolveParamCommand({
         remainingCommandString,
         subcommandsDir,
       };
-
-      // match found, stop searching
-      break;
     } catch (err) {
       // If the file exists but couldn't be loaded for some other reason,
       // forward the error to avoid masking module errors.
-      // if (isFile(commandPath)) throw err;
-      // // If the command file doesn't exist, assume the path is a directory and
-      // // treat it as a pass-through command. This is safe to assume since the
-      // // paths are derived from readdir so we know they exist.
-      // resolved = {
-      //   command: passThroughCommand,
-      //   commandName,
-      //   commandPath,
-      //   commandTokens: [commandToken],
-      //   params: {
-      //     [paramName]: commandToken,
-      //   },
-      //   remainingCommandString,
-      //   subcommandsDir,
-      // };
-      // // match found, stop searching
-      // break;
+      if (isFile(commandPath)) throw err;
+      // If the command file doesn't exist, assume the path is a directory and
+      // treat it as a pass-through command. This is safe to assume since the
+      // paths are derived from readdir so we know they exist.
+      resolved = {
+        command: passThroughCommand,
+        commandName,
+        commandPath,
+        commandTokens: [commandToken],
+        params: {
+          [paramName]: commandToken,
+        },
+        remainingCommandString,
+        subcommandsDir,
+      };
     }
-  }
 
-  return resolved;
-}
-
-/**
- * Prepares a resolved command by ensuring the remaining command string starts
- * with a subcommand name, adding a `resolveNext` function if the command isn't
- * the last one, and replacing the handler with a pass-through function if the
- * command won't be executed.
- *
- * @returns The prepared resolved command.
- *
- * @group Resolve
- */
-export async function prepareResolvedCommand(
-  resolved: ResolvedCommand,
-  parseFn: ParseCommandFn,
-) {
-  // isMiddleware could be undefined, so we need to check for false explicitly
-  const isMiddleware = resolved.command.isMiddleware !== false;
-
-  // Ensure the remaining command string starts with a subcommand name by
-  // removing any leading options. This will ensure they aren't treated as
-  // command names which would cause errors during resolution. Example: `--help
-  // foo` -> `foo`
-  if (resolved.remainingCommandString.length) {
-    // Parse the remaining command string to separate the tokens from the
-    // options.
-    const { tokens } = await parseFn(
-      resolved.remainingCommandString,
-      isMiddleware ? resolved.command.options || {} : {},
-    );
-
-    // If there are only options left, then empty the remaining command string.
-    if (!tokens.length) {
-      resolved.remainingCommandString = '';
-    } else {
-      // Otherwise, remove the leading options.
-      const indexOfNextCommand = resolved.remainingCommandString.indexOf(
-        tokens[0]!,
-      );
-      resolved.remainingCommandString =
-        resolved.remainingCommandString.slice(indexOfNextCommand);
-    }
-  }
-
-  // Add a resolveNext function if the command isn't the last one.
-  const isLast = !resolved.remainingCommandString.length;
-  if (!isLast) {
-    resolved.resolveNext = () =>
-      resolveCommand({
-        commandString: resolved.remainingCommandString,
-        commandsDir: resolved.subcommandsDir,
-        parseFn,
-      });
-  }
-
-  // Replace the handler if the command won't be executed.
-  const willExecute = isLast || isMiddleware;
-  if (!willExecute) {
-    resolved.command.handler = ({ data, next }) => next(data);
+    // match found, stop searching
+    break;
   }
 
   return resolved;

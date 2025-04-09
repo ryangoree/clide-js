@@ -247,26 +247,25 @@ function optionRows({ options, maxWidth = 40 }: OptionRowsOptions): {
       const wordKeys = new Set<string>();
 
       if (optionName.length === 1) {
-        singleLetterKeys.add(optionName);
+        singleLetterKeys.add(`-${optionName}`);
       } else {
-        wordKeys.add(optionName);
+        wordKeys.add(`--${optionName}`);
       }
 
       for (const alias of option.alias || []) {
         if (alias.length === 1) {
-          singleLetterKeys.add(alias);
+          singleLetterKeys.add(`-${alias}`);
         } else {
-          wordKeys.add(alias);
+          wordKeys.add(`--${alias}`);
         }
       }
 
       const sortedSingleLetterKeys = Array.from(singleLetterKeys).sort();
       const sortedWordKeys = Array.from(wordKeys).sort();
 
-      let optionString = [
-        ...sortedSingleLetterKeys.map((key) => `-${key}`),
-        ...sortedWordKeys.map((key) => `--${key}`),
-      ].join(', ');
+      let optionString = [...sortedSingleLetterKeys, ...sortedWordKeys].join(
+        ', ',
+      );
 
       let optionValue: string | undefined;
 
@@ -367,7 +366,6 @@ async function commandRows({
           }
           return removeFileExtension(commandName);
         })
-        // TODO: Is this still necessary?
         .filter((name) => name !== 'index')
         // Sort by alphabetical order, but put param commands at the end
         .sort((a, b) => {

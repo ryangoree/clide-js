@@ -7,7 +7,7 @@ import type { MaybePromise } from 'src/utils/types';
 /**
  * A command handler function that receives the current state and performs some
  * action.
- * @typeParam TData - Optional type for data specific to this command.
+ * @typeParam TData - The data type the handler expects to receive.
  * @typeParam TOptions - The `OptionsConfig` type for the command.
  * @typeParam TReturn - The return type.
  * @param state - The current state of the CLI engine.
@@ -21,20 +21,24 @@ export type CommandHandler<
 
 /**
  * A command module that can be executed by the CLI engine.
- * @typeParam TData - Optional type for data specific to this command.
+ * @typeParam TData - The data type the handler expects to receive.
  * @typeParam TOptions - The `OptionsConfig` type for the command.
  * @typeParam TReturn - The return type of the command handler.
  * @group Command
  */
-export type CommandModule<
+export interface CommandModule<
   TData = unknown,
   TOptions extends OptionsConfig = OptionsConfig,
   TReturn = unknown,
-> = {
+> {
   /**
    * A description of the command that will be displayed in the help menu.
    */
   description?: string;
+  /**
+   * The options config for the command.
+   */
+  options?: TOptions;
   /**
    * If `true`, the command will be executed before the next command in the
    * chain.
@@ -47,28 +51,25 @@ export type CommandModule<
    */
   requiresSubcommand?: boolean;
   /**
-   * The options config for the command.
-   */
-  options?: TOptions;
-  /**
    * The command handler. This is where the command's logic is executed.
    */
   handler: CommandHandler<TData, TOptions, TReturn>;
-};
+}
 
 // Functions + Function Types //
 
 /**
- * Factory function to create a Command object with strong typing. This is used
- * to define a command with its associated metadata, options, and handler logic.
+ * Factory function to create a {@linkcode CommandModule} object with strong
+ * typing. This is used to define a command with its associated metadata,
+ * options, and handler logic.
  *
  * @typeParam TOptions - The `OptionsConfig` type that represents all options
  * for the command.
  * @typeParam TModule - The `CommandModule` type that represents the command.
  *
- * @param options - The config for constructing the Command.
+ * @param options - The config for constructing the {@linkcode CommandModule}.
  *
- * @returns A constructed `Command` object with strong types.
+ * @returns A constructed {@linkcode CommandModule} object with strong types.
  * @group Command
  */
 export function command<
@@ -85,11 +86,11 @@ export function command<
   options?: TOptions;
 }): TModule {
   const mod = {
-    requiresSubcommand,
-    isMiddleware,
-    options,
-    handler,
     description,
+    options,
+    isMiddleware,
+    requiresSubcommand,
+    handler,
   };
 
   if (!mod.handler) {

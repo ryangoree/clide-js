@@ -9,7 +9,7 @@ import type { KeyMap, Replace } from 'src/utils/types';
  * @group Errors
  */
 export class ClientError extends ClideError {
-  constructor(message: string, options?: ClideErrorOptions) {
+  constructor(message: unknown, options?: ClideErrorOptions) {
     super(message, {
       name: 'Error',
       ...options,
@@ -89,7 +89,7 @@ export class Client {
    * @param error - The error to log.
    * @returns The error wrapped in a {@linkcode ClientError}.
    */
-  error(error: any) {
+  error(error: unknown) {
     const clientError = new ClientError(error);
     console.error(
       `\n${

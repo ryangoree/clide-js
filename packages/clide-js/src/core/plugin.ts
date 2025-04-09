@@ -25,7 +25,7 @@ export type Plugin<TMeta extends AnyObject = AnyObject> = Eval<
 export type PluginInfo<TMeta extends AnyObject = AnyObject> = Eval<
   {
     name: string;
-    version: string;
+    version?: string;
     description?: string;
   } & ({} extends TMeta
     ? PluginMetaOption<TMeta>

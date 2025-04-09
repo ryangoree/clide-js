@@ -1,5 +1,9 @@
 import { Client } from 'src/core/client';
-import { ClideError } from 'src/core/errors';
+import {
+  ClideError,
+  type ClideErrorOptions,
+  UsageError,
+} from 'src/core/errors';
 import { HookRegistry } from 'src/core/hooks';
 import type { OptionValues, OptionsConfig } from 'src/core/options/options';
 import { type ParseCommandFn, parseCommand } from 'src/core/parse';
@@ -7,10 +11,26 @@ import type { Plugin, PluginInfo } from 'src/core/plugin';
 import {
   type ResolveCommandFn,
   type ResolvedCommand,
-  SubcommandRequiredError,
   resolveCommand,
 } from 'src/core/resolve';
 import { State } from 'src/core/state';
+
+// Errors //
+
+/**
+ * An error indicating a required subcommand is missing.
+ * @group Errors
+ */
+export class SubcommandRequiredError extends UsageError {
+  constructor(commandString: string, options?: ClideErrorOptions) {
+    super(`Subcommand required for command "${commandString}".`, {
+      name: 'SubcommandRequiredError',
+      ...options,
+    });
+  }
+}
+
+// Classes + Class Types //
 
 /**
  * Params for creating a new {@linkcode Context} instance.
@@ -240,26 +260,15 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    *
    * @returns A `ResolvedCommand` object.
    */
-  readonly resolveCommand = async (
-    commandString: string = this.commandString,
-    commandsDir: string = this.commandsDir,
+  readonly resolveCommand = (
+    commandString = this.commandString,
+    commandsDir = this.commandsDir,
   ) => {
-    const resolved = await this.#resolveFn({
+    return this.#resolveFn({
       commandString,
       commandsDir,
       parseFn: this.parseCommand,
     });
-
-    // Override the resolveNext function to use the context's resolveCommand
-    if (resolved.resolveNext) {
-      resolved.resolveNext = () =>
-        this.resolveCommand(
-          resolved.remainingCommandString,
-          resolved.subcommandsDir,
-        );
-    }
-
-    return resolved;
   };
 
   /**
@@ -305,7 +314,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
       initialData,
     });
 
-    let skip = false;
+    let skipped = false;
     let result = initialData;
 
     await this.hooks.call('beforeExecute', {
@@ -317,15 +326,15 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
       },
       setResultAndSkip: (newResult) => {
         result = newResult;
-        skip = true;
+        skipped = true;
       },
       skip: () => {
-        skip = true;
+        skipped = true;
       },
     });
 
     // Ensure the context is ready before proceeding
-    if (!skip && !this.#isReady) {
+    if (!skipped && !this.#isReady) {
       // this.throw must be awaited since it could be ignored by an async hook
       await this.throw(
         new ClideError(
@@ -335,7 +344,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
     }
 
     // If the command wasn't skipped, begin execution
-    if (!skip) {
+    if (!skipped) {
       try {
         await state.start(initialData);
         result = state.data;
@@ -363,8 +372,8 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
     let ignore = false;
 
     await this.hooks.call('error', {
-      error,
       context: this,
+      error,
       setError: (newError) => {
         error = newError;
       },
@@ -385,9 +394,9 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
     let cancel = false;
 
     await this.hooks.call('exit', {
+      context: this,
       code,
       message,
-      context: this,
       setCode: (newCode) => {
         code = newCode;
       },
@@ -416,11 +425,12 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
    */
   async #resolveWithHooks() {
     if (this.#isResolved) return;
+    let skipped = false;
 
     await this.hooks.call('beforeResolve', {
+      context: this,
       commandString: this.commandString,
       commandsDir: this.commandsDir,
-      context: this,
       setResolveFn: (resolveFn) => {
         this.#resolveFn = resolveFn;
       },
@@ -436,42 +446,28 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
         }
       },
       skip: () => {
-        this.#isResolved = true;
+        skipped = true;
       },
     });
 
     // Only resolve if the hook didn't skip
-    let pendingCommand = this.#isResolved
-      ? undefined
-      : await this.resolveCommand();
+    let pendingCommand: ResolvedCommand | undefined;
+    if (!skipped) {
+      pendingCommand = await this.resolveCommand();
+    }
 
     // Continue resolving until the last command is reached or the
     // `beforeResolveNext` hook skips
-    while (pendingCommand && !this.#isResolved) {
-      // Add the command's options to the context's options config
+    while (pendingCommand && !skipped) {
+      this.#resolvedCommands.push(pendingCommand);
       if (pendingCommand.command.options) {
         this.addOptions(pendingCommand.command.options);
       }
 
-      // Add the resolved command to the list of resolved commands
-      this.#resolvedCommands.push(pendingCommand);
-
-      // TODO: Add init property to command module?
-      // if (resolved.command.init) {
-      //   await resolved.command.init(this);
-      // }
-
-      // If the command doesn't have a resolveNext function and doesn't require
-      // a subcommand, then we're done resolving.
-      if (
-        !pendingCommand.resolveNext &&
-        !pendingCommand.command.requiresSubcommand
-      ) {
-        this.#isResolved = true;
-        break;
-      }
+      if (!pendingCommand.resolveNext) break;
 
       await this.hooks.call('beforeResolveNext', {
+        context: this,
         commandString: pendingCommand.remainingCommandString,
         commandsDir: pendingCommand.subcommandsDir,
         lastResolved: pendingCommand,
@@ -482,23 +478,21 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
           this.#parseFn = parseFn;
         },
         skip: () => {
-          this.#isResolved = true;
+          skipped = true;
         },
         addResolvedCommands: (resolvedCommands) => {
           for (const resolved of resolvedCommands) {
+            this.#resolvedCommands.push(resolved);
             if (resolved.command.options) {
               this.addOptions(resolved.command.options);
             }
-            this.#resolvedCommands.push(resolved);
           }
         },
-        context: this,
       });
 
-      // Don't resolve if the hook skipped
-      pendingCommand = this.#isResolved
-        ? undefined
-        : await pendingCommand.resolveNext?.();
+      if (!skipped) {
+        pendingCommand = await pendingCommand.resolveNext();
+      }
     }
 
     await this.hooks.call('afterResolve', {
@@ -506,17 +500,17 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
       resolvedCommands: this.#resolvedCommands,
       addResolvedCommands: (resolvedCommands) => {
         for (const resolved of resolvedCommands) {
+          this.#resolvedCommands.push(resolved);
           if (resolved.command.options) {
             this.addOptions(resolved.command.options);
           }
-          this.#resolvedCommands.push(resolved);
         }
       },
     });
 
-    // Throw an error if the last command requires a subcommand but none was
-    // provided.
-    if (pendingCommand?.command.requiresSubcommand) {
+    // Throw an error if the last command requires a subcommand.
+    const lastCommand = this.#resolvedCommands.at(-1);
+    if (lastCommand?.command.requiresSubcommand) {
       await this.throw(new SubcommandRequiredError(this.commandString));
     }
 

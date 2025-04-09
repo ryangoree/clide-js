@@ -9,6 +9,12 @@ import type { Plugin } from 'src/core/plugin';
  */
 export interface HelpPluginOptions {
   /**
+   * The names of the help flags.
+   * @default ['h', 'help']
+   */
+  helpFlags?: [string, ...string[]];
+
+  /**
    * The max line-length for the help text.
    * @default 80
    */
@@ -24,72 +30,76 @@ export interface HelpPluginOptions {
  * will also be printed and set as the command's result.
  * @group Plugins
  */
-export function help({ maxWidth = 80 }: HelpPluginOptions = {}): Plugin {
+export function help({
+  maxWidth = 80,
+  helpFlags = ['h', 'help'],
+}: HelpPluginOptions = {}): Plugin {
+  // Ensure at least one help flag
+  const [optionKey = 'help', ...alias] = helpFlags;
+  helpFlags = [optionKey, ...alias];
+
   return {
     name: 'help',
     version: '0.0.1',
-    description:
-      'Prints help information on execution if the -h or --help flags are present or when a usage error occurs.',
+    description: `Prints help information on execution if a usage error is thrown or a help flag is present: ${helpFlags
+      .map((flag) => `${flag.length === 1 ? '-' : '--'}${flag}`)
+      .join(', ')}.`,
+
     init: ({ addOptions, client, hooks }) => {
       let usageError: UsageError | undefined = undefined;
       let isExecuting = false;
       let didSetResult = false;
 
       addOptions({
-        help: {
-          description: 'Prints help information',
+        [optionKey]: {
+          alias,
+          description: 'Prints help information.',
           type: 'boolean',
-          alias: ['h'],
           default: false,
         },
       });
 
-      // Save usage errors so we can print them when the command is executed
-      hooks.on('error', async ({ error, ignore, context }) => {
-        if (error instanceof UsageError) {
-          usageError = error;
-
-          // If the command is already executing, print the help text
-          // immediately
-          if (isExecuting) {
-            let helpText = '';
-
-            // Try to get the help text for the command and print any errors
-            try {
-              const help = await getHelp({ context, maxWidth });
-              helpText = help.helpText;
-            } catch (error) {
-              client.error(error);
-            }
-
-            // Print the usage error
-            if (usageError) {
-              client.error(usageError);
-            }
-
-            // Print the help text (empty string if there was an error)
-            client.log(helpText);
-          }
-
-          // Ignore the error to so it doesn't get printed twice
-          ignore();
-        }
-      });
-
       // Allow the command to be executed with just the help flag
       hooks.on('beforeResolve', async ({ commandString, skip }) => {
+        // Do nothing if the command string is empty
         if (!commandString.length) return;
 
-        const commandStringWithoutHelp = removeOptionTokens(commandString, {
-          help: true,
-          h: true,
-        });
+        const commandStringWithoutHelp = removeOptionTokens(
+          commandString,
+          Object.fromEntries(helpFlags.map((flag) => [flag, true])),
+        );
 
         // If the command string is empty after removing the help flag, skip
         // resolving the command which would have thrown a usage error.
-        if (!commandStringWithoutHelp.length) {
-          skip();
+        if (!commandStringWithoutHelp.length) skip();
+      });
+
+      // Save usage errors so we can print them when the command is executed
+      hooks.on('error', async ({ error, ignore, context }) => {
+        if (!(error instanceof UsageError)) return;
+
+        usageError = error;
+
+        // If the command is already executing, print the help text
+        // immediately
+        if (isExecuting) {
+          let helpText = '';
+
+          // Try to get the help text for the command and print any errors
+          try {
+            const help = await getHelp({ context, maxWidth });
+            helpText = help.helpText;
+          } catch (error) {
+            client.error(error);
+          }
+
+          // Print the usage error and help text
+          client.error(usageError);
+          client.log(helpText);
         }
+
+        // Ignore the error to so it doesn't get printed twice
+        ignore();
       });
 
       // Avoid continuing to resolve the command if the help flag is present or
@@ -110,7 +120,7 @@ export function help({ maxWidth = 80 }: HelpPluginOptions = {}): Plugin {
         );
         const { options } = await context.parseCommand(stringToCheck);
 
-        if (options.help) {
+        if (options[optionKey]) {
           skip();
         }
       });
@@ -120,18 +130,18 @@ export function help({ maxWidth = 80 }: HelpPluginOptions = {}): Plugin {
       hooks.on('beforeExecute', async ({ state, setResultAndSkip, skip }) => {
         isExecuting = true;
 
-        const { help } = await state.options.get('help');
+        const helpEnabled = await state.options[optionKey]?.();
 
         // If there's no error and the help flag isn't present, do nothing
-        if (!usageError && !help) return;
+        if (!usageError && !helpEnabled) return;
 
         const { helpText } = await getHelp({
           context: state.context,
           maxWidth,
         });
 
-        // Only print the usage error if help wasn't requested
-        if (usageError && !help) {
+        // Only print the usage error if the help flag isn't present
+        if (usageError && !helpEnabled) {
           client.error(usageError);
           setResultAndSkip(usageError);
           didSetResult = true;
@@ -139,7 +149,7 @@ export function help({ maxWidth = 80 }: HelpPluginOptions = {}): Plugin {
 
         client.log(helpText);
 
-        // Ensure the execution is skipped even if the result wasn't set
+        // Skip execution if there was an error or the help flag was present
         skip();
       });
 
