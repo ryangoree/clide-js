@@ -72,21 +72,21 @@ export type Converted<T, TOriginal, TNew> = T extends TOriginal
 //       ? { [K in keyof T]: Converted<T[K], TOriginal, TNew> }
 //       : T;
 
-export type ValueOf<T> = T extends T
+export type ValueOf<T, Acc = never> = T extends T
   ? // Maps
     T extends Map<unknown, infer V>
-    ? T | ValueOf<V>
+    ? ValueOf<V, T | Acc>
     : // Sets
       T extends Set<infer U>
-      ? T | ValueOf<U>
+      ? ValueOf<U, T | Acc>
       : // Arrays
         T extends readonly (infer U)[]
-        ? T | ValueOf<U>
+        ? ValueOf<U, T | Acc>
         : // Promises
           T extends Promise<infer U>
-          ? T | ValueOf<U>
+          ? ValueOf<U, T | Acc>
           : // Objects
             T extends object
-            ? T | ValueOf<T[keyof T]>
-            : T
+            ? ValueOf<T[keyof T], T | Acc>
+            : T | Acc
   : never;
