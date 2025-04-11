@@ -448,6 +448,4 @@ breakdown of Clide-JS's APIs.
 ## Contributing
 
 Clide-JS is a new framework still under development. Contributions are welcome!
-You can get a brief overview of the code base in
-[/notes/source-code.md](/notes/source-code.md). If you're unsure where to start,
-or if a feature would be welcomed, open an issue and start a conversation.
+Check the [Contributing Guide](./.github/CONTRIBUTING.md) to get started.

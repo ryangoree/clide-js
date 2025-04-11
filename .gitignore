@@ -1,42 +1,25 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# OS
+.DS_Store
 
-# dependencies
-node_modules
-.pnp
-.pnp.js
+# local
+*.env
+*.pem
+*.local
+
+# artifacts
+dist
+out
+build
 
 # testing
 coverage
 
-# next.js
-.next/
-out/
-build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
+# package manager
+node_modules
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# turbo
+# external
+.next
 .turbo
-
-# vercel
 .vercel
-
-notes/local
-dist
-
-# Generated
-packages/*/docs
