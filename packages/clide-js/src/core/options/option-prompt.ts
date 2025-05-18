@@ -1,4 +1,3 @@
-import type { PromptType } from 'prompts';
 import {
   Client,
   type PromptParams,
@@ -34,8 +33,7 @@ export type OptionPromptTypeMap = KeyMap<
       | 'password'
       | 'select'
       | 'text';
-  },
-  PromptType
+  }
 >;
 
 export type OptionPromptType<T extends OptionType> = OptionPromptTypeMap[T];
