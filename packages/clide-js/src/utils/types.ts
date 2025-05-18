@@ -228,9 +228,12 @@ export type KeyMap<
     : Partial<Record<K, unknown>>,
   TDefault = never,
 > = {
-  [TKey in K]: TKey extends keyof T ? Required<T>[TKey] : TDefault;
+  [TKey in K]: TKey extends keyof T
+    ? undefined extends T[TKey]
+      ? Required<T>[TKey] | TDefault
+      : T[TKey]
+    : TDefault;
 };
-
 /**
  * Get a union of all keys from {@linkcode TTargetMap} that have a value that
  * matches the value of the key {@linkcode TSourceKey} in
