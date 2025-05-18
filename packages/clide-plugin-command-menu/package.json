@@ -12,8 +12,9 @@
   "scripts": {
     "build": "tsup",
     "dev": "NODE_ENV=development tsx example/cli.ts",
-    "test": "vitest --reporter=verbose",
-    "test:ci": "vitest --run",
+    "test": "vitest run --reporter=verbose",
+    "test:watch": "vitest --reporter=verbose",
+    "test:ci": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
@@ -43,12 +44,6 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "keywords": [
-    "clide-js",
-    "prompt",
-    "interactive"
-  ]
+  "files": ["dist"],
+  "keywords": ["clide-js", "prompt", "interactive"]
 }

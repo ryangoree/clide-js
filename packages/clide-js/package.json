@@ -17,8 +17,9 @@
     "dev:watch": "NODE_ENV=development tsx --watch src/cli/index.ts",
     "prod": "tsx src/cli/index.ts",
     "prod:watch": "tsx --watch src/cli/index.ts",
-    "test": "vitest --reporter=verbose",
-    "test:ci": "vitest --run",
+    "test": "vitest run --reporter=verbose",
+    "test:watch": "vitest --reporter=verbose",
+    "test:ci": "vitest run",
     "coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit"
   },
@@ -61,7 +62,5 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ]
+  "files": ["dist"]
 }
