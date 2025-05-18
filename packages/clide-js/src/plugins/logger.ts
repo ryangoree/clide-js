@@ -1,4 +1,4 @@
-import { appendFileSync, existsSync, mkdirSync } from 'node:fs';
+import { appendFileSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import type { Client } from 'src/core/client';
 import type { HookPayload } from 'src/core/hooks';
@@ -141,9 +141,7 @@ export function logger({
   // if a logFile is provided, ensure the directory exists.
   if (logFile) {
     const dir = path.dirname(logFile);
-    if (!existsSync(dir)) {
-      mkdirSync(dir, { recursive: true });
-    }
+    mkdirSync(dir, { recursive: true });
   }
 
   // Create a function to centralize the logging logic.
@@ -159,7 +157,7 @@ export function logger({
   // Create a function to log state transitions.
   function logTransition(
     transitionName: string,
-    { state }: HookPayload<'beforeNext' | 'beforeEnd'>,
+    { state }: HookPayload<'beforeCommand' | 'beforeEnd'>,
   ) {
     const { command, client, params, data } = state;
     if (!command) return;
@@ -173,8 +171,8 @@ export function logger({
     });
   }
 
-  // Create beforeNext and beforeEnd hooks that log the transitions.
-  function beforeNext(payload: HookPayload<'beforeNext'>) {
+  // Create beforeCommand and beforeEnd hooks that log the transitions.
+  function beforeCommand(payload: HookPayload<'beforeCommand'>) {
     logTransition('next', payload);
   }
   function beforeEnd(payload: HookPayload<'beforeEnd'>) {
@@ -195,14 +193,14 @@ export function logger({
       },
     },
     init: async ({ client, commandString, hooks }) => {
-      // Create functions to enable and disable the hooks.
+      // Initialize the functions to enable and disable the logger.
       enableLogger = () => {
-        hooks.on('beforeNext', beforeNext);
+        hooks.on('beforeCommand', beforeCommand);
         hooks.on('beforeEnd', beforeEnd);
         enabled = true;
       };
       disableLogger = () => {
-        hooks.off('beforeNext', beforeNext);
+        hooks.off('beforeCommand', beforeCommand);
         hooks.off('beforeEnd', beforeEnd);
         enabled = false;
       };

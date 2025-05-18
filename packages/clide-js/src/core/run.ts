@@ -20,82 +20,105 @@ export interface RunParams {
    * defaults to system arguments.
    */
   command?: string | string[];
+
   /**
    * The command string to run if no command is provided.
    */
   defaultCommand?: string | string[];
+
   /**
    * A directory path containing command modules.
    * @default `${process.cwd()}/commands` || `${__dirname}/commands`
    */
   commandsDir?: string;
+
   /**
    * Initial context or data to pass to commands during execution.
    */
   initialData?: unknown;
+
   /**
    * Options to include in the context.
    */
   options?: OptionsConfig;
+
   /**
    * An array of plugins that can modify or augment the behavior of commands.
    */
   plugins?: Plugin[];
+
   /**
    * A hook that runs before attempting to locate and import command modules.
    */
   beforeResolve?: (payload: HookPayload<'beforeResolve'>) => void;
+
   /**
    * A hook that runs before attempting to locate and import each subcommand
    * module.
    */
   beforeResolveNext?: (payload: HookPayload<'beforeResolveNext'>) => void;
+
   /**
    * A hook that runs after importing command modules.
    */
   afterResolve?: (payload: HookPayload<'afterResolve'>) => void;
+
   /**
    * A hook that runs before parsing the command string using the options config
    * from plugins and imported command modules.
    */
   beforeParse?: (payload: HookPayload<'beforeParse'>) => void;
+
   /**
    * A hook that runs after parsing the command string.
    */
   afterParse?: (payload: HookPayload<'afterParse'>) => void;
+
   /**
    * A hook that runs before calling the first command.
    */
   beforeExecute?: (payload: HookPayload<'beforeExecute'>) => void;
+
   /**
-   * A hook that runs before executing the `context.next()` function.
+   * A hook that runs before executing a command module.
    */
-  beforeNext?: (payload: HookPayload<'beforeNext'>) => void;
+  beforeCommand?: (payload: HookPayload<'beforeCommand'>) => void;
+
+  /**
+   * A hook that runs after executing a command module.
+   */
+  afterCommand?: (payload: HookPayload<'afterCommand'>) => void;
+
   /**
    * A hook that runs before each state update during command execution.
    */
   beforeStateChange?: (payload: HookPayload<'beforeStateChange'>) => void;
+
   /**
    * A hook that runs after each state update during command execution.
    */
   afterStateChange?: (payload: HookPayload<'afterStateChange'>) => void;
+
   /**
    * A hook that runs before executing the `context.end()` function.
    */
   beforeEnd?: (payload: HookPayload<'beforeEnd'>) => void;
+
   /**
    * A hook that runs once all commands have been called or when `context.end()`
    * is called.
    */
   afterExecute?: (payload: HookPayload<'afterExecute'>) => void;
+
   /**
    * A hook that runs whenever an error is thrown.
    */
   onError?: (payload: HookPayload<'error'>) => void;
+
   /**
    * A hook that runs whenever a plugin or command intends to exit the process.
    */
-  onExit?: (payload: HookPayload<'exit'>) => void;
+  beforeExit?: (payload: HookPayload<'beforeExit'>) => void;
 }
 
 /**
@@ -104,7 +127,7 @@ export interface RunParams {
  *
  * @example
  * run({
- *   command: 'build ./src --watch --env=prod',
+ *   defaultCommand: 'build',
  *   plugins: [help()]
  * });
  *
@@ -132,13 +155,14 @@ export async function run({
   beforeParse,
   afterParse,
   beforeExecute,
-  beforeNext,
+  beforeCommand,
+  afterCommand,
   beforeStateChange,
   afterStateChange,
   beforeEnd,
   afterExecute,
   onError,
-  onExit,
+  beforeExit,
 }: RunParams = {}) {
   // attempt to find commands directory
   if (!commandsDir) {
@@ -184,26 +208,26 @@ export async function run({
   if (beforeParse) hooks.on('beforeParse', beforeParse);
   if (afterParse) hooks.on('afterParse', afterParse);
   if (beforeExecute) hooks.on('beforeExecute', beforeExecute);
-  if (beforeNext) hooks.on('beforeNext', beforeNext);
+  if (beforeCommand) hooks.on('beforeCommand', beforeCommand);
+  if (afterCommand) hooks.on('afterCommand', afterCommand);
   if (beforeStateChange) hooks.on('beforeStateChange', beforeStateChange);
   if (afterStateChange) hooks.on('afterStateChange', afterStateChange);
   if (beforeEnd) hooks.on('beforeEnd', beforeEnd);
   if (afterExecute) hooks.on('afterExecute', afterExecute);
   if (onError) hooks.on('error', onError);
-  if (onExit) hooks.on('exit', onExit);
+  if (beforeExit) hooks.on('beforeExit', beforeExit);
 
   // create context
   const context = new Context({
     commandString,
     commandsDir,
+    options,
     plugins,
     hooks,
   });
 
-  // Add options to the context.
-  if (options) {
-    context.addOptions(options);
-  }
+  // Intercept process exit events to ensure they are handled by the context.
+  process.on('exit', context.exit);
 
   // Attempt to prepare and execute the command and return the result.
   try {
@@ -212,15 +236,8 @@ export async function run({
     return context.result;
   } catch (error) {
     // simply return client errors since they're handled by the client
-    if (error instanceof ClientError) {
-      return error;
-    }
-
-    if (error instanceof ClideError) {
-      throw error;
-    }
-
-    // coerce non-cli errors to cli errors
+    if (error instanceof ClientError) return error;
+    if (error instanceof ClideError) throw error;
     throw new ClideError(error);
   }
 }

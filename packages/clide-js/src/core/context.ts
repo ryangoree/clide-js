@@ -393,7 +393,7 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
   readonly exit = async (code = 0, message?: any) => {
     let cancel = false;
 
-    await this.hooks.call('exit', {
+    await this.hooks.call('beforeExit', {
       context: this,
       code,
       message,

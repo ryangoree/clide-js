@@ -103,35 +103,60 @@ export class State<
     });
   }
 
-  /** The current step index. */
+  /**
+   * The current step/command index within the command chain.
+   */
   get i() {
     return this.#i;
   }
-  /** The current command. */
+
+  /**
+   * Information about the current command module being executed.
+   */
   get command() {
     return this.commands[this.i];
   }
-  /** The commands that will be executed. */
+
+  /**
+   * Information about all command modules loaded for the current execution.
+   */
   get commands() {
     return this.#commands;
   }
-  /** The context for the command. */
+
+  /**
+   * Runtime and configuration context for the command execution.
+   */
   get context() {
     return this.#context;
   }
-  /** The current data. */
+
+  /**
+   * The current data being passed between steps which will be returned after
+   * the last step or when {@linkcode end end(data)} is called.
+   */
   get data() {
     return this.#data as TData;
   }
-  /** The current params, including params from previous steps. */
+
+  /**
+   * Resolved route parameters from parameterized filenames, e.g., `id` from
+   * `commands/get/[id].ts`.
+   */
   get params() {
     return this.#params;
   }
-  /** An `OptionsGetter` to dynamically retrieve options. */
+
+  /**
+   * An {@linkcode OptionsGetter} to dynamically retrieve options.
+   */
   get options() {
     return this.#options as OptionsGetter<TOptions>;
   }
-  /** The client for the command. */
+
+  /**
+   * The client for logging and I/O operations.
+   */
   get client() {
     return this.context.client;
   }
@@ -165,29 +190,35 @@ export class State<
   };
 
   /**
-   * Modify the data and continue to the next step if there is one, otherwise
-   * return the data.
-   * @param data The data to pass to the next step or return.
+   * Continue to the next step in the command chain or end the steps if there
+   * are no more steps.
+   * @param data - The data to pass to the next step. If not provided, the current data
+   * will be used.
+   * @returns The data from the last command.
    */
-  readonly next = async (data?: unknown): Promise<unknown> => {
+  readonly next = async (data = this.#data): Promise<unknown> => {
     this.#actionCallCount++;
     let _data = data;
     const nextIndex = this.i + 1;
     let nextCommand = this.commands[nextIndex] as ResolvedCommand | undefined;
 
-    await this.context.hooks.call('beforeNext', {
-      state: this,
-      data,
-      setData: (data) => {
-        _data = data;
-      },
-      nextCommand,
-      setNextCommand: (command) => {
-        nextCommand = command;
-      },
-    });
-
     if (nextCommand) {
+      await this.context.hooks.call('beforeCommand', {
+        state: this,
+        command: nextCommand,
+        data: _data,
+        params: this.params,
+        setData: (data) => {
+          _data = data;
+        },
+        setParams: (params) => {
+          this.#params = params;
+        },
+        setCommand: (command) => {
+          nextCommand = command;
+        },
+      });
+
       // If there is a next command, increment the step index and call the
       // command handler.
       await this.#applyState({
@@ -203,9 +234,18 @@ export class State<
       const actionCallCountBefore = this.#actionCallCount;
       await nextCommand.command.handler(this);
 
+      await this.context.hooks.call('afterCommand', {
+        state: this,
+        command: nextCommand,
+        data: _data,
+        setData: (data) => {
+          _data = data;
+        },
+      });
+
       // Prevent the process from hanging if a command handler neglects to call
       // `next()` or `end()` by checking if the action call count has changed.
-      if (actionCallCountBefore === this.#actionCallCount) {
+      if (this.#actionCallCount === actionCallCountBefore) {
         await this.next(_data);
       }
     } else {
@@ -222,11 +262,13 @@ export class State<
   };
 
   /**
-   * Return data and end the steps.
-   * @param data The data to return.
+   * End execution, skipping any remaining steps, and return the current or
+   * provided data.
+   * @param data The data to return. Defaults to the current data.
+   * @returns The data from the last command.
    */
   readonly end = async (
-    data?: unknown,
+    data = this.#data,
     // endOptions: EndOptions = {},
   ): Promise<unknown> => {
     this.#actionCallCount++;
@@ -277,17 +319,30 @@ export class State<
    */
   readonly fork = async <TCommand extends CommandModule<any, any>>({
     commands,
-    initialData = this.data,
+    initialData = this.#data,
     optionValues,
     paramValues,
   }: {
+    /**
+     * The commands to execute.
+     */
     commands: (TCommand | ResolvedCommand)[];
+    /**
+     * The initial data to pass to the forked state. If not provided, the
+     * current data will be used.
+     */
     initialData?: unknown;
+    /**
+     * Options to merge/override the current options.
+     */
     optionValues?: OptionValues<
       TCommand['options'] extends OptionsConfig
         ? TCommand['options']
         : OptionsConfig
     >;
+    /**
+     * Parameters to merge/override the current parameters.
+     */
     // TODO: strict type for paramValues
     paramValues?: Params;
   }) => {
@@ -307,7 +362,10 @@ export class State<
           commandPath: '',
           commandTokens: [],
           subcommandsDir: '',
-          params: paramValues,
+          params: {
+            ...this.params,
+            ...paramValues,
+          },
         };
       }
 

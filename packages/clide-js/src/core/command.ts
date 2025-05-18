@@ -17,7 +17,9 @@ export type CommandHandler<
   TData = unknown,
   TOptions extends OptionsConfig = OptionsConfig,
   TReturn = unknown,
-> = (state: Readonly<State<TData, TOptions>>) => MaybePromise<TReturn>;
+> = (
+  state: Readonly<Omit<State<TData, TOptions>, 'start'>>,
+) => MaybePromise<TReturn>;
 
 /**
  * A command module that can be executed by the CLI engine.

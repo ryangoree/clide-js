@@ -112,25 +112,25 @@ export function logger(): Plugin {
     version: '1.0.0',
     description: 'Logs the result of each execution step.',
     init: ({ client, commandString, hooks }) => {
-      client.log('🪵 Received command:', commandString);
+      client.log('🪵 CLI started with command:', commandString);
 
-      hooks.on('beforeNext', ({ data, state }) => {
-        client.log('🪵 Next:', {
-          commandName: state.command.commandName,
-          commandTokens: state.command.commandTokens,
-          commandPath: state.command.commandPath,
-          params: state.params,
-          data: state.data,
+      hooks.on('beforeCommand', ({ command, data, params }) => {
+        client.log('🪵 Executing command:', {
+          commandName: command.commandName,
+          commandTokens: command.commandTokens,
+          commandPath: command.commandPath,
+          params,
+          data,
         });
       });
 
-      hooks.on('beforeEnd', ({ data, state }) => {
-        log('🪵 End:', {
-          commandName: state.command.commandName,
-          commandTokens: state.command.commandTokens,
-          commandPath: state.command.commandPath,
-          params: state.params,
-          data: state.data,
+      hooks.on('afterCommand', ({ command, data, params }) => {
+        client.log('🪵 Finished command:', {
+          commandName: command.commandName,
+          commandTokens: command.commandTokens,
+          commandPath: command.commandPath,
+          params,
+          data,
         });
       });
 

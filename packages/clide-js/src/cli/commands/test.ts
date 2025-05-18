@@ -7,9 +7,12 @@ export default command({
       type: 'string',
     },
   },
-  handler: async ({ options }) => {
-    const name = await options.name();
 
-    console.log(`Hello, ${name}!`);
+  handler: async ({ client, options, next }) => {
+    const name = await options.name();
+    const message = `Hello, ${name}!`;
+    client.log(message);
+    await next(message);
+    client.log('Goodbye!');
   },
 });

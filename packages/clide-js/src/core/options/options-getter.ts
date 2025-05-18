@@ -75,13 +75,10 @@ export type OptionsGetter<TOptions extends OptionsConfig = OptionsConfig> = {
   }>;
 
   /**
-   * Get the values of the specified options. This is useful when you want to
-   * get the values of multiple options at once.
+   * Set the value of an option.
    *
-   * @param optionNames - The names of the options to get.
-   *
-   * @returns An object with the values of the specified options keyed by both
-   * their original keys and camelCased keys.
+   * @param optionName - The name of the option to set.
+   * @param value - The value to set for the option.
    */
   set: <
     K extends keyof ExpandedOptionsConfig<TOptions>,
@@ -89,7 +86,7 @@ export type OptionsGetter<TOptions extends OptionsConfig = OptionsConfig> = {
       | OptionConfigPrimitiveType<ExpandedOptionsConfig<TOptions>[K]>
       | undefined,
   >(
-    optionNames: K,
+    optionName: K,
     value: V,
   ) => Promise<void>;
 
