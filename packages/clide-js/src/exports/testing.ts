@@ -3,11 +3,10 @@ export {
   mockCommandModules,
   mockCommandStringModules,
   unmockAllCommandModules,
-} from './command-modules';
-
+} from 'src/utils/testing/command-modules';
 export {
   mockPlugin,
   mockPluginInfo,
   notReadyMockPlugin,
   readyMockPlugin,
-} from './plugin';
+} from 'src/utils/testing/plugin';

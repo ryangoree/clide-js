@@ -1,10 +1,7 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: {
-    index: 'src/exports/index.ts',
-    'test-utils': 'src/exports/testing.ts',
-  },
+  entry: ['src/index.ts'],
   format: ['esm', 'cjs'],
   sourcemap: true,
   dts: true,
@@ -12,5 +9,4 @@ export default defineConfig({
   minify: true,
   shims: true,
   cjsInterop: true,
-  keepNames: true,
 });

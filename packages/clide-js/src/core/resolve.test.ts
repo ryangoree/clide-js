@@ -2,20 +2,10 @@
 import {
   mockCommandModules,
   unmockAllCommandModules,
-} from 'test/utils/command-modules';
+} from 'src/utils/testing/command-modules';
 
 import { type ResolvedCommand, resolveCommand } from 'src/core/resolve';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-// const mockResolvedCommand: ResolvedCommand = {
-//   command: {
-//     handler: () => {},
-//   },
-//   commandName: '',
-//   commandPath: '',
-//   commandTokens: [''],
-//   remainingCommandString: '',
-// };
 
 describe('resolve', () => {
   beforeEach(async () => {

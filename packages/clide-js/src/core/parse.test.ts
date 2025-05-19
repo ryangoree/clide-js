@@ -1,5 +1,5 @@
 import { type ParsedCommand, parseCommand } from 'src/core/parse';
-import { unmockAllCommandModules } from 'test/utils/command-modules';
+import { unmockAllCommandModules } from 'src/utils/testing/command-modules';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('parse', () => {

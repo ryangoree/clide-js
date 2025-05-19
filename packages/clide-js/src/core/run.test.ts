@@ -3,7 +3,7 @@ import {
   mockCommandModule,
   mockCommandModules,
   unmockAllCommandModules,
-} from 'test/utils/command-modules';
+} from 'src/utils/testing/command-modules';
 
 import path from 'node:path';
 import { Client } from 'src/core/client';
@@ -13,7 +13,7 @@ import type { HookPayload } from 'src/core/hooks';
 import type { Plugin } from 'src/core/plugin';
 import { run } from 'src/core/run';
 import { State } from 'src/core/state';
-import { mockPlugin, mockPluginInfo } from 'test/utils/plugin';
+import { mockPlugin, mockPluginInfo } from 'src/utils/testing/plugin';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);

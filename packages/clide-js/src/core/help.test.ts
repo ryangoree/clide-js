@@ -2,7 +2,7 @@
 import {
   mockCommandModule,
   unmockAllCommandModules,
-} from 'test/utils/command-modules';
+} from 'src/utils/testing/command-modules';
 
 import { Context } from 'src/core/context';
 import { type Help, getHelp } from 'src/core/help';
