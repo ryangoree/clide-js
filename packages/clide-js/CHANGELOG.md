@@ -1,5 +1,19 @@
 # clide-js
 
+## 0.3.0-next.6
+
+### Minor Changes
+
+- 4b7ba0e: Renamed the `beforeNext` hook to `beforeCommand` and added an `afterCommand` hook.
+- 4b7ba0e: Remove `start` from the `State` type passed to command handlers since it's already started and can't be started again mid-execution.
+- 4b7ba0e: Renamed the `exit` hook to `beforeExit`.
+- d72b00c: Renamed `HooksEmitter` to `HookRegistry` to better reflect its purpose.
+
+### Patch Changes
+
+- 56f4b4c: Modified `State.next` and `State.end` to return the state's data
+- 4b7ba0e: Added process listeners to route exits through `Context.exit()`.
+
 ## 0.2.14-next.5
 
 ### Patch Changes

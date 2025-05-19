@@ -1,5 +1,18 @@
 # clide-plugin-command-menu
 
+## 0.2.0-next.1
+
+### Patch Changes
+
+- d72b00c: Patched command menu prompt to use the `Client` from `Context` as the doc comment states.
+- Updated dependencies [4b7ba0e]
+- Updated dependencies [4b7ba0e]
+- Updated dependencies [d72b00c]
+- Updated dependencies [4b7ba0e]
+- Updated dependencies [56f4b4c]
+- Updated dependencies [4b7ba0e]
+  - clide-js@0.3.0-next.6
+
 ## 0.1.2-next.0
 
 ### Patch Changes
