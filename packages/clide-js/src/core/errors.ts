@@ -128,3 +128,27 @@ export class UsageError extends ClideError {
     });
   }
 }
+
+/**
+ * An error indicating a command is not found.
+ * @group Errors
+ */
+export class NotFoundError extends UsageError {
+  constructor(
+    token: string | number,
+    path: string,
+    options?: ClideErrorOptions,
+  ) {
+    super(
+      ['development', 'test'].includes(process.env.NODE_ENV || '')
+        ? // In development, show the full path to the command
+          `Unable to find command "${token}" in "${path.replace(/\/?$/, '/')}"`
+        : // In production, just show the command name
+          `Command "${token}" not found.`,
+      {
+        name: 'NotFoundError',
+        ...options,
+      },
+    );
+  }
+}

@@ -4,6 +4,7 @@ import { type CommandModule, passThroughCommand } from 'src/core/command';
 import {
   ClideError,
   type ClideErrorOptions,
+  NotFoundError,
   UsageError,
 } from 'src/core/errors';
 import { OptionsError } from 'src/core/options/validate-options';
@@ -46,30 +47,6 @@ export class MissingDefaultExportError extends ClideError {
       name: 'MissingDefaultExportError',
       ...options,
     });
-  }
-}
-
-/**
- * An error indicating a command is not found.
- * @group Errors
- */
-export class NotFoundError extends UsageError {
-  constructor(
-    token: string | number,
-    path: string,
-    options?: ClideErrorOptions,
-  ) {
-    super(
-      ['development', 'test'].includes(process.env.NODE_ENV || '')
-        ? // In development, show the full path to the command
-          `Unable to find command "${token}" in "${path.replace(/\/?$/, '/')}"`
-        : // In production, just show the command name
-          `Command "${token}" not found.`,
-      {
-        name: 'NotFoundError',
-        ...options,
-      },
-    );
   }
 }
 
