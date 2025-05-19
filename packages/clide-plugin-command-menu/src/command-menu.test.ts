@@ -5,15 +5,15 @@ import { type ResolvedCommand, passThroughCommand, run } from 'clide-js';
 import { type Mock, beforeEach, expect, test, vi } from 'vitest';
 import { commandMenu } from './command-menu';
 import {
-    type CommandMenuPromptOptions,
-    commandPrompt,
+  type CommandMenuPromptOptions,
+  commandPrompt,
 } from './command-menu-prompt';
 
 vi.mock('./command-menu-prompt', async (importOriginal) => {
   const original: any = await importOriginal();
   return {
     ...original,
-    commandMenuPrompt: vi.fn<
+    commandPrompt: vi.fn<
       (options: CommandMenuPromptOptions) => ResolvedCommand[]
     >(({ commandsDir }): ResolvedCommand[] => [
       {
