@@ -9,23 +9,27 @@ import type { MaybePromise } from 'src/utils/types';
  * action.
  * @typeParam TData - Optional type for data specific to this command.
  * @typeParam TOptions - The `OptionsConfig` type for the command.
+ * @typeParam TReturn - The return type.
  * @param state - The current state of the CLI engine.
  * @group Command
  */
 export type CommandHandler<
   TData = unknown,
   TOptions extends OptionsConfig = OptionsConfig,
-> = (state: Readonly<State<TData, TOptions>>) => MaybePromise<unknown>;
+  TReturn = unknown,
+> = (state: Readonly<State<TData, TOptions>>) => MaybePromise<TReturn>;
 
 /**
  * A command module that can be executed by the CLI engine.
  * @typeParam TData - Optional type for data specific to this command.
  * @typeParam TOptions - The `OptionsConfig` type for the command.
+ * @typeParam TReturn - The return type of the command handler.
  * @group Command
  */
 export type CommandModule<
   TData = unknown,
   TOptions extends OptionsConfig = OptionsConfig,
+  TReturn = unknown,
 > = {
   /**
    * A description of the command that will be displayed in the help menu.
@@ -49,7 +53,7 @@ export type CommandModule<
   /**
    * The command handler. This is where the command's logic is executed.
    */
-  handler: CommandHandler<TData, TOptions>;
+  handler: CommandHandler<TData, TOptions, TReturn>;
 };
 
 // Functions + Function Types //
@@ -58,9 +62,9 @@ export type CommandModule<
  * Factory function to create a Command object with strong typing. This is used
  * to define a command with its associated metadata, options, and handler logic.
  *
- * @typeParam TData - Optional type for data specific to this command.
  * @typeParam TOptions - The `OptionsConfig` type that represents all options
  * for the command.
+ * @typeParam TModule - The `CommandModule` type that represents the command.
  *
  * @param options - The config for constructing the Command.
  *
@@ -68,8 +72,8 @@ export type CommandModule<
  * @group Command
  */
 export function command<
-  TData = unknown,
-  const TOptions extends OptionsConfig = OptionsConfig,
+  TOptions extends OptionsConfig,
+  const TModule extends CommandModule<unknown, TOptions>,
 >({
   // Apply defaults
   requiresSubcommand = false,
@@ -77,7 +81,9 @@ export function command<
   options = {} as TOptions,
   handler,
   description = '',
-}: Partial<CommandModule<TData, TOptions>>) {
+}: Partial<TModule> & {
+  options?: TOptions;
+}): TModule {
   const mod = {
     requiresSubcommand,
     isMiddleware,
@@ -90,12 +96,7 @@ export function command<
     Object.assign(mod, passThroughCommand);
   }
 
-  type Mod = typeof mod;
-  return mod as Mod & {
-    handler: Mod['handler'] extends CommandHandler
-      ? Mod['handler']
-      : CommandHandler;
-  };
+  return mod as TModule;
 }
 
 /**
