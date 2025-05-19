@@ -1,7 +1,7 @@
 // Must be imported first
 import {
-    mockCommandModule,
-    unmockAllCommandModules,
+  mockCommandModule,
+  unmockAllCommandModules,
 } from 'test/utils/command-modules';
 
 vi.mock('src/core/client');

@@ -93,10 +93,7 @@ describe('mockCommandStringModules', () => {
   });
 
   it('Ignores options', async () => {
-    const { mocks } = mockCommandStringModules(
-      'foo --bar baz',
-      'commands',
-    );
+    const { mocks } = mockCommandStringModules('foo --bar baz', 'commands');
 
     expect(mocks).toEqual({
       foo: expect.objectContaining({ handler: expect.any(Function) }),
