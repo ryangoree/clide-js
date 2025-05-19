@@ -1,17 +1,15 @@
 {
   "name": "clide-node-js-example",
   "version": "0.0.0",
-  "private": true,
-  "main": "cli.js",
   "license": "MIT",
+  "private": true,
   "bin": "cli.js",
+  "main": "cli.js",
+  "files": ["cli"],
   "scripts": {
     "dev": "NODE_ENV=development node cli.js",
     "prod": "node cli.js"
   },
-  "files": [
-    "cli"
-  ],
   "dependencies": {
     "clide-js": "0.2.14-next.5",
     "clide-plugin-command-menu": "0.1.2-next.0"

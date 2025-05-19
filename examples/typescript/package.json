@@ -1,18 +1,18 @@
 {
   "name": "clide-ts-example",
   "version": "0.0.0",
-  "private": true,
-  "main": "dist/cli.js",
   "license": "MIT",
-  "bin": "dist/cli.js",
+  "private": true,
   "type": "module",
-  "files": [
-    "dist"
-  ],
+  "bin": "dist/cli.js",
+  "main": "dist/cli.js",
+  "files": ["dist"],
   "scripts": {
-    "dev": "NODE_ENV=development tsx src/cli.ts",
+    "dev": "tsx src/cli.ts",
+    "dev:watch": "tsx --watch src/cli.ts",
     "prod": "node dist/cli.js",
-    "build": "rimraf dist && tsc"
+    "build": "tsc",
+    "watch": "tsc --watch"
   },
   "dependencies": {
     "clide-js": "0.2.14-next.5",
@@ -20,8 +20,7 @@
   },
   "devDependencies": {
     "@tsconfig/node-lts": "^22.0.1",
-    "rimraf": "^6.0.1",
-    "tsx": "^4.19.3",
-    "typescript": "^5.8.2"
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
   }
 }

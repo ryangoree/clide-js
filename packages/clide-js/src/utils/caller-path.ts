@@ -51,7 +51,7 @@ export function getCallerPath(): string | undefined {
   // `getFileName` method on the call site.
   if (Array.isArray(target.stack)) {
     const caller = target.stack[callerIndex] as NodeJS.CallSite;
-    return caller?.getFileName();
+    return caller?.getFileName() ?? undefined;
   }
 
   // If the stack is a string, we're in a non-v8 environment and need to parse
