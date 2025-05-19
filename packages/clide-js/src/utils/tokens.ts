@@ -5,14 +5,20 @@ export type JoinableTokens = string | string[] | JoinableTokens[];
  */
 export function joinTokens(...tokens: JoinableTokens[]): string {
   return tokens
-    .map((token) =>
-      typeof token === 'string'
-        ? // If the token contains spaces, wrap it in quotes
-          token.includes(' ')
-          ? `"${token}"`
-          : token
-        : joinTokens(...token),
-    )
+    .map((token) => {
+      if (Array.isArray(token)) return joinTokens(...token);
+
+      // If a token within multiple tokens contains spaces, wrap it in quotes
+      if (
+        tokens.length > 1 &&
+        token.includes(' ') &&
+        !token.startsWith('"') &&
+        !token.endsWith('"')
+      ) {
+        return `"${token}"`;
+      }
+      return token;
+    })
     .join(' ');
 }
 
