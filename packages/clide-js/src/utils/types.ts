@@ -147,23 +147,13 @@ export type Merge<T> = Eval<
  *
  * @example
  * ```ts
- * type U = OneOf<
- *   | {
- *       a: string;
- *     }
- *   | {
- *       b: string;
- *       c: number;
- *     }
- * >;
+ * type U = OneOf<{ a: string } | { b: number }>;
  * // {
  * //   a: string;
  * //   b?: undefined;
- * //   c?: undefined;
  * // } | {
  * //   a?: undefined;
- * //   b: string;
- * //   c: number;
+ * //   b: number;
  * // }
  * ```
  */
