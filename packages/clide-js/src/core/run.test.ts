@@ -5,7 +5,8 @@ import {
   unmockAllCommandModules,
 } from 'src/utils/testing/command-modules';
 
-import path from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { Client } from 'src/core/client';
 import { Context } from 'src/core/context';
 import { ClideError } from 'src/core/errors';
@@ -16,7 +17,7 @@ import { State } from 'src/core/state';
 import { mockPlugin, mockPluginInfo } from 'src/utils/testing/plugin';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 describe('run', () => {
   beforeEach(async () => {
@@ -25,7 +26,7 @@ describe('run', () => {
   });
 
   it('defaults to the "<pwd>/commands" directory', async () => {
-    const commandPath = path.resolve('commands/foo');
+    const commandPath = resolve('commands/foo');
     const { mock } = mockCommandModule(commandPath);
 
     await run({
@@ -37,7 +38,7 @@ describe('run', () => {
   });
 
   it('falls back to the "<caller-dir>/commands" directory', async () => {
-    const commandPath = path.join(__dirname, 'commands/foo');
+    const commandPath = join(__dirname, 'commands/foo');
     const { mock } = mockCommandModule(commandPath);
 
     await run({
