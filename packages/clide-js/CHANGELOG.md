@@ -1,5 +1,11 @@
 # clide-js
 
+## 0.3.0-next.8
+
+### Patch Changes
+
+- 9c9bd9a: Added `choices` support to `"number"` option types.
+
 ## 0.3.0-next.7
 
 ### Minor Changes
