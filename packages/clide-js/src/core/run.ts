@@ -1,5 +1,7 @@
 import path from 'node:path';
-import { ClientError } from 'src/core/client';
+import { type Client, ClientError } from 'src/core/client';
+import type { ParseCommandFn } from 'src/core/parse';
+import type { ResolveCommandFn } from 'src/core/resolve';
 import { hideBin } from 'src/utils/argv';
 import { getCallerPath } from 'src/utils/caller-path';
 import { isDirectory } from 'src/utils/fs';
@@ -46,6 +48,22 @@ export interface RunParams {
    * An array of plugins that can modify or augment the behavior of commands.
    */
   plugins?: Plugin[];
+
+  /**
+   * The client instance to use for logging and user interaction.
+   * @default A new instance of {@linkcode Client}
+   */
+  client?: Client;
+
+  /**
+   * An optional function to replace the default command resolver.
+   */
+  resolveFn?: ResolveCommandFn;
+
+  /**
+   * An optional function to replace the default command parser.
+   */
+  parseFn?: ParseCommandFn;
 
   /**
    * A hook that runs before attempting to locate and import command modules.
@@ -149,6 +167,9 @@ export async function run({
   initialData,
   options,
   plugins,
+  client,
+  parseFn,
+  resolveFn,
   beforeResolve,
   beforeResolveNext,
   afterResolve,
@@ -224,6 +245,9 @@ export async function run({
     options,
     plugins,
     hooks,
+    client,
+    parseFn,
+    resolveFn,
   });
 
   // Intercept process exit events to ensure they are handled by the context.
