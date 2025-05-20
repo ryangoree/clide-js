@@ -117,7 +117,7 @@ export type OptionConfig<
        * will validate the value against the choices and, unless otherwise
        * specified, will use the choices when prompting.
        */
-      choices?: string[];
+      choices?:  OptionPrimitiveType<T>[];
       /**
        * Whether the option is a string (optional, inferred from `type`). Useful
        * for array options to specify the type of the array values.

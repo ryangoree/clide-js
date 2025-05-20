@@ -120,7 +120,7 @@ export async function optionPrompt<
   // Determine prompt type based on option type
   switch (config?.type) {
     case 'number':
-      type = 'number';
+      type = config?.choices?.length ? 'select' : 'number';
       break;
     case 'boolean':
       type = 'toggle';
@@ -139,7 +139,7 @@ export async function optionPrompt<
   const promptOptions: PromptParams = {
     type,
     choices: config?.choices?.map((choice) => ({
-      title: choice,
+      title: String(choice),
       value: choice,
     })),
     validate: validate
