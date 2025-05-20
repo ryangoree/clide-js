@@ -1,5 +1,15 @@
 # clide-js
 
+## 0.3.0-next.7
+
+### Minor Changes
+
+- f90cc8d: Removed `passThroughCommand` and make `option` argument optional.
+
+### Patch Changes
+
+- a2f6746: Added `client`, `resolveFn`, and `parseFn` options to the `run` function for dependency injection.
+
 ## 0.3.0-next.6
 
 ### Minor Changes

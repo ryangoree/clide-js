@@ -11,7 +11,7 @@
     "prod": "node cli.js"
   },
   "dependencies": {
-    "clide-js": "0.3.0-next.6",
-    "clide-plugin-command-menu": "0.2.0-next.1"
+    "clide-js": "0.3.0-next.7",
+    "clide-plugin-command-menu": "0.3.0-next.2"
   }
 }
