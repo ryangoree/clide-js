@@ -1,7 +1,7 @@
 // Must be imported first
 import { mockCommandModule } from 'clide-js/test-utils';
 
-import { type ResolvedCommand, passThroughCommand, run } from 'clide-js';
+import { type ResolvedCommand, command, run } from 'clide-js';
 import { type Mock, beforeEach, expect, test, vi } from 'vitest';
 import { commandMenu } from './command-menu';
 import {
@@ -49,7 +49,7 @@ test('It shows the command menu when no command string is provided', async () =>
 
 // biome-ignore lint/suspicious/noFocusedTests: <explanation>
 test.only('It shows the command menu when the last resolved command requires a subcommand', async () => {
-  mockCommandModule('commands/foo', passThroughCommand);
+  mockCommandModule('commands/foo', command({ requiresSubcommand: true }));
 
   await run({
     command: 'foo',

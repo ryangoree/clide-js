@@ -1,6 +1,6 @@
 import { readdirSync } from 'node:fs';
 import path from 'node:path';
-import { type CommandModule, passThroughCommand } from 'src/core/command';
+import { type CommandModule, command } from 'src/core/command';
 import {
   ClideError,
   type ClideErrorOptions,
@@ -214,7 +214,7 @@ export async function resolveCommand({
     // treat it as a pass-through command.
     if (isDirectory(subcommandsDir)) {
       resolved = {
-        command: passThroughCommand,
+        command: command(),
         commandPath,
         commandName,
         commandTokens,
@@ -388,7 +388,7 @@ async function resolveParamCommand({
       // treat it as a pass-through command. This is safe to assume since the
       // paths are derived from readdir so we know they exist.
       resolved = {
-        command: passThroughCommand,
+        command: command(),
         commandName,
         commandPath,
         commandTokens: [commandToken],

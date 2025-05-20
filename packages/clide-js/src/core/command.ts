@@ -5,6 +5,19 @@ import type { MaybePromise } from 'src/utils/types';
 // Types //
 
 /**
+ * The current state of the CLI engine passed to the command handler.
+ *
+ * @typeParam TData - The data type the handler expects to receive.
+ * @typeParam TOptions - The `OptionsConfig` type for the command.
+ *
+ * @group Command
+ */
+export type CommandState<
+  TData = unknown,
+  TOptions extends OptionsConfig = OptionsConfig,
+> = Readonly<Omit<State<TData, TOptions>, 'start'>>;
+
+/**
  * A command handler function that receives the current state and performs some
  * action.
  * @typeParam TData - The data type the handler expects to receive.
@@ -17,9 +30,7 @@ export type CommandHandler<
   TData = unknown,
   TOptions extends OptionsConfig = OptionsConfig,
   TReturn = unknown,
-> = (
-  state: Readonly<Omit<State<TData, TOptions>, 'start'>>,
-) => MaybePromise<TReturn>;
+> = (state: CommandState<TData, TOptions>) => MaybePromise<TReturn>;
 
 /**
  * A command module that can be executed by the CLI engine.
@@ -49,7 +60,6 @@ export interface CommandModule<
   isMiddleware?: boolean;
   /**
    * If `true`, the command will require a subcommand to be executed.
-   * @default false
    */
   requiresSubcommand?: boolean;
   /**
@@ -61,53 +71,56 @@ export interface CommandModule<
 // Functions + Function Types //
 
 /**
+ * The configuration object for the {@linkcode command} function.
+ * @group Command
+ */
+export type CommandFactoryConfig<
+  TOptions extends OptionsConfig = OptionsConfig,
+  TModule extends Partial<CommandModule<any, any, any>> = Partial<
+    CommandModule<unknown, OptionsConfig, unknown>
+  >,
+> = TModule & {
+  options?: TOptions;
+};
+
+/**
+ * The return type of the {@linkcode command} function.
+ * @group Command
+ */
+export type CommandFactoryReturn<
+  TModule extends Partial<CommandModule<any, any, any>> = Partial<
+    CommandModule<unknown, OptionsConfig, unknown>
+  >,
+> = TModule extends Partial<
+  CommandModule<infer TData, infer TOptions, infer TReturn>
+>
+  ? TModule & {
+      isMiddleware: TModule['isMiddleware'] extends boolean
+        ? TModule['isMiddleware']
+        : true;
+      handler: TModule['handler'] extends Function
+        ? TModule['handler']
+        : CommandHandler<TData, TOptions, TReturn>;
+    }
+  : never;
+
+/**
  * Factory function to create a {@linkcode CommandModule} object with strong
  * typing. This is used to define a command with its associated metadata,
  * options, and handler logic.
- *
- * @typeParam TOptions - The `OptionsConfig` type that represents all options
- * for the command.
- * @typeParam TModule - The `CommandModule` type that represents the command.
- *
- * @param options - The config for constructing the {@linkcode CommandModule}.
  *
  * @returns A constructed {@linkcode CommandModule} object with strong types.
  * @group Command
  */
 export function command<
   TOptions extends OptionsConfig,
-  const TModule extends CommandModule<unknown, TOptions>,
->({
-  // Apply defaults
-  requiresSubcommand = false,
-  isMiddleware = true,
-  options = {} as TOptions,
-  handler,
-  description = '',
-}: Partial<TModule> & {
-  options?: TOptions;
-}): TModule {
-  const mod = {
-    description,
-    options,
-    isMiddleware,
-    requiresSubcommand,
-    handler,
-  };
-
-  if (!mod.handler) {
-    Object.assign(mod, passThroughCommand);
-  }
-
-  return mod as TModule;
+  const TModule extends Partial<CommandModule<any, TOptions>>,
+>(
+  config?: CommandFactoryConfig<TOptions, TModule>,
+): CommandFactoryReturn<TModule> {
+  return {
+    isMiddleware: true,
+    handler: (state: CommandState) => state.next(state.data),
+    ...config,
+  } as CommandFactoryReturn<TModule>;
 }
-
-/**
- * A command handler that simply passes the data to the next command in the
- * chain, requiring a subcommand to pass the data to.
- * @group Command
- */
-export const passThroughCommand: CommandModule = {
-  handler: async ({ next, data }) => next(data),
-  requiresSubcommand: true,
-};

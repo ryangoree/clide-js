@@ -8,9 +8,11 @@ export {
 } from 'src/core/client';
 export {
   command,
-  passThroughCommand,
+  type CommandFactoryConfig,
+  type CommandFactoryReturn,
   type CommandHandler,
   type CommandModule,
+  type CommandState,
 } from 'src/core/command';
 export {
   Context,

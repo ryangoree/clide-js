@@ -6,6 +6,7 @@ import {
   type CommandModule,
   type ResolveCommandFn,
   type ResolvedCommand,
+  command,
   parseFileName,
   removeFileExtension,
   resolveCommand,
@@ -179,6 +180,4 @@ export async function commandPrompt(
   return selectionHistory;
 }
 
-const passThroughCommand: CommandModule = {
-  handler: ({ data, next }) => next(data),
-};
+const passThroughCommand = command();
