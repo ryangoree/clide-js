@@ -28,22 +28,27 @@ export interface HelpRows {
    * The command module's description.
    */
   description?: Column;
+
   /**
    * A dynamic usage string based on the resolved commands and their parameters.
    */
   usage: Column;
+
   /**
    * The title for the options section.
    */
   optionsTitle?: Column;
+
   /**
    * A 2 column list of the available options and their descriptions.
    */
   options?: [Column, Column][];
+
   /**
    * The title for the subcommands section.
    */
   subcommandsTitle?: Column;
+
   /**
    * A 2 column list of the available subcommands and their descriptions.
    */
@@ -59,11 +64,13 @@ export type Help = {
    * The help information for the provided command.
    */
   helpText: string;
+
   /**
    * The error message, if any, that occurred while trying to resolve the
    * command.
    */
   error?: Error;
+
   /**
    * The rows that make up the help information for a command, in order of
    * appearance.
@@ -75,6 +82,7 @@ export interface GetHelpOptions {
    * The context object for the command to get help for.
    */
   context: Context;
+
   /**
    * The max line-length for the help text.
    * @default 80

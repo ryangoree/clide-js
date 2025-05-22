@@ -18,7 +18,8 @@ type OptionBaseTypeMap = {
 };
 
 /**
- * The primitive types for {@linkcode OptionConfig.customType custom option} types.
+ * The primitive types to use for
+ * {@linkcode OptionConfig.customType custom option} types.
  *
  * This is used to map each custom option type to its corresponding primitive
  * type. Use [`declaration
@@ -110,34 +111,54 @@ export type OptionConfig<
        * The custom type registered with {@linkcode OptionPrimitiveTypeMap}.
        */
       type: OptionBaseType<T>;
-      /** The custom type of the option. */
+
+      /**
+       * The custom type of the option.
+       * */
       customType?: OptionCustomType<T>;
+
       /**
        * The valid choices for the option (optional). If provided, the getter
        * will validate the value against the choices and, unless otherwise
        * specified, will use the choices when prompting.
        */
-      choices?:  OptionPrimitiveType<T>[];
+      choices?: OptionPrimitiveType<T>[];
+
       /**
        * Whether the option is a string (optional, inferred from `type`). Useful
        * for array options to specify the type of the array values.
        */
       string?: boolean;
-      /** One or more aliases for the option (optional). */
-      alias?: MaybeReadonly<TAlias[]>;
-      /** The description of the option (optional, has default based on `name`). */
-      description?: string;
+
       /**
-       * Whether the option is required. If `true`, the getter will throw an error
-       * if no value is provided (optional).
+       *  One or more aliases for the option (optional).
+       */
+      alias?: MaybeReadonly<TAlias[]>;
+
+      /**
+       *  The description of the option (optional, has default based on `name`).
+       */
+      description?: string;
+
+      /**
+       * Whether the option is required. If `true`, the getter will throw an
+       * error if no value is provided (optional).
        */
       required?: boolean;
-      /** Other options that are required for this option to be used (optional). */
+
+      /**
+       *  Other options that are required for this option to be used (optional).
+       */
       requires?: MaybeReadonly<string[]>;
-      /** Other options that are mutually exclusive with this option (optional). */
+
+      /**
+       *  Other options that are mutually exclusive with this option (optional).
+       */
       conflicts?: MaybeReadonly<string[]>;
 
-      /** The autocomplete function (optional). */
+      /**
+       * The autocomplete function (optional).
+       */
       // TODO: Not implemented yet
       // autoComplete?: (input: string) => MaybePromise<string[]>;
       // autoComplete?: [
@@ -145,20 +166,26 @@ export type OptionConfig<
       // ]
     } & (
       | {
-          /** The number of arguments the option accepts (optional). */
-          nargs?: undefined;
           /**
-           * The default value to use. This will be the initial value that the getter
-           * prompt will show (optional).
+           *  The number of arguments the option accepts (optional).
+           */
+          nargs?: undefined;
+
+          /**
+           * The default value to use. This will be the initial value that the
+           * getter prompt will show (optional).
            */
           default?: OptionPrimitiveType<T> | string;
         }
       | {
-          /** The number of arguments the option accepts (optional). */
-          nargs: number;
           /**
-           * The default value to use. This will be the initial value that the getter
-           * prompt will show (optional).
+           *  The number of arguments the option accepts (optional).
+           */
+          nargs: number;
+
+          /**
+           * The default value to use. This will be the initial value that the
+           * getter prompt will show (optional).
            */
           default?:
             | (OptionPrimitiveType<T> extends (infer T)[]
@@ -267,7 +294,8 @@ export type OptionValues<TOptions extends OptionsConfig = OptionsConfig> =
 // Functions //
 
 /**
- * Factory function to create an {@linkcode OptionConfig} object with strong typing.
+ * Factory function to create an {@linkcode OptionConfig} object with strong
+ * typing.
  *
  * @param config - The config for the option.
  *
@@ -278,7 +306,8 @@ export function option<const T extends OptionConfig = OptionConfig>(config: T) {
 }
 
 /**
- * Factory function to create an {@linkcode OptionsConfig} object with strong typing.
+ * Factory function to create an {@linkcode OptionsConfig} object with strong
+ * typing.
  *
  * @param config - The config for the options.
  *
@@ -315,8 +344,8 @@ export function getOptionTypeFromValue<T>(value: T): OptionType {
 }
 
 /**
- * Get all keys for an option, including the option key, aliases, and
- * camelCased versions of each.
+ * Get all keys for an option, including the option key, aliases, and camelCased
+ * versions of each.
  *
  * @param configKey - The option's key in the command's options config.
  * @param config - The option's config entry.

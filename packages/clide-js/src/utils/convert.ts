@@ -64,13 +64,6 @@ export type Converted<T, TOriginal, TNew> = T extends TOriginal
           T extends object
           ? { [K in keyof T]: Converted<T[K], TOriginal, TNew> }
           : T;
-// export type Converted<T, TOriginal, TNew> = T extends TOriginal
-//   ? TNew
-//   : T extends Array<infer U>
-//     ? Converted<U, TOriginal, TNew>[]
-//     : T extends object
-//       ? { [K in keyof T]: Converted<T[K], TOriginal, TNew> }
-//       : T;
 
 export type ValueOf<T, Acc = never> = T extends T
   ? // Maps

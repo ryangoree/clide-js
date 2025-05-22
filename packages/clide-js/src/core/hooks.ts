@@ -24,28 +24,42 @@ export interface ClideHooks {
    * 1. Initial preparation hook called before command resolution begins.
    */
   beforeResolve: (payload: {
-    /** The raw command string input to the CLI */
+    /**
+     *  The raw command string input to the CLI
+     */
     commandString: string;
-    /** The root directory containing command implementations */
+
+    /**
+     *  The root directory containing command implementations
+     */
     commandsDir: string;
+
     /**
      * Replace the configured command resolution function
      * @param resolveFn - Custom resolution function implementation
      */
     setResolveFn: (resolveFn: ResolveCommandFn) => void;
+
     /**
      * Replace the configured command parsing function
      * @param parseFn - Custom parsing function implementation
      */
     setParseFn: (parseFn: ParseCommandFn) => void;
+
     /**
      * Register additional resolved commands
      * @param resolvedCommands - Array of resolved command objects to add
      */
     addResolvedCommands: (resolvedCommands: ResolvedCommand[]) => void;
-    /** Skip the command resolution phase */
+
+    /**
+     *  Skip the command resolution phase
+     */
     skip: () => void;
-    /** The CLI context object */
+
+    /**
+     *  The CLI context object
+     */
     context: Context;
   }) => MaybePromise<void>;
 
@@ -53,30 +67,47 @@ export interface ClideHooks {
    * 2. Called before resolving each subcommand in the command chain
    */
   beforeResolveNext: (payload: {
-    /** The remaining unresolved portion of the command string */
+    /**
+     *  The remaining unresolved portion of the command string
+     */
     commandString: string;
-    /** The directory containing subcommand implementations */
+
+    /**
+     *  The directory containing subcommand implementations
+     */
     commandsDir: string;
-    /** The previously resolved command in the chain */
+
+    /**
+     *  The previously resolved command in the chain
+     */
     lastResolved: ResolvedCommand;
+
     /**
      * Replace the configured command resolution function
      * @param resolveFn - Custom resolution function implementation
      */
     setResolveFn: (resolveFn: ResolveCommandFn) => void;
+
     /**
      * Replace the configured command parsing function
      * @param parseFn - Custom parsing function implementation
      */
     setParseFn: (parseFn: ParseCommandFn) => void;
+
     /**
      * Register additional resolved commands.
      * @param resolvedCommands - Array of resolved command objects to add
      */
     addResolvedCommands: (resolvedCommands: ResolvedCommand[]) => void;
-    /** Skip resolving this subcommand */
+
+    /**
+     *  Skip resolving this subcommand
+     */
     skip: () => void;
-    /** The CLI context object */
+
+    /**
+     *  The CLI context object
+     */
     context: Context;
   }) => MaybePromise<void>;
 
@@ -227,8 +258,7 @@ export interface ClideHooks {
     params: unknown;
 
     /**
-     * Override the params for the command, fully replacing the existing
-     * params.
+     * Override the params for the command, fully replacing the existing params.
      * @param params - New params to pass.
      */
     setParams: (params: Params) => void;
@@ -499,8 +529,8 @@ export class HookRegistry<THooks extends AnyObject = ClideHooks> {
   }
 
   /**
-   * Call all handlers registered for a hook.
-   * Handlers are called sequentially in registration order.
+   * Call all handlers registered for a hook. Handlers are called sequentially
+   * in registration order.
    * @param hook - The hook to call.
    * @param args - The args to pass to each handler.
    */

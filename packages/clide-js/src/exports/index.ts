@@ -25,7 +25,12 @@ export {
   UsageError,
   type ClideErrorOptions,
 } from 'src/core/errors';
-export type { GetHelpOptions, Help, HelpRows, getHelp } from 'src/core/help';
+export type {
+  GetHelpOptions,
+  Help,
+  HelpRows,
+  getHelp,
+} from 'src/core/help';
 export {
   HookRegistry,
   type HookName,
@@ -46,7 +51,10 @@ export {
   run,
   type RunParams,
 } from 'src/core/run';
-export { State, type NextState } from 'src/core/state';
+export {
+  State,
+  type NextState,
+} from 'src/core/state';
 
 // options
 export {
@@ -105,8 +113,14 @@ export {
   type ParsedCommand,
   type Tokens,
 } from 'src/core/parse';
-export type { Plugin, PluginInfo } from 'src/core/plugin';
-export { help, type HelpPluginOptions } from 'src/plugins/help';
+export type {
+  Plugin,
+  PluginInfo,
+} from 'src/core/plugin';
+export {
+  help,
+  type HelpPluginOptions,
+} from 'src/plugins/help';
 export {
   disableLogger,
   enableLogger,
@@ -117,13 +131,26 @@ export {
 } from 'src/plugins/logger';
 
 // utils
-export { getBin, hideBin } from 'src/utils/argv';
+export {
+  getBin,
+  hideBin,
+} from 'src/utils/argv';
 export { getCallerPath } from 'src/utils/caller-path';
-export { camelCase, type CamelCase } from 'src/utils/camel-case';
+export {
+  camelCase,
+  type CamelCase,
+} from 'src/utils/camel-case';
 export {
   formatFileName,
   parseFileName,
   removeFileExtension,
 } from 'src/utils/filename';
-export { isDirectory, isFile } from 'src/utils/fs';
-export { joinTokens, splitTokens, type JoinableTokens } from 'src/utils/tokens';
+export {
+  isDirectory,
+  isFile,
+} from 'src/utils/fs';
+export {
+  joinTokens,
+  splitTokens,
+  type JoinableTokens,
+} from 'src/utils/tokens';

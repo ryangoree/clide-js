@@ -6,9 +6,7 @@
   "type": "module",
   "bin": "dist/cli.js",
   "main": "dist/cli.js",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "dev": "tsx src/cli.ts",
     "dev:watch": "tsx --watch src/cli.ts",

@@ -47,14 +47,17 @@ export type OptionPromptParams<T extends OptionConfig = OptionConfig> = Replace<
      * The name of the option.
      */
     name: string;
+
     /**
      * The option config.
      */
     config?: T;
+
     /**
      * The client to use for prompting.
      */
     client?: Client;
+
     /**
      * The validation function (optional).
      *
@@ -64,6 +67,7 @@ export type OptionPromptParams<T extends OptionConfig = OptionConfig> = Replace<
      * value is invalid.
      */
     validate?: (value?: PromptPrimitiveType) => MaybePromise<boolean | string>;
+
     /**
      * A function to call when the user cancels a prompt. By default, this will
      * exit the process.

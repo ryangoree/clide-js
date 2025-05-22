@@ -107,7 +107,7 @@ describe('filename', () => {
       // includes special characters
       expect(parseFileName('[p@ram].ts')).toEqual(expected);
 
-      // wrong number of dots for spread operator (= includes special characters)
+      // wrong number of dots for spread operator.
       expect(parseFileName('[.param].ts')).toEqual(expected);
       expect(parseFileName('[..param].ts')).toEqual(expected);
       expect(parseFileName('[....param].ts')).toEqual(expected);

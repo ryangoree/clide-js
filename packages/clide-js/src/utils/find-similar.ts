@@ -8,6 +8,7 @@ interface FindSimilarOptions {
    * @default 2
    */
   threshold?: number;
+
   /**
    * The maximum number of results to return.
    * @default 4

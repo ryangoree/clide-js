@@ -5,9 +5,7 @@
   "private": true,
   "bin": "cli.js",
   "main": "cli.js",
-  "files": [
-    "cli"
-  ],
+  "files": ["cli"],
   "scripts": {
     "dev": "NODE_ENV=development node cli.js",
     "prod": "node cli.js"

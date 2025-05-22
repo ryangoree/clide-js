@@ -16,10 +16,12 @@ export interface LoggerHooks {
    * Turns the logger on.
    */
   enableLogger: () => void;
+
   /**
    * Turns the logger off.
    */
   disableLogger: () => void;
+
   /**
    * Toggles the logger on or off.
    */

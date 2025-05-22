@@ -77,31 +77,38 @@ export interface ResolvedCommand {
    * The command object associated with the resolved command.
    */
   command: CommandModule;
+
   /**
    * The path to the resolved command file.
    */
   commandPath: string;
+
   /**
    * The name of the resolved command.
    */
   commandName: string;
+
   /**
    * The command tokens that were resolved.
    */
   commandTokens: string[];
+
   /**
    * The part of the command string that has not yet been resolved.
    */
   remainingCommandString: string;
+
   /**
    * The path to the directory where the command's subcommands should live.
    */
   subcommandsDir: string;
+
   /**
    * A function to resolve the next command, if any, based on the remaining
    * command string.
    */
   resolveNext?: () => MaybePromise<ResolvedCommand>;
+
   /**
    * The params associated with the resolved command.
    */
@@ -115,10 +122,16 @@ export interface ResolvedCommand {
  * @group Resolve
  */
 export interface ResolveCommandParams {
-  /** The command string to resolve a command file for. */
+  /**
+   *  The command string to resolve a command file for.
+   */
   commandString: string;
-  /** The path to the directory containing the command files. */
+
+  /**
+   *  The path to the directory containing the command files.
+   */
   commandsDir: string;
+
   /**
    * A function to parse the command string and options. Used to determine if
    * the command string contains any options and to remove them from the
@@ -244,6 +257,7 @@ export async function resolveCommand({
 
 interface PrepareResolvedCommandParams {
   resolved: ResolvedCommand;
+
   /**
    * A function to parse the command string and options. Used to determine if
    * the command string contains any options and to remove them from the

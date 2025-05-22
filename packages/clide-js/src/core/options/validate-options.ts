@@ -217,14 +217,17 @@ export function validateOptionType({
    * The option value to validate.
    */
   value: unknown;
+
   /**
    * The name of the option.
    */
   name: string;
+
   /**
    * The option config.
    */
   config: OptionConfig;
+
   /**
    * Whether to throw an error if the value is invalid.
    *

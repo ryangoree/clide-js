@@ -37,21 +37,44 @@ export class SubcommandRequiredError extends UsageError {
  * @group Context
  */
 export interface ContextParams<TOptions extends OptionsConfig = OptionsConfig> {
-  /** The command string to be executed */
+  /**
+   *  The command string to be executed
+   */
   commandString: string;
-  /** The path to the directory containing command modules */
+
+  /**
+   *  The path to the directory containing command modules
+   */
   commandsDir: string;
-  /** The standard streams client */
+
+  /**
+   *  The standard streams client
+   */
   client?: Client;
-  /** The hooks emitter */
+
+  /**
+   *  The hooks emitter
+   */
   hooks?: HookRegistry;
-  /** A list of plugins to load */
+
+  /**
+   *  A list of plugins to load
+   */
   plugins?: Plugin[];
-  /** The options config for the command */
+
+  /**
+   *  The options config for the command
+   */
   options?: TOptions;
-  /** An optional function to replace the default command resolver */
+
+  /**
+   *  An optional function to replace the default command resolver
+   */
   resolveFn?: ResolveCommandFn;
-  /** An optional function to replace the default command parser */
+
+  /**
+   *  An optional function to replace the default command parser
+   */
   parseFn?: ParseCommandFn;
 }
 
@@ -102,14 +125,26 @@ export interface ContextParams<TOptions extends OptionsConfig = OptionsConfig> {
  * @group Context
  */
 export class Context<TOptions extends OptionsConfig = OptionsConfig> {
-  /** The command string to be executed. */
+  /**
+   *  The command string to be executed.
+   */
   readonly commandString: string;
-  /** The path to the directory containing command modules. */
+
+  /**
+   *  The path to the directory containing command modules.
+   */
   readonly commandsDir: string;
-  /** The standard streams client. */
+
+  /**
+   *  The standard streams client.
+   */
   readonly client: Client;
-  /** The hooks emitter. */
+
+  /**
+   *  The hooks emitter.
+   */
   readonly hooks: HookRegistry;
+
   /**
    * Metadata about the plugins that will be used during preparation and
    * execution.
@@ -175,19 +210,30 @@ export class Context<TOptions extends OptionsConfig = OptionsConfig> {
 
   // Getters //
 
-  /** The options config for the command. */
+  /**
+   *  The options config for the command.
+   */
   get options() {
     return this.#options;
   }
-  /** A list of the resolved commands. */
+
+  /**
+   *  A list of the resolved commands.
+   */
   get resolvedCommands() {
     return this.#resolvedCommands;
   }
-  /** The parsed option values for the command. */
+
+  /**
+   *  The parsed option values for the command.
+   */
   get parsedOptions() {
     return this.#parsedOptions;
   }
-  /** The result of the most recent execution. */
+
+  /**
+   *  The result of the most recent execution.
+   */
   get result() {
     return this.#result;
   }

@@ -48,20 +48,24 @@ export interface CommandModule<
    * A description of the command that will be displayed in the help menu.
    */
   description?: string;
+
   /**
    * The options config for the command.
    */
   options?: TOptions;
+
   /**
    * If `true`, the command will be executed before the next command in the
    * chain.
    * @default true
    */
   isMiddleware?: boolean;
+
   /**
    * If `true`, the command will require a subcommand to be executed.
    */
   requiresSubcommand?: boolean;
+
   /**
    * The command handler. This is where the command's logic is executed.
    */

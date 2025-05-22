@@ -112,12 +112,21 @@ export interface CreateOptionsGetterOptions<
   TOptionsConfig extends OptionsConfig,
   TOptions extends OptionValues = {},
 > {
-  /** The options config. */
+  /**
+   *  The options config.
+   */
   optionsConfig: TOptionsConfig;
-  /** The initial option values. */
+
+  /**
+   *  The initial option values.
+   */
   optionValues?: TOptions;
-  /** The client to use for prompting. */
+
+  /**
+   *  The client to use for prompting.
+   */
   client?: Client;
+
   /**
    * A function to call when the user cancels a prompt. By default, this will
    * exit the process.

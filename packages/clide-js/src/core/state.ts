@@ -25,20 +25,28 @@ export interface NextState {
 // Classes + Class Types //
 
 interface StateParams<TData = unknown> {
-  /** The context for the command. */
+  /**
+   *  The context for the command.
+   */
   context: Context;
-  /** The initial data for the steps. */
+
+  /**
+   *  The initial data for the steps.
+   */
   initialData?: TData;
+
   /**
    * The commands to execute. If not provided, it defaults to the commands
    * resolved from the context.
    */
   commands?: ResolvedCommand[];
+
   /**
    * The options config to use when creating the options getter. If not
    * provided, it defaults to the options config from the context.
    */
   options?: OptionsConfig;
+
   /**
    * The option values to use when creating the options getter. If not provided,
    * it defaults to the parsed options from the context.
@@ -80,7 +88,10 @@ export class State<
    * worry about awaiting the next step or returning a promise.
    */
   #executionPromise: Promise<void> | undefined;
-  /** A function that resolves the promise when called. */
+
+  /**
+   *  A function that resolves the promise when called.
+   */
   #resolvePromise: (() => void) | undefined;
 
   constructor({
@@ -192,8 +203,8 @@ export class State<
   /**
    * Continue to the next step in the command chain or end the steps if there
    * are no more steps.
-   * @param data - The data to pass to the next step. If not provided, the current data
-   * will be used.
+   * @param data - The data to pass to the next step. If not provided, the
+   * current data will be used.
    * @returns The data from the last command.
    */
   readonly next = async (data = this.#data): Promise<unknown> => {
@@ -327,11 +338,13 @@ export class State<
      * The commands to execute.
      */
     commands: (TCommand | ResolvedCommand)[];
+
     /**
      * The initial data to pass to the forked state. If not provided, the
      * current data will be used.
      */
     initialData?: unknown;
+
     /**
      * Options to merge/override the current options.
      */
@@ -340,6 +353,7 @@ export class State<
         ? TCommand['options']
         : OptionsConfig
     >;
+
     /**
      * Parameters to merge/override the current parameters.
      */
