@@ -29,7 +29,7 @@ type OptionBaseTypeMap = {
  * @example
  * ```ts
  * declare module 'clide-js' {
- *   interface OptionCustomTypeMap {
+ *   interface CustomOptionTypes {
  *     hex: `0x${string}`;
  *     hexArray: `0x${string}`[];
  *   }
@@ -38,11 +38,11 @@ type OptionBaseTypeMap = {
  *
  * @group Options
  */
-export interface OptionCustomTypeMap {}
+export interface CustomOptionTypes {}
 
 export interface OptionPrimitiveTypeMap
   extends OptionBaseTypeMap,
-    OptionCustomTypeMap {}
+    CustomOptionTypes {}
 
 /**
  * The possible types for an option.
