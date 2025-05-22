@@ -11,10 +11,6 @@
     "isolatedModules": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
-    "paths": {
-      "src/*": ["src/*"]
-    },
 
     // Type Checking
     "skipLibCheck": true,
