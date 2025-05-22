@@ -29,7 +29,6 @@
     "rootDir": "src",
     "outDir": "dist",
     "declaration": false,
-    "sourceMap": true,
     "esModuleInterop": true
   }
 }
