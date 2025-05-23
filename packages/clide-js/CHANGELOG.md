@@ -1,5 +1,11 @@
 # clide-js
 
+## 0.3.0-next.9
+
+### Patch Changes
+
+- 7ed4401: Modified `Client` to extend `Console` from node.
+
 ## 0.3.0-next.8
 
 ### Patch Changes

@@ -5,13 +5,15 @@
   "private": true,
   "bin": "cli.js",
   "main": "cli.js",
-  "files": ["cli"],
+  "files": [
+    "cli"
+  ],
   "scripts": {
     "dev": "NODE_ENV=development node cli.js",
     "prod": "node cli.js"
   },
   "dependencies": {
-    "clide-js": "0.3.0-next.8",
+    "clide-js": "0.3.0-next.9",
     "clide-plugin-command-menu": "0.3.0-next.2"
   }
 }
