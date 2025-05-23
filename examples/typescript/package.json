@@ -6,7 +6,9 @@
   "type": "module",
   "bin": "dist/cli.js",
   "main": "dist/cli.js",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "tsx src/cli.ts",
     "dev:watch": "tsx --watch src/cli.ts",
@@ -15,7 +17,7 @@
     "watch": "tsc --watch"
   },
   "dependencies": {
-    "clide-js": "0.3.0-next.8",
+    "clide-js": "0.3.0-next.9",
     "clide-plugin-command-menu": "0.3.0-next.2"
   },
   "devDependencies": {
