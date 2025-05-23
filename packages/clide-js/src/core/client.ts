@@ -1,3 +1,5 @@
+import { Console } from 'node:console';
+import process from 'node:process';
 import prompts, { type PromptObject, type PromptType } from 'prompts';
 import { ClideError, type ClideErrorOptions } from 'src/core/errors';
 import type { KeyMap, Replace } from 'src/utils/types';
@@ -75,13 +77,9 @@ export type PromptParams<T extends PromptType = PromptType> = Replace<
  * [prompts](https://github.com/terkelg/prompts).
  * @group Client
  */
-export class Client {
-  /**
-   * Log a message to stdout.
-   * @param message - Any number of arguments to log.
-   */
-  log(...message: unknown[]) {
-    console.log(...message);
+export class Client extends Console {
+  constructor({ stdout = process.stdout, stderr = process.stderr } = {}) {
+    super({ stdout, stderr });
   }
 
   /**
@@ -89,7 +87,7 @@ export class Client {
    * @param error - The error to log.
    * @returns The error wrapped in a {@linkcode ClientError}.
    */
-  error(error: unknown) {
+  override error(error: unknown) {
     const clientError = new ClientError(error);
     console.error(
       `\n${
@@ -99,14 +97,6 @@ export class Client {
       }`,
     );
     return clientError;
-  }
-
-  /**
-   * Log a warning message to stdout.
-   * @param warning - Any number of arguments to log.
-   */
-  warn(...warning: any) {
-    console.warn(...warning);
   }
 
   /**

@@ -19,7 +19,6 @@
     "clide-plugin-command-menu": "0.3.0-next.2"
   },
   "devDependencies": {
-    "@tsconfig/node-lts": "^22.0.1",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"
   }
